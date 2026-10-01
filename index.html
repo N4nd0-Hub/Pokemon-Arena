@@ -106,6 +106,31 @@ h2{font-weight:900;line-height:1.05;letter-spacing:.015em}
 @media(max-width:750px){.work-item-results{grid-template-columns:1fr;max-height:305px}.work-item-filters{grid-template-columns:1fr 1fr}.work-mega-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:500px){.work-item-filters{grid-template-columns:1fr}.work-bag-grid{grid-template-columns:1fr 1fr}.work-bag-row{grid-template-columns:minmax(0,1fr) 41px;padding:8px}.work-bag-row input{width:40px}.work-mega-panel .work-section-head{align-items:flex-start}.work-mega-banner{padding:13px}.work-mega-banner strong{font-size:22px}.mega-gem{font-size:50px}.work-mega-card{grid-template-columns:61px minmax(0,1fr);gap:8px;padding:9px}.work-mega-card-art{width:61px;height:65px}.work-mega-card-art img{width:60px;height:61px}.work-mega-card-copy strong{font-size:20px}.work-mega-card-actions .btn{flex:1 1 89px}.work-preview-switch{grid-template-columns:1fr}.work-mega-builder>summary{align-items:flex-start}.work-mega-builder>summary small{max-width:140px}.battle-extra-row{display:grid;grid-template-columns:1fr 1fr}.battle-extra-row select:first-child{grid-column:1/-1}.battle-bag-control .btn{grid-column:2}.battle-extras{gap:8px}}
 
+
+/* Keep roster sections at their natural height inside the scroll region. */
+#playDialog .roster-panel{min-width:0}
+#playDialog .roster-toolbar{margin:0 0 14px;display:flex;justify-content:space-between;align-items:center}
+#playDialog .roster-toolbar b{font-size:12px}
+.roster-search-label{display:block;font-size:10px;color:var(--muted);margin-bottom:7px}
+#rosterSearch{width:100%;margin-bottom:14px}
+#roster.game-box-list{display:block;max-height:clamp(250px,45dvh,480px);overflow-y:auto;overflow-x:hidden;scrollbar-gutter:stable;overscroll-behavior:contain;padding:2px 7px 2px 2px;min-width:0}
+#roster .box-group{display:block;min-width:0;margin:0 0 18px}
+#roster .box-group:last-child{margin-bottom:0}
+#roster .box-pokemon{min-width:0;height:auto}
+#roster .box-name{flex-wrap:wrap;row-gap:2px}
+#roster .box-name>b{min-width:0;max-width:100%;font-size:11px;line-height:1.6}
+#roster .box-name small{flex:none;line-height:1.6}
+#roster .box-hp>i{min-width:20px}
+#roster .box-hp small{flex:none}
+#roster .box-pokemon-select{gap:6px}
+#roster .box-thumb{width:42px;height:48px}
+.roster-import{margin-top:18px;padding-top:15px;border-top:1px solid var(--line);min-width:0}
+.roster-import h3{font:800 11px var(--font-ui);color:var(--muted);text-transform:uppercase;margin:0 0 10px;line-height:1.6}
+#playDialog .roster-import .dropzone{min-height:80px;padding:12px;overflow-wrap:anywhere}
+#playDialog .roster-import .import-top{display:flex;flex-direction:column;align-items:stretch;margin-top:10px}
+#playDialog .party-slot-actions{flex-wrap:wrap}
+@media(max-width:760px){#roster.game-box-list{max-height:clamp(250px,42dvh,360px)}}
+
 </style>
 <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js" async></script>
 <style>
@@ -390,13 +415,18 @@ html[data-font-theme="arcade"] .arena-topbar .logo strong{font-size:10px}html[da
  </div><p class="home-description">Lugar para nós testarmos o sistema de batalha e experimentos para adiantar melhorias para o sistema. <span>-by N4ND0_0</span></p><button type="button" id="resumeBattle" class="btn ghost mini" hidden>↩ Continuar batalha em andamento</button></div>
 </section>
 <dialog id="playDialog" class="play-dialog" data-mode="offline" aria-labelledby="playTitle"><div class="play-dialog-head"><div><span class="eyebrow">PREPARE SUA PARTIDA</span><h2 id="playTitle">Jogar</h2></div><button id="playClose" class="dialog-close" type="button" aria-label="Fechar seleção de partida">✕</button></div><div class="play-modes" aria-label="Tipo de partida"><button type="button" data-play-mode="offline" aria-pressed="true">Offline</button><button type="button" data-play-mode="host" aria-pressed="false">Criar online</button><button type="button" data-play-mode="join" aria-pressed="false">Entrar online</button></div><div class="play-dialog-scroll">  <div class="match-layout">
-    <div class="panel"><div class="panel-head"><div><div class="section-label">SUA BOX</div><h2>Seus Pokémon</h2><p>Importe a Ficha V5 ou escolha uma equipe de teste.</p></div></div>
-      <label class="dropzone" id="dropzone" for="fileInput"><span class="icon">⇪</span><strong>ARRASTE OU ESCOLHA SEU ARQUIVO .JSON</strong><span class="helper">O arquivo inteiro permanece no seu navegador. Somente os Pokémon selecionados são compartilhados na partida.</span></label>
-      <input type="file" id="fileInput" accept=".json,application/json" multiple hidden>
-      <div class="import-top"><button class="btn secondary mini" id="demoBtn">◉ CARREGAR EQUIPE DE TESTE</button><span class="helper" id="importInfo">Nenhuma ficha carregada.</span></div>
-      <div class="roster-toolbar"><div><b style="font-size:13px">SELEÇÃO DE POKÉMON</b><div class="helper">Até 6 por treinador • 5 Moves ativos por Pokémon</div></div><span class="pill" id="selectedCount">0 / 6</span></div>
-      <input id="rosterSearch" type="search" class="input box-search" placeholder="Buscar Pokémon na Box..." aria-label="Buscar Pokémon na Box"><div id="roster" class="game-box-list"><div class="helper">Seus Pokémon aparecerão aqui depois da importação.</div></div>
-      <div class="hint-banner" id="importNotice">As Abilities são identificadas pelo nome. As regras do compêndio ficam disponíveis para consulta, mas algumas interações especiais ainda precisam de resolução manual.</div>
+    <div class="panel roster-panel">
+      <div class="roster-toolbar"><div><b>SEUS POKÉMON</b><div class="helper">Até 6 na equipe · 5 Moves ativos por Pokémon</div></div><span class="pill" id="selectedCount">0 / 6</span></div>
+      <label class="roster-search-label" for="rosterSearch">Barra de pesquisa</label>
+      <input id="rosterSearch" type="search" class="input box-search" placeholder="Buscar Pokémon na Box..." aria-label="Buscar Pokémon na Box">
+      <div id="roster" class="game-box-list" tabindex="0" role="region" aria-label="Favoritos, equipe e Box"></div>
+      <section class="roster-import" aria-labelledby="rosterImportTitle">
+        <h3 id="rosterImportTitle">⇪ Importar Equipe</h3>
+        <label class="dropzone" id="dropzone" for="fileInput"><span class="icon">⇪</span><strong>ARRASTE OU ESCOLHA SEU ARQUIVO .JSON</strong><span class="helper">Importe seus Pokémon da Ficha V5.</span></label>
+        <input type="file" id="fileInput" accept=".json,application/json" multiple hidden>
+        <div class="import-top"><button class="btn secondary mini" id="demoBtn">◉ CARREGAR EQUIPE DE TESTE</button><span class="helper" id="importInfo">Nenhuma ficha carregada.</span></div>
+        <details class="box-ability-note"><summary>Sobre a importação</summary><p class="helper">O arquivo permanece no seu navegador. Apenas a equipe selecionada é compartilhada na partida.</p><div class="hint-banner" id="importNotice">As Abilities são identificadas pelo nome. Algumas interações especiais precisam de resolução manual.</div></details>
+      </section>
     </div>
     <div class="panel matchmaking-panel"><div class="party-heading"><div><span class="section-label">SUA EQUIPE</span><h2>Prontos para batalhar</h2></div><span id="partyCount" class="pill">0 / 6</span></div><p class="helper">Escolha até seis Pokémon na Box. O primeiro inicia a batalha; use as setas para ordenar.</p><div id="partySlots" class="party-slots"></div>
       <div class="room-wrap room-practice"><b style="font-size:14px">🧪 LABORATÓRIO DE TREINO</b><p class="helper" style="margin:6px 0 12px">Teste seus Moves e veja o cálculo do sistema contra outro Pokémon importado. A IA escolhe ações básicas.</p>
@@ -1161,6 +1191,7 @@ const selectedEntries=()=>Array.from(chosen).map(key=>library.find(x=>x.key===ke
 const blank=label=>`<span class="muted small">${safe(label)}</span>`;
 function addEntries(list,select=false,sources=null){let newCount=0;for(const [i,p] of list.entries()){if(library.length>=200)break;const key='pk'+nextKey++;library.push({key,p,source:sources?.[i]||p});if(select&&chosen.size<6)chosen.add(key);newCount++;}renderRoster();notify(`${newCount} Pokémon carregado(s).`);}
 function renderRoster(){
+ const rosterScroll=el('roster').scrollTop;
  el('selectedCount').textContent=`${chosen.size} / 6`;el('importInfo').textContent=`${library.length} Pokémon na Box · ${chosen.size} na equipe`;
  const query=HH.normalizeName(el('rosterSearch')?.value||'');
  const visible=library.filter(({p})=>!query||HH.normalizeName(p.name+' '+p.types.join(' ')+' '+p.abilityName).includes(query));
@@ -1171,7 +1202,9 @@ function renderRoster(){
   return `<div class="box-pokemon${selected?' selected':''}"><label class="box-pokemon-select"><input type="checkbox" data-pick="${key}" aria-label="Selecionar ${safe(p.name)} para a equipe" ${selected?'checked':''}><span class="box-thumb">${imageOk?`<img src="${safe(image)}" alt="" loading="lazy">`:'◓'}</span><span class="box-copy"><span class="box-name"><b>${safe(p.name)}</b><small>Lv.${p.level}</small></span><span class="box-types">${p.types.map(t=>`<span style="--type:${typeColors[t]||'#77838d'}">${safe(t)}</span>`).join('')}</span><span class="box-hp"><small>HP</small><i><em></em></i><small>${hp}</small></span></span></label><button type="button" data-favorite="${key}" class="box-favorite" aria-label="${isFavorite?'Remover':'Adicionar'} ${safe(p.name)} ${isFavorite?'dos':'aos'} favoritos" aria-pressed="${isFavorite}">★</button></div>`;
  }
  function group(title,list,empty){return `<section class="box-group"><h3>${title}<span>${list.length}</span></h3>${list.length?list.map(card).join(''):`<p class="box-empty">${empty}</p>`}</section>`;}
- el('roster').innerHTML=library.length?group('★ Favoritos',visible.filter(x=>favorites.has(x.key)),'Marque ★ nos seus favoritos.')+group('◓ Equipe',visible.filter(x=>chosen.has(x.key)),'Selecione Pokémon da Box para montar a equipe.')+group('□ Box',visible.filter(x=>!chosen.has(x.key)),'Nenhum Pokémon nesta categoria.'):'<div class="box-empty">Importe sua ficha ou carregue a equipe de teste para começar.</div>';
+ const team=selectedEntries().filter(x=>visible.includes(x));
+ el('roster').innerHTML=group('★ Favoritos',visible.filter(x=>favorites.has(x.key)),'Marque ★ nos seus favoritos.')+group('◓ Equipe',team,'Selecione Pokémon da Box para montar a equipe.')+group('□ Box',visible.filter(x=>!chosen.has(x.key)),library.length?'Nenhum Pokémon nesta categoria.':'Importe uma equipe abaixo ou carregue a equipe de teste.');
+ el('roster').scrollTop=rosterScroll;
  for(const input of el('roster').querySelectorAll('[data-pick]'))input.addEventListener('change',()=>{const key=input.dataset.pick;if(input.checked){if(chosen.size>=6){input.checked=false;notify('Limite de 6 Pokémon por treinador.');return;}chosen.add(key);}else chosen.delete(key);renderRoster();el('roster').querySelector(`[data-pick="${key}"]`)?.focus({preventScroll:true});});
  for(const button of el('roster').querySelectorAll('[data-favorite]'))button.addEventListener('click',()=>{const key=button.dataset.favorite;if(favorites.has(key))favorites.delete(key);else favorites.add(key);renderRoster();el('roster').querySelector(`[data-favorite="${key}"]`)?.focus({preventScroll:true});});
  const previous=el('localOpponent').value;el('localOpponent').innerHTML='<option value="">Selecione um Pokémon</option>'+library.map(({key,p})=>`<option value="${key}">${safe(p.name)} · Lv.${p.level}</option>`).join('');
