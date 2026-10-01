@@ -731,6 +731,7 @@ html[data-font-theme="arcade"] .arena-topbar .logo strong{font-size:10px}html[da
         <div class="work-presets" id="workPresets"><span class="work-presets-label">COMEÇAR RÁPIDO</span><button class="work-preset" type="button" data-preset="sceptile">🌿 Sceptile</button><button class="work-preset" type="button" data-preset="charizard">🔥 Charizard</button><button class="work-preset" type="button" data-preset="gengar">👻 Gengar</button><button class="work-preset" type="button" data-preset="lucario">🥊 Lucario</button><button class="work-preset" type="button" data-preset="custom">＋ Fakemon</button></div>
         <div class="work-form-grid">
           <div class="field field-wide"><label for="workName">NOME / APELIDO</label><input id="workName" class="input" maxlength="70" placeholder="Nome do Pokémon"></div>
+          <div class="field"><label for="workWeight">PESO (kg)</label><input id="workWeight" class="input" type="number" min="0.1" max="9999" step="0.1" placeholder="Automático pela espécie"><small>Usado por Low Kick, Grass Knot, Heavy Slam e Heat Crash.</small></div><div class="field"><label for="workGender">GÊNERO</label><select id="workGender" class="input"><option value="N">Não definido / sem gênero</option><option value="M">Masculino</option><option value="F">Feminino</option></select></div><div class="field"><label for="workSnowWeather">SNOW WARNING</label><select id="workSnowWeather" class="input"><option value="hail">Hail / granizo</option><option value="snow">Snow / neve</option></select></div><div class="field"><label for="workHappiness">AMIZADE</label><input id="workHappiness" class="input" type="number" min="0" max="255" value="255"></div>
           <div class="field"><label for="workLevel">NÍVEL</label><input id="workLevel" class="input" type="number" min="1" max="100" value="30"></div>
           <div class="field"><label for="workNature">NATURE</label><select id="workNature" class="input"></select></div>
           <div class="field"><label for="workType1">TIPO PRIMÁRIO</label><select id="workType1" class="input"></select></div>
@@ -863,7 +864,7 @@ html[data-font-theme="arcade"] .arena-topbar .logo strong{font-size:10px}html[da
   </div>
   <div class="combat-footer"><div class="panel"><div class="panel-head"><div><div class="section-label">03 // COMANDOS</div><h2>Seu próximo movimento</h2><p id="commandHelp">Escolha o Move e, se quiser, marque a esquiva desta rodada.</p></div><span class="pill" id="moveCount">0 MOVES</span></div>
 <p id="damageModeHint" class="helper damage-mode-hint" hidden>Damage Matrix v0.2 · BP define dados; atributos definem a QD; nível soma dano fixo. STAB e bônus continuam em d6.</p><p id="lastDamageText" class="helper matrix-last-damage" hidden></p>
-    <div class="moves-grid" id="myMoves" style="margin-top:12px"></div><details id="matrixMoveDetails" class="matrix-move-details" hidden><summary>🧪 Ver cálculo dos Moves · Qualidade, QD e fixos</summary><div id="matrixMovePreviews" class="matrix-preview-grid"></div><p class="helper">Prévia da base contra o alvo atual, considerando atributos com buffs e itens. Abilities, itens, campo e reduções adicionais são resolvidos na rodada. No crítico natural, Multi-Hit usa o máximo natural de hits.</p></details>
+    <div class="special-command-controls" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px"><label style="flex:1;min-width:170px">AMBIENTE<select class="input" id="battleEnvironment"><option value="building">Arena / construção</option><option value="grass">Campo de grama</option><option value="forest">Floresta</option><option value="water">Água</option><option value="cave">Caverna</option><option value="sand">Areia</option><option value="snow">Neve</option><option value="sky">Céu</option><option value="space">Espaço</option></select></label><label style="flex:1;min-width:170px">DESTINO DOS MOVES DE TROCA<select class="input" id="pivotTarget"></select></label><button class="btn ghost" id="struggleBtn" hidden>STRUGGLE · SEM MOVES DISPONÍVEIS</button></div><div class="moves-grid" id="myMoves" style="margin-top:12px"></div><details id="matrixMoveDetails" class="matrix-move-details" hidden><summary>🧪 Ver cálculo dos Moves · Qualidade, QD e fixos</summary><div id="matrixMovePreviews" class="matrix-preview-grid"></div><p class="helper">Prévia da base contra o alvo atual, considerando atributos com buffs e itens. Abilities, itens, campo e reduções adicionais são resolvidos na rodada. No crítico natural, Multi-Hit usa o máximo natural de hits.</p></details>
     <div class="battle-command-options"><button id="roundDodge" type="button" class="btn round-dodge" aria-pressed="false">↺ Esquivar nesta rodada <small>Evasiva Reativa −25</small></button><span class="helper">A opção desmarca ao passar a rodada.</span></div><select id="evadeSelect" hidden aria-hidden="true" tabindex="-1"><option value="none">Sem Evasiva</option><option value="reactive">Evasiva Reativa −25</option></select>
 
 <div class="controls-bar"><button class="btn secondary" id="activeEvasionBtn">↺ EVASIVA ATIVA −50</button><button class="btn" id="passBtn">PASSAR TURNO</button></div>
@@ -988,7 +989,8 @@ const normalizeName=n=>String(n||'').toLowerCase().normalize('NFD').replace(/[\u
 const AUTO=new Set(AUTO_ABILITIES.map(x=>normalizeName(x)));
 const AUTOMATIC_ITEMS=['Leftovers','Black Sludge','Oran Berry','Sitrus Berry','Lum Berry','Cheri Berry','Chesto Berry','Pecha Berry','Rawst Berry','Aspear Berry','Persim Berry','Life Orb','Choice Band','Choice Specs','Choice Scarf','Assault Vest','Eviolite','Rocky Helmet','Focus Sash','Expert Belt','Muscle Band','Wise Glasses','Shell Bell','Light Clay','Heat Rock','Damp Rock','Smooth Rock','Icy Rock','White Herb','Mental Herb'];
 const AUTOMATIC_ITEM_KEYS=new Set(AUTOMATIC_ITEMS.map(normalizeName));
-const held=(f,n)=>normalizeName(f?.heldItem)===normalizeName(n);
+const effectiveHeldName=f=>f&&!f._magicRoom&&!f.flags?.fx?.embargo?normalizeName(f.heldItem):'';
+const held=(f,n)=>!f?false:!f._magicRoom&&!f.flags?.fx?.embargo&&normalizeName(f.heldItem)===normalizeName(n);
 const BAG_ITEMS={Potion:{heal:20},'Super Potion':{heal:50},'Hyper Potion':{heal:200},'Max Potion':{heal:'max'},'Full Restore':{heal:'max',cleanse:true},'Full Heal':{cleanse:true},Revive:{revive:0.5},'Max Revive':{revive:1},'Energy Powder':{heal:50},'Energy Root':{heal:200},'Heal Powder':{cleanse:true},'Revival Herb':{revive:1},Antidote:{cures:['poison','toxic']},'Burn Heal':{cures:['burn','deepburn']},'Ice Heal':{cures:['freeze']},Awakening:{cures:['sleep']},'Paralyze Heal':{cures:['paralysis']},'Fresh Water':{heal:50},'Soda Pop':{heal:60},Lemonade:{heal:80},'Moomoo Milk':{heal:100},'Berry Juice':{heal:20},'X Attack':{stat:'atk'},'X Defense':{stat:'def'},'X Sp. Atk':{stat:'spa'},'X Sp. Def':{stat:'spd'},'X Speed':{stat:'spe'},'X Accuracy':{stat:'accuracy'},'Lava Cookie':{cleanse:true},'Old Gateau':{cleanse:true},'Sweet Heart':{heal:20},Casteliacone:{cleanse:true},'Lumiose Galette':{cleanse:true},'Shalour Sable':{cleanse:true},'Big Malasada':{cleanse:true},'Pewter Crunchies':{cleanse:true}};
 const bagName=n=>Object.keys(BAG_ITEMS).find(x=>normalizeName(x)===normalizeName(n))||'';
 for(const n of Object.keys(BAG_ITEMS))AUTOMATIC_ITEM_KEYS.add(normalizeName(n));
@@ -1071,12 +1073,12 @@ function matrixPower(a,m){let power=m.power;
 }
 function matrixProfile(a,d,m,naturalCritical=false){
  if(m.category==='Status'||m.power<=0)return null;
- const offensiveKey=m.category==='Physical'?'atk':'spa',defensiveKey=m.category==='Physical'?'def':'spd';
- const offensiveStat=effStat(a,offensiveKey),defensiveStat=effStat(d,defensiveKey);
+ const offensiveKey=m.offensiveKey||(m.category==='Physical'?'atk':'spa'),defensiveKey=m.defensiveKey||(m.category==='Physical'?'def':'spd');
+ const offensiveStat=effStat(m.offensiveSide!==undefined&&m.offensiveSide!==m.attackerSide?d:a,offensiveKey),defensiveStat=effStat(m.ignoreDefStages?{...d,effects:d.effects.filter(e=>e.stat!==defensiveKey)}:d,defensiveKey);
  const offensiveQuality=matrixQuality(offensiveStat),defensiveQuality=matrixQuality(defensiveStat),gap=offensiveQuality-defensiveQuality;
  const hits=matrixHitCount(a,m,naturalCritical),effectiveBP=matrixPower(a,m)*hits,bpData=matrixBPData(effectiveBP);
  let count=bpData.diceCount,qd=matrixQD(gap);
- const effectiveness=matchup(m.type,d),index=MATRIX_QDS.indexOf(qd);
+ const effectiveness=matchup(m.type,d,m.name),index=MATRIX_QDS.indexOf(qd);
  if(effectiveness>1){count++;qd=MATRIX_QDS[Math.min(7,index+1)];}
  else if(effectiveness>0&&effectiveness<1){count=Math.max(1,count-1);qd=MATRIX_QDS[Math.max(0,index-1)];}
  const levelBonus=matrixLevelBonus(a.level),fixedBase=levelBonus,baseExpression=matrixBaseExpression(count,qd);
@@ -1185,7 +1187,7 @@ function alive(g,s){return g.team[s].some(p=>p.hp>0);}
 function weather(g){return g.weather?.id||'';}
 function terrain(g){return g.terrain?.id||'';}
 function refreshWeather(g){for(let s=0;s<2;s++)for(const f of g.team[s])f._weather=g.weather?.id||'';}
-function setWeather(g,id,owner=null){const names={sun:'☀ Sol',rain:'🌧 Chuva',sand:'🏜 Tempestade de areia',hail:'❄ Granizo',snow:'❄ Neve'};
+function setWeather(g,id,owner=null){const names={sun:'☀ Sol',rain:'🌧 Chuva',sand:'🏜 Tempestade de areia',hail:'❄ Granizo',snow:'❄ Neve',wind:'🌪 Strong Winds'};
  if(id==='none'){g.weather=null;refreshWeather(g);log(g,'O clima voltou ao normal.','field');return;}
  const holder=owner!==null?active(g,owner):null;const rocks={sun:'Heat Rock',rain:'Damp Rock',sand:'Smooth Rock',hail:'Icy Rock',snow:'Icy Rock'};
  const turns=holder&&held(holder,rocks[id])?8:5;
@@ -1259,17 +1261,17 @@ function addStatus(g,s,id,source='',reflected=false){const f=active(g,s);if(!f||
  visual(g,{kind:'status',side:s,name:id});
  f.status={id,remaining:id==='sleep'?(has(f,'Early Bird')?Math.min(roll(3),roll(3)):roll(3)):id==='freeze'?null:null,scale:0};
  log(g,`⚠ ${f.name} recebeu ${id.toUpperCase()}.`,'status');cureBerry(g,f,id);return true;}
-function onEnter(g,s,initial=false){const f=active(g,s),o=active(g,1-s);if(!f)return;f._weather=weather(g);if(!initial){f.types=f.gimmicks?.tera?.active?[f.gimmicks.tera.type]:[...f.baseTypes];f.flags={};f.effects=[];f.disabled={};}triggerHeld(g,f,'hit');
+function onEnter(g,s,initial=false){const f=active(g,s),o=active(g,1-s);if(!f)return;f._weather=weather(g);f.flags.enteredTurn=g.turn;if(!initial){f.types=f.gimmicks?.tera?.active?[f.gimmicks.tera.type]:[...f.baseTypes];f.flags={};f.effects=[];f.disabled={};}triggerHeld(g,f,'hit');
  visual(g,{kind:'switch',side:s,pokemon:structuredClone(f)});
  log(g,`◓ ${f.name} entrou em campo por ${s===0?'A':'B'}!`,'switch');
- const h=g.hazards[s];const ground=!f.types.includes('Flying')&&!has(f,'Levitate');
+ const h=g.hazards[s];const ground=grounded(g,f);
  if(ground&&h.spikes)indirect(g,f,sum(dice(h.spikes)),'Spikes');
  if(h.stealthRock){const mult=(TYPE_CHART.Rock[f.types[0]]??1)*(f.types[1]?(TYPE_CHART.Rock[f.types[1]]??1):1);indirect(g,f,sum(dice(mult>=4?4:mult>=2?3:mult<1?1:2)),'Stealth Rock');}
  if(ground&&h.toxicSpikes){if(f.types.includes('Poison')){delete h.toxicSpikes;log(g,`${f.name} removeu Toxic Spikes.`,'field');}
  else addStatus(g,s,h.toxicSpikes>=2?'toxic':'poison','hazard');}
  if(ground&&h.stickyWeb)stage(g,s,'spe',-1,3,'Sticky Web',true);
  if(has(f,'Drizzle'))setWeather(g,'rain',s);if(has(f,'Drought'))setWeather(g,'sun',s);
- if(has(f,'Sand Stream'))setWeather(g,'sand',s);if(has(f,'Snow Warning'))setWeather(g,'hail',s);
+ if(has(f,'Sand Stream'))setWeather(g,'sand',s);if(has(f,'Snow Warning'))setWeather(g,f.snowWeather==='snow'?'snow':'hail',s);
  if(has(f,'Intimidate')&&o)stage(g,1-s,'atk',-1,3,'Intimidate',true);
  if(has(f,'Frisk')&&o)log(g,`${f.name}: Frisk identificou o item de ${o.name}: ${o.heldItem||'nenhum'}.`,'ability');
 }
@@ -1281,7 +1283,7 @@ function switchTo(g,s,index){const old=active(g,s),team=g.team[s];index=Math.tru
  g.active[s]=index;g.needSwitch[s]=false;onEnter(g,s);if(team[index]._naturalCureReturn){heal(g,team[index],sum(dice(1)),'Natural Cure');team[index]._naturalCureReturn=false;}return true;}
 function blockedAbility(at,df){return has(at,'Mold Breaker')&&!['Rough Skin','Static','Flame Body','Effect Spore'].includes(df.abilityName);}
 function evalImmunity(g,at,df,m,mult){const k=ability(df),breaker=has(at,'Mold Breaker'),defSide=g.team[0][g.active[0]]===df?0:1;if(breaker)return '';
- const t=m.type;if(t==='Ground'&&has(df,'Levitate'))return 'Levitate';
+ const t=m.type;if(t==='Ground'&&!grounded(g,df)&&(has(df,'Levitate')||fx(df,'magnetrise')||fx(df,'telekinesis')))return 'Levitação';
  if(t==='Water'&&(['waterabsorb','dryskin'].includes(k))){heal(g,df,sum(dice(2)),df.abilityName);return df.abilityName;}
  if(t==='Fire'&&has(df,'Flash Fire')){df.flags.flashFire=true;log(g,`${df.name}: Flash Fire ativada (+3d6 Fire).`,'ability');return 'Flash Fire';}
  if(t==='Electric'&&has(df,'Volt Absorb')){heal(g,df,sum(dice(2)),'Volt Absorb');return 'Volt Absorb';}
@@ -1316,17 +1318,17 @@ function applySecondary(g,s,m,hit){if(!hit)return;const d=SD.moves[normalizeName
  for(const [k,v] of Object.entries(d?.self?.boosts||{}))stage(g,s,k,v,null,m.name);
 }
 function damageMove(g,s,m,accuracy,actingFirst){const a=active(g,s),d=active(g,1-s);
- let mult=matchup(m.type,d);if(mult===0){log(g,`${d.name} é imune por tipagem!`,'immune');return 0;}
+ let mult=matchup(m.type,d,m.name);if(mult===0){log(g,`${d.name} é imune por tipagem!`,'immune');return 0;}
  let immune=evalImmunity(g,a,d,m,mult);if(immune){log(g,`${d.name}: ${immune} anulou ${m.name}!`,'ability');return 0;}
  const matrix=g.damageSystem==='matrix-v0.2';
- const physical=m.category==='Physical',ak=physical?'atk':'spa',dk=physical?'def':'spd';
+ const physical=m.category==='Physical',ak=m.offensiveKey||(physical?'atk':'spa'),dk=m.defensiveKey||(physical?'def':'spd');
  let pw=m.power;if(has(a,'Technician')&&pw<=60)pw=Math.floor(pw*1.5);
  if(has(a,'Tough Claws')&&isContact(m))pw=Math.floor(pw*1.30);
  if(has(a,'Mega Launcher')&&/(pulse|aura)/i.test(m.name))pw=Math.floor(pw*1.50);
  const critical=accuracy.crit&&!(has(d,'Battle Armor')||has(d,'Shell Armor'));
  const profile=matrix?matrixProfile(a,d,m,critical&&!accuracy.artificial):null;
- const bd=powerDice(matrix?profile.effectiveBP:pw),stab=a.gimmicks?.tera?.active&&a.gimmicks.tera.type===m.type?2:a.types.includes(m.type)?has(a,'Adaptability')?1+Math.ceil(bd/2):1:0;
- let bonus=matrix?{dice:0,fixed:0}:statDice(effStat(a,ak)),defense=matrix?{dice:0,fixed:0}:statDice(effStat(d,dk));
+ const hits=matrix?1:matrixHitCount(a,m,critical&&!accuracy.artificial);const bd=matrix?powerDice(profile.effectiveBP):powerDice(m.bonusBaseDice?m.originalPower:pw)*hits+(m.bonusBaseDice||0),stab=a.gimmicks?.tera?.active&&a.gimmicks.tera.type===m.type?2:a.types.includes(m.type)?has(a,'Adaptability')?1+Math.ceil(bd/2):1:0;
+ let bonus=matrix?{dice:0,fixed:0}:statDice(effStat(m.offensiveSide!==undefined&&m.offensiveSide!==s?d:a,ak)),defense=matrix?{dice:0,fixed:0}:statDice(effStat(m.ignoreDefStages?{...d,effects:d.effects.filter(e=>e.stat!==dk)}:d,dk));
  let offensive=bonus.dice,fixed=bonus.fixed+(matrix?profile.fixedBase:0),defDice=defense.dice,defFixed=defense.fixed;
  if(mult>=2){defDice=0;defFixed=0;}else if(!matrix&&mult<1){offensive=0;fixed=0;}
  let added=stab+(matrix?0:mult>=4?2:mult>=2?1:mult<=.25?-2:mult<1?-1:0),extraDice=stab,reduceDice=0,pierceDice=0;
@@ -1340,16 +1342,19 @@ function damageMove(g,s,m,accuracy,actingFirst){const a=active(g,s),d=active(g,1
  if(has(a,'Gale Wings')&&a.hp===a.maxHp&&m.type==='Flying')adjustDice(2);
  if(has(a,'Iron Fist')&&/punch/i.test(m.name)){adjustDice(2);defDice=Math.max(0,defDice-1);pierceDice++;}
  if(has(a,'Tough Claws')&&isContact(m)&&a.flags.toughClawsTurn!==g.turn){defDice=Math.max(0,defDice-1);pierceDice++;a.flags.toughClawsTurn=g.turn;}
+ if(WEIGHT_MOVES.has(normalizeName(m.name))&&has(a,'Heavy Metal'))adjustDice(2);
+ if(has(a,'Snow Warning')&&['hail','snow'].includes(weather(g))&&m.type==='Ice'&&a.flags.snowWarningTurn!==g.turn){defDice=Math.max(0,defDice-1);pierceDice++;a.flags.snowWarningTurn=g.turn;}
+ if(g.field?.watersport&&m.type==='Fire')adjustDice(-2);if(g.field?.mudsport&&m.type==='Electric')adjustDice(-2);
  if(has(a,'Overgrow')&&a.hp<=a.maxHp/3&&m.type==='Grass')adjustDice(2);
  if(has(a,'Blaze')&&a.hp<=a.maxHp/3&&m.type==='Fire')adjustDice(2);
  if(has(a,'Torrent')&&a.hp<=a.maxHp/3&&m.type==='Water')adjustDice(2);
  if(has(a,'Swarm')&&a.hp<=a.maxHp/3&&m.type==='Bug')adjustDice(2);
- if(matrix&&profile.effectiveBP>120)log(g,`${m.name}: BP efetivo ${profile.effectiveBP} usa 6 dados-base antes da tipagem; efeitos especiais adicionais de BP 121+ exigem arbitragem.`,'manual');
+ if(m.specialNote)log(g,`${m.name}: ${m.specialNote} • Power ${m.power}.`,'field');
  if(has(a,'Dracovergence')&&a.flags.dracoBonus)adjustDice(a.flags.dracoBonus);
  if(has(a,'Moxie')&&a.flags.moxie)fixed+=a.flags.moxie;
  if(has(a,'Analytic')&&!actingFirst)fixed+=6;
  if(weather(g)==='rain'){if(m.type==='Water')adjustDice(1);if(m.type==='Fire')adjustDice(-1);}
- if(weather(g)==='sun'){if(m.type==='Fire')adjustDice(1);if(m.type==='Water')adjustDice(-1);}
+ if(weather(g)==='sun'){if(m.type==='Fire'||m.sunWaterBoost)adjustDice(1);if(m.type==='Water'&&!m.sunWaterBoost)adjustDice(-1);}
  if(terrain(g)==='grass'){if(m.type==='Grass')adjustDice(1);if(['earthquake','bulldoze','magnitude'].includes(normalizeName(m.name)))adjustDice(-1);}
  if(terrain(g)==='electric'&&m.type==='Electric')adjustDice(1);
  if(terrain(g)==='psychic'&&m.type==='Psychic')adjustDice(1);
@@ -1372,7 +1377,7 @@ function damageMove(g,s,m,accuracy,actingFirst){const a=active(g,s),d=active(g,1
  }
  const rolled=matrix?baseRoll+bonusRoll:crit?(accuracy.artificial?bd*4:bd*6)+sum(dice(Math.max(0,counts-bd))):sum(dice(counts));
  let total=Math.max(0,rolled+fixed-defFixed);
- const item=normalizeName(a.heldItem);
+ const item=a._magicRoom||fx(a,'embargo')?'':normalizeName(a.heldItem);
  if(item==='lifeorb')total=Math.floor(total*1.30);
  if(item==='expertbelt'&&mult>=2)total=Math.floor(total*1.20);
  if(item==='muscleband'&&physical)total=Math.floor(total*1.10);
@@ -1405,8 +1410,8 @@ function damageMove(g,s,m,accuracy,actingFirst){const a=active(g,s),d=active(g,1
  if(md?.recoil&&dealt>0)indirect(g,a,Math.max(1,Math.floor(dealt*md.recoil[0]/md.recoil[1])),m.name+' • recuo');
  if(moveCoverage(m)==='partial')log(g,`${m.name}: dano-base resolvido; confira os efeitos especiais na descrição e use a arbitragem.`,'manual');
  if(normalizeName(m.name)==='rapidspin'){g.hazards[s]={};log(g,`${a.name} removeu os hazards do seu lado.`,'field');}
- if(normalizeName(m.name)==='uturn'||normalizeName(m.name)==='voltswitch')log(g,`${a.name} pode trocar após ${m.name} (troca manual no próximo turno desta versão).`,'manual');
- applySecondary(g,s,m,dealt>0);
+ 
+ applySecondary(g,s,m,dealt>0||g._direct?.subHit);
  if(isContact(m)&&dealt>0){
   if(held(d,'Rocky Helmet'))indirect(g,a,Math.max(1,Math.floor(a.maxHp/6)),'Rocky Helmet');
   if(has(d,'Rough Skin')){indirect(g,a,sum(dice(1)),'Rough Skin');stage(g,s,'spe',-1,3,'Rough Skin',true);}
@@ -1458,14 +1463,14 @@ function canAct(g,s){const f=active(g,s),st=f.status;
 function handleMove(g,s,act,first){const a=active(g,s),d=active(g,1-s),m=a.moves.find(x=>x.id===act.moveId);triggerHeld(g,a,'disable');
  if(!m){log(g,`${a.name}: Move não encontrado.`,'miss');return;}
  const n=normalizeName(m.name);
- if(['choiceband','choicespecs','choicescarf'].includes(normalizeName(a.heldItem))&&a.flags.choiceLock&&a.flags.choiceLock!==n){log(g,`${a.name} está preso ao Move ${a.flags.choiceLock} por ${a.heldItem}.`,'item');return;}
+ if(['choiceband','choicespecs','choicescarf'].includes(effectiveHeldName(a))&&a.flags.choiceLock&&a.flags.choiceLock!==n){log(g,`${a.name} está preso ao Move ${a.flags.choiceLock} por ${a.heldItem}.`,'item');return;}
  if(held(a,'Assault Vest')&&m.category==='Status'){log(g,`${a.name} não pode usar Move de Status com Assault Vest.`,'item');return;}
  if(a.disabled[n]>0){log(g,`${a.name} não pôde usar ${m.name}: Disable (${a.disabled[n]}).`,'status');return;}
  if(has(d,'Damp')&&['selfdestruct','explosion'].includes(n)){log(g,`${m.name} falhou devido a Damp.`,'ability');return;}
  if(has(d,'Pressure')&&a.flags.lastMove===n&&a.flags.lastMoveTurn===g.turn-1&&!['struggle','explosion'].includes(n)){
   a.disabled[n]=roll(3);log(g,`${m.name} foi desabilitado por Pressure após repetição.`,'ability');triggerHeld(g,a,'disable');if(a.disabled[n])return;}
  a.flags.lastMove=n;a.flags.lastMoveTurn=g.turn;a.flags.actedTurn=g.turn;
- if(['choiceband','choicespecs','choicescarf'].includes(normalizeName(a.heldItem)))a.flags.choiceLock=n;
+ if(['choiceband','choicespecs','choicescarf'].includes(effectiveHeldName(a)))a.flags.choiceLock=n;
  if(!a.gimmicks?.tera?.active&&has(a,'Protean')&&a.flags.proteanTurn!==g.turn){a.types=[m.type];a.flags.proteanTurn=g.turn;log(g,`${a.name}: Protean mudou a tipagem para ${m.type}.`,'ability');}
  if(d.flags.protectTurn===g.turn&&n!=='feint'){log(g,`${d.name} bloqueou ${m.name} com Protect/Detect.`,'screen');return;}
  if(!canAct(g,s))return;
@@ -1528,7 +1533,7 @@ function validAction(g,s,a){if(!a||typeof a!=='object')return false;
   if(!f.moves.some(m=>m.id===a.moveId))return false;
   const m=f.moves.find(m=>m.id===a.moveId);
   if(held(f,'Assault Vest')&&m.category==='Status')return false;
-  if(['choiceband','choicespecs','choicescarf'].includes(normalizeName(f.heldItem))&&f.flags.choiceLock&&f.flags.choiceLock!==normalizeName(m.name))return false;
+  if(['choiceband','choicespecs','choicescarf'].includes(effectiveHeldName(f))&&f.flags.choiceLock&&f.flags.choiceLock!==normalizeName(m.name))return false;
    if(a.mega&&(f.gimmicks?.tera?.active||!canMega(g,s,a.megaFormId)))return false;
   if(a.tera&&(!f.gimmicks?.tera?.available||f.gimmicks.tera.active||g.teraUsed?.[s]||a.mega||f.megaActive))return false;
   if(a.zMove&&(!f.gimmicks?.zMove?.prepared||f.gimmicks.zMove.used||g.zUsed?.[s]||m.category==='Status'||m.type!==f.gimmicks.zMove.type))return false;
@@ -1565,10 +1570,11 @@ function resolve(g,a,b){if(g.winner!==null)return false;const actions=[a,b],repl
  for(const a of actions){a.targetEvade=null;}
  const order=[0,1].sort((x,y)=>{
   const priority=getPriority(g,y,actions[y])-getPriority(g,x,actions[x]);if(priority)return priority;
-  const speed=effStat(active(g,y),'spe')-effStat(active(g,x),'spe');if(speed)return speed;return Math.random()<.5?-1:1;
+  const speed=effStat(active(g,y),'spe')-effStat(active(g,x),'spe');if(speed)return g.field?.trickroom?-speed:speed;return Math.random()<.5?-1:1;
  });
  log(g,`── TURNO ${g.turn} ── Ordem: ${active(g,order[0]).name} → ${active(g,order[1]).name}.`,'round');
- for(const s of order){const f=active(g,s),act=actions[s];if(act.kind==='switch'){switchTo(g,s,+act.index);continue;}if(f.hp<=0){log(g,`${f.name} não pode agir (0 HP).`,'status');continue;}
+ const actors=actions.map((act,s)=>active(g,s).id);
+ for(const s of order){const f=active(g,s),act=actions[s];if(f.id!==actors[s]){log(g,`${f.name} entrou por troca forçada e não herda a ação do Pokémon anterior.`,'switch');continue;}if(act.kind==='switch'){switchTo(g,s,+act.index);continue;}if(f.hp<=0){log(g,`${f.name} não pode agir (0 HP).`,'status');continue;}
   if(g.needSwitch[s])continue;
   if(act.kind==='active'){log(g,`${f.name} gastou a ação em Evasiva Ativa.`,'field');continue;}
   if(act.kind==='pass'){log(g,`${f.name} passou a ação.`,'system');continue;}
@@ -1578,6 +1584,469 @@ function resolve(g,a,b){if(g.winner!==null)return false;const actions=[a,b],repl
  }
  endRound(g);g.turn++;g.ready=[false,false];return true;
 }
+/* Special Move rules. Serializable state only: the host owns all rolls and timers. */
+const SPECIAL_SUPPORT=new Set(('disable nightmare taunt encore torment imprison healblock embargo attract powder yawn quash leechseed curse perishsong octolock aquaring ingrain substitute endure banefulbunker burningbulwark kingsshield obstruct silktrap spikyshield quickguard wideguard matblock craftyshield luckychant mist safeguard magiccoat trickroom wonderroom magicroom gravity fairylock tailwind watersport mudsport courtchange defog tidyup lockon mindreader magnetrise telekinesis foresight odorsleuth miracleeye electrify iondeluge soak magicpowder camouflage conversion conversion2 reflecttype forestscurse trickortreat tarshot haze psychup topsyturvy powerswap guardswap heartswap powersplit guardsplit speedswap powertrick powershift bellydrum filletaway clangoroussoul noretreat stockpile swallow strengthsap trick switcheroo bestow corrosivegas recycle stuffcheeks teatime roleplay skillswap entrainment simplebeam worryseed gastroacid doodle copycat mirrormove mefirst metronome sleeptalk assist instruct mimic sketch transform naturepower batonpass partingshot teleport chillyreception shedtail roar whirlwind destinybond grudge memento healingwish lunardance revivalblessing charge defensecurl autotomize acupressure geomancy snatch laserfocus flatter swagger takeheart junglehealing lunarblessing refresh purify healpulse floralhealing lifedew painsplit spite eerie spell celebrate happyhour splash afteryou allyswitch helpinghand coaching aromaticmist dragoncheer followme ragepowder spotlight holdhands healorder shoreup floralhealing recover synthesis moonlight morningsun roost rest wish detect protect focusenergy growth minimize synchronoise captivate ven omdrench rototiller flowershield magneticflux gearup confide tickle').replace(/ven omdrench/g,'venomdrench').replace(/eerie spell/g,'eeriespell').split(' '));
+const WEIGHT_MOVES=new Set(['lowkick','grassknot','heavyslam','heatcrash']);
+const VARIABLE_MOVES=new Set(('lowkick grassknot heavyslam heatcrash electroball gyroball flail reversal eruption waterspout dragonenergy crushgrip wringout hardpress storedpower powertrip punishment return frustration pikapapow veeveevolley fling naturalgift magnitude present spitup trumpcard beatup weatherball terrainpulse acrobatics hex facade brine venoshock venoshock wakeupslap smellingsalts knockoff payback revenge avalanche assurance retaliate stompingtantrum lashout boltbeak fishiousrend risingvoltage expandingforce solarbeam solarblade temperflare gravapple bodypress foulplay psyshock psystrike secretsword').split(' '));
+const FIXED_MOVES=new Set(('seismictoss nightshade dragonrage sonicboom psywave superfang naturesmadness ruination endeavor finalgambit counter mirrorcoat metalburst comeuppance bide').split(' '));
+const PROTECT_MOVES=new Set(('protect detect banefulbunker burningbulwark kingsshield obstruct silktrap spikyshield quickguard wideguard matblock craftyshield').split(' '));
+const PIVOT_MOVES=new Set(('uturn voltswitch flipturn batonpass partingshot teleport chillyreception shedtail').split(' '));
+const RECHARGE_MOVES=new Set(('hyperbeam gigaimpact blastburn hydrocannon frenzyplant rockwrecker roaroftime meteorassault eternabeam prismaticlaser').split(' '));
+const FX_NAMES={taunt:'Taunt',encore:'Encore',torment:'Torment',nightmare:'Nightmare',leechseed:'Leech Seed',curse:'Curse',perishsong:'Perish Song',yawn:'Yawn',attract:'Attract',healblock:'Heal Block',embargo:'Embargo',imprison:'Imprison',aquaring:'Aqua Ring',ingrain:'Ingrain',trapped:'Preso',partiallytrapped:'Aprisionado',magnetrise:'Magnet Rise',telekinesis:'Telekinesis',lockon:'Mira travada',charge:'Charge',stockpile:'Stockpile',destinybond:'Destiny Bond',grudge:'Grudge',powder:'Powder',electrify:'Electrify',octolock:'Octolock',laserfocus:'Laser Focus',uproar:'Uproar',lockedmove:'Sequência de golpes',snatch:'Snatch',magiccoat:'Magic Coat',endure:'Endure',noretreat:'No Retreat',powertrick:'Power Trick',foresight:'Foresight',miracleeye:'Miracle Eye',tarshot:'Tar Shot',glaiverush:'Glaive Rush · vulnerável',syrupbomb:'Syrup Bomb',saltcure:'Salt Cure',throatchop:'Throat Chop',defensecurl:'Defense Curl'};
+const fx=(f,k)=>f?.flags?.fx?.[k];
+function effect(g,s,k,turns=null,data={}){const f=active(g,s);if(!f||f.hp<=0)return false;
+ if(['taunt','encore','torment','healblock','imprison'].includes(k)&&has(f,'Aroma Veil')||k==='taunt'&&has(f,'Oblivious')||k==='attract'&&(has(f,'Oblivious')||has(f,'Aroma Veil'))){log(g,`${f.name}: ${f.abilityName} impediu ${FX_NAMES[k]||k}.`,'ability');return false;}
+ f.flags.fx??={};if(f.flags.fx[k]){log(g,`${f.name}: ${FX_NAMES[k]||k} já está ativo.`,'miss');return false;}
+ f.flags.fx[k]={until:['endure','snatch','magiccoat','powder','electrify'].includes(k)?g.turn:turns===null?null:g.turn+turns-(f.flags.actedTurn===g.turn?0:1),started:g.turn,...data};
+ log(g,`${f.name}: ${FX_NAMES[k]||k}${turns!==null?' por '+turns+' rodada(s)':''}.`,'status');triggerHeld(g,f,'disable');return true;
+}
+function grounded(g,f){return !!g.field?.gravity||!!fx(f,'ingrain')||!!f.flags.smackdown||!f.types.includes('Flying')&&!has(f,'Levitate')&&!fx(f,'magnetrise')&&!fx(f,'telekinesis');}
+function pokemonWeight(f){let w=num(f.weightkg||50,.1,9999);if(has(f,'Heavy Metal'))w*=2;if(has(f,'Light Metal'))w/=2;if(held(f,'Float Stone'))w/=2;return Math.max(.1,w-(f.flags.weightLoss||0));}
+function reserves(g,s){return g.team[s].map((p,i)=>p.hp>0&&i!==g.active[s]?i:-1).filter(i=>i>=0);}
+function switchReason(g,s){const f=active(g,s);if(f.hp<=0||f.types.includes('Ghost'))return '';
+ if(fx(f,'ingrain')||fx(f,'noretreat')||fx(f,'trapped')||fx(f,'partiallytrapped')||fx(f,'octolock'))return 'Aprisionamento impede a troca';
+ if(g.field?.fairylock)return 'Fairy Lock impede a troca';return '';}
+function moveBlockReason(g,s,m){const f=active(g,s),o=active(g,1-s),n=normalizeName(m.name);if(!m)return 'Move inexistente';
+ if(f.flags.charging&&f.flags.charging.move.id!==m.id)return 'Concluir '+f.flags.charging.move.name;
+ if(f.flags.bide&&f.flags.bide.move.id!==m.id)return 'Bide em andamento';if(f.flags.recharge)return 'Recarga: avance a rodada';if(fx(f,'throatchop')&&SD.moves[n]?.flags?.sound)return 'Throat Chop';
+ if(f.disabled[n]>0)return 'Disable · '+f.disabled[n]+'T';
+ if(fx(f,'taunt')&&m.category==='Status')return 'Taunt';
+ if(fx(f,'encore')&&fx(f,'encore').move!==n)return 'Encore · '+fx(f,'encore').move;
+ if(fx(f,'torment')&&f.flags.lastMove===n)return 'Torment';
+ if(fx(f,'lockedmove')&&fx(f,'lockedmove').move!==n||fx(f,'uproar')&&n!=='uproar')return 'Sequência obrigatória';
+ if(fx(o,'imprison')&&o.moves.some(x=>normalizeName(x.name)===n))return 'Imprison';
+ if(fx(f,'healblock')&&(SD.moves[n]?.flags?.heal||SD.moves[n]?.heal||['rest','wish','strengthsap','swallow','aquaring','ingrain'].includes(n)))return 'Heal Block';
+ if((f.pp?.[m.id]??1)<=0&&!f.flags.charging)return 'Sem PP';
+ if(held(f,'Assault Vest')&&m.category==='Status')return 'Assault Vest';
+ if(['choiceband','choicespecs','choicescarf'].includes(effectiveHeldName(f))&&f.flags.choiceLock&&f.flags.choiceLock!==n)return f.heldItem;
+ return '';
+}
+function fieldEffect(g,k,turns=5,s=null){g.field??={};if(g.field[k]&&['trickroom','wonderroom','magicroom'].includes(k)){delete g.field[k];log(g,`${k}: efeito encerrado.`,'field');}else{g.field[k]={until:g.turn+turns-1,side:s};log(g,`${SD.moves[k]?.name||k} ativado (${turns} rodadas).`,'field');}refreshSpecialField(g);}
+function refreshSpecialField(g){for(const team of g.team)for(const f of team){f._wonderRoom=!!g.field?.wonderroom;f._magicRoom=!!g.field?.magicroom;f._tailwind=!!g.field?.['tailwind'+g.team.indexOf(team)];}}
+function effectiveMove(g,s,original,first=false,preview=false){const a=active(g,s),d=active(g,1-s),m={...original},n=normalizeName(m.name),w=weather(g),t=terrain(g);m.fixedDamage=FIXED_MOVES.has(n);m.specialResolved=true;m.originalPower=original.power;m.attackerSide=s;
+ const hp=a.hp/a.maxHp,dhp=d.hp/d.maxHp,ratio=effStat(a,'spe')/Math.max(1,effStat(d,'spe')),pos=f=>['atk','def','spa','spd','spe','accuracy','evasion'].reduce((v,k)=>v+Math.max(0,stages(f,k)),0);
+ if(['lowkick','grassknot'].includes(n)){const kg=pokemonWeight(d);m.power=kg>=200?120:kg>=100?100:kg>=50?80:kg>=25?60:40;m.specialNote=`Peso do alvo ${kg.toFixed(1)} kg`;}
+ if(['heavyslam','heatcrash'].includes(n)){const r=pokemonWeight(a)/pokemonWeight(d);m.power=r>=5?120:r>=4?100:r>=3?80:r>=2?60:40;m.specialNote=`Peso ${pokemonWeight(a).toFixed(1)} / ${pokemonWeight(d).toFixed(1)} kg`;}
+ if(n==='electroball')m.power=ratio>=4?150:ratio>=3?120:ratio>=2?80:ratio>=1?60:40;
+ if(fx(d,'glaiverush')){m.bonusBaseDice=powerDice(m.power);m.power*=2;}
+ if(n==='gyroball')m.power=Math.min(150,Math.floor(25/Math.max(.001,ratio))+1);
+ if(['flail','reversal'].includes(n))m.power=hp<=1/24?200:hp<=1/10?150:hp<=1/5?100:hp<=1/3?80:hp<=2/3?40:20;
+ if(['eruption','waterspout','dragonenergy'].includes(n))m.power=Math.max(1,Math.floor(150*hp));
+ if(['crushgrip','wringout','hardpress'].includes(n))m.power=Math.max(1,Math.floor((n==='hardpress'?100:120)*dhp));
+ if(['storedpower','powertrip'].includes(n))m.power=20+20*pos(a);
+ if(n==='punishment')m.power=Math.min(200,60+20*pos(d));
+ if(['return','frustration','pikapapow','veeveevolley'].includes(n))m.power=Math.max(1,Math.floor((n==='frustration'?255-a.happiness:a.happiness)/2.5));
+ if(n==='weatherball'){const types={sun:'Fire',rain:'Water',sand:'Rock',hail:'Ice',snow:'Ice'};if(types[w]){m.type=types[w];m.power=100;}}
+ if(n==='terrainpulse'&&grounded(g,a)){const types={grass:'Grass',electric:'Electric',misty:'Fairy',psychic:'Psychic'};if(types[t]){m.type=types[t];m.power*=2;}}
+ if(n==='magnitude')m.power=preview?70:[10,30,50,70,90,110,150][(()=>{const r=roll(100);return r<=5?0:r<=15?1:r<=35?2:r<=65?3:r<=85?4:r<=95?5:6;})()];
+ if(n==='present')m.power=preview?80:roll(100)<=40?40:roll(100)<=67?80:120;
+ if(n==='spitup')m.power=100*(fx(a,'stockpile')?.count||0);
+ if(n==='trumpcard'){const pp=a.pp?.[m.id]??5;m.power=pp<=1?200:pp===2?80:pp===3?60:pp===4?50:40;}
+ if(n==='beatup'){m.power=10*g.team[s].filter(p=>p.hp>0&&!p.status).length;m.multihit=null;m.hitCount=1;}
+ if(n==='fling'){const it=normalizeName(a.heldItem);m.power=!it?0:it==='ironball'?130:/fossil/.test(it)?100:/plate|hardstone/.test(it)?90:/berry|herb/.test(it)?10:30;}
+ if(n==='naturalgift'){const berry=SD.items?.[normalizeName(a.heldItem)]?.naturalGift;m.power=berry?.basePower||(/berry$/i.test(a.heldItem)?80:0);m.type=berry?.type||'Normal';}
+ const doubles=n==='acrobatics'&&!a.heldItem||n==='hex'&&!!d.status||n==='facade'&&['burn','deepburn','poison','toxic','paralysis'].includes(a.status?.id)||n==='brine'&&dhp<=.5||n==='venoshock'&&['poison','toxic'].includes(d.status?.id)||n==='wakeupslap'&&d.status?.id==='sleep'||n==='smellingsalts'&&d.status?.id==='paralysis'||n==='payback'&&!first||['revenge','avalanche'].includes(n)&&d.flags.actedTurn===g.turn&&a.flags.received?.turn===g.turn||n==='assurance'&&d.flags.hurtTurn===g.turn||n==='retaliate'&&g.team[s].some(p=>p.flags.faintedTurn===g.turn-1)||['stompingtantrum','temperflare'].includes(n)&&a.flags.failedTurn===g.turn-1||n==='lashout'&&a.flags.loweredTurn===g.turn||['boltbeak','fishiousrend'].includes(n)&&d.flags.actedTurn!==g.turn||n==='risingvoltage'&&t==='electric'&&grounded(g,d);
+ if(doubles){m.power*=2;m.bonusBaseDice=Math.min(6,powerDice(original.power));m.specialNote='Condição satisfeita: dados-base dobrados';}
+ if(n==='knockoff'&&d.heldItem)m.power=Math.floor(m.power*1.5);
+ if(n==='expandingforce'&&t==='psychic'&&grounded(g,a))m.power=Math.floor(m.power*1.5);
+ if(n==='gravapple'&&g.field?.gravity)m.power=Math.floor(m.power*1.5);
+ if(['solarbeam','solarblade'].includes(n)&&['rain','sand','hail','snow'].includes(w))m.power=Math.floor(m.power/2);
+ if(fx(a,'charge')&&m.type==='Electric')m.power*=2;
+ if(fx(d,'tarshot')&&m.type==='Fire')m.bonusBaseDice=(m.bonusBaseDice||0)+powerDice(m.power);
+ if(fx(a,'electrify')||g.field?.iondeluge&&m.type==='Normal')m.type='Electric';
+ if(n==='bodypress')m.offensiveKey='def';if(n==='foulplay'){m.offensiveSide=1-s;m.offensiveKey='atk';}
+ if(['psyshock','psystrike','secretsword'].includes(n))m.defensiveKey='def';
+ if(SD.moves[n]?.ohko)m.power=120;
+ return m;
+}
+function describeSpecial(m){const n=normalizeName(m.name),md=SD.moves[n];const notes={disable:'Sela o último Move do alvo por 4 rodadas. Mental Herb e Aroma Veil protegem contra o efeito.',seismictoss:'Causa dano em HP igual ao nível do usuário, respeitando imunidades. Não usa a fórmula de Power.',nightshade:'Causa dano em HP igual ao nível do usuário, respeitando imunidades. Não usa a fórmula de Power.',dragonrage:'Causa 40 HP de dano específico, respeitando imunidades.',sonicboom:'Causa 20 HP de dano específico, respeitando imunidades.',nightmare:'Só afeta alvos dormindo: perde ¼ do HP máximo no fim da rodada. Termina ao acordar ou trocar.',taunt:'Impede Moves de Status por 3 rodadas.',encore:'Obriga o alvo a repetir seu último Move por 3 rodadas.',torment:'Impede repetir o mesmo Move em ações consecutivas até trocar.',imprison:'Enquanto o usuário estiver em campo, bloqueia no inimigo os Moves que ambos conhecem.',substitute:'Consome ¼ do HP máximo para criar um substituto que absorve dano e efeitos direcionados.',leechseed:'Drena ⅛ do HP máximo por rodada e cura o Pokémon do lado que plantou a semente. Grass é imune.',curse:'Ghost: paga ½ do HP máximo e amaldiçoa o alvo (¼ HP/rodada). Outros tipos: Attack e Defense +1, Speed −1.',perishsong:'Os Pokémon presentes desmaiam após 3 rodadas; trocar remove o contador.',trickroom:'Inverte a ordem por Speed por 5 rodadas; prioridades continuam valendo.',naturepower:'Usa automaticamente um Move conforme o terreno ou ambiente.',camouflage:'Muda o tipo conforme o terreno ou ambiente.',weatherball:'No clima, muda de tipo e recebe Power 100.',terrainpulse:'No terreno, se estiver no chão, muda de tipo e dobra Power.',lowkick:'Peso do alvo define Power 40–120 (2–6 dados-base na adaptação do livro).',grassknot:'Peso do alvo define Power 40–120 na adaptação da Arena.',heavyslam:'A razão entre os pesos define Power 40–120.',heatcrash:'A razão entre os pesos define Power 40–120.',solarbeam:'Carrega uma rodada e ataca na seguinte. No Sol é imediato; outros climas reduzem Power.',solarblade:'Carrega uma rodada e ataca na seguinte. No Sol é imediato; outros climas reduzem Power.',batonpass:'Troca após a ação e transfere os estágios, Substitute e efeitos transferíveis.',partingshot:'Reduz Attack e Sp.Atk do alvo e troca imediatamente.',teleport:'Troca no fim da rodada.',spite:'Remove 4 PP do último Move do alvo.',painsplit:'Iguala o HP dos dois à média, limitada ao HP máximo individual.',strengthsap:'Cura pelo Attack atual do alvo e reduz seu estágio em 1.',stockpile:'Acumula até 3 cargas; cada uma aumenta Defense e Sp.Def.',swallow:'Consome Stockpile para curar ¼, ½ ou todo o HP.',spitup:'Power = 100 × cargas de Stockpile; consome as cargas.',destinybond:'Se um golpe direto nocautear o usuário antes da próxima ação, o atacante também é nocauteado.',grudge:'Se um golpe direto nocautear o usuário antes da próxima ação, os PP desse golpe são esgotados.'};
+ if(notes[n])return notes[n];if(FIXED_MOVES.has(n))return 'Dano específico calculado automaticamente a partir da regra própria do Move.';
+ if(VARIABLE_MOVES.has(n))return 'Power e atributos de dano calculados automaticamente a partir do estado atual da batalha.';
+ if(PIVOT_MOVES.has(n)||md?.selfSwitch)return 'Depois de acertar, troca imediatamente pelo Pokémon escolhido na reserva. A troca faz parte da rodada.';
+ if(md?.forceSwitch)return 'Depois de acertar, força uma troca para um Pokémon vivo da reserva.';
+ if(md?.flags?.charge)return 'Carrega na primeira rodada e ataca na seguinte. Power Herb permite concluir imediatamente.';
+ if(RECHARGE_MOVES.has(n))return 'Após acertar, deve gastar a próxima rodada recarregando.';
+ if(SPECIAL_SUPPORT.has(n))return 'Efeito especial automatizado; duração e restrições aparecem na batalha.';
+ return '';
+}
+function specialEffectLabels(g,f){const a=[];for(const [k,v] of Object.entries(f.flags.fx||{}))a.push((FX_NAMES[k]||SD.moves[k]?.name||k)+(v.count?' ×'+v.count:'')+(v.until!==null&&v.until!==undefined?' · '+Math.max(0,v.until-g.turn+1)+'T':''));
+ for(const [n,t] of Object.entries(f.disabled))if(t>0)a.push('Disable: '+(SD.moves[n]?.name||n)+' · '+t+'T');
+ if(f.flags.substitute)a.push('Substitute · '+f.flags.substitute+' HP');if(f.flags.charging)a.push('Carregando '+f.flags.charging.move.name);if(f.flags.recharge)a.push('Recarga pendente');return a;
+}
+
+// Extend existing rules without replacing the RPG damage system or KO replacement phase.
+const baseMegaEvolve=megaEvolve;megaEvolve=function(g,s,id){const ok=baseMegaEvolve(g,s,id);if(ok){const f=active(g,s);f.weightkg=SD.dex[normalizeName(f.megaActive)]?.weightkg||f.weightkg;if(!has(f,'Drought')&&!has(f,'Drizzle'))activateAbilityField(g,s);refreshWeather(g);}return ok;};
+const baseNormalize=normalizePokemon;
+normalizePokemon=function(p){const f=baseNormalize(p),species=SD.dex[normalizeName(p.speciesSlug||p.name)]||Object.values(SD.dex).find(x=>x.num===+p.speciesId);
+ f.snowWeather=p.snowWeather==='snow'?'snow':'hail';f.hiddenPowerType=type(p.hiddenPowerType)||'';f.weightkg=num(parseFloat(String(p.weightkg??p.weight??species?.weightkg??50).replace(',','.')),.1,9999);f.gender=['M','F','N'].includes(p.gender)?p.gender:({male:'M',female:'F',masculino:'M',feminino:'F'}[normalizeName(p.gender)]||species?.gender||'N');f.happiness=num(p.happiness??p.friendship??255,0,255);f.originalAbility=f.abilityName;f.originalStats={...f.stats};f.originalMoves=structuredClone(f.moves);f.pp={};
+ for(const m of f.moves){m.maxPP=SD.moves[normalizeName(m.name)]?.pp||20;f.pp[m.id]=m.maxPP;}return f;};
+const baseRuleFor=ruleFor;
+ruleFor=function(m){const r=baseRuleFor(m);if(SPECIAL_SUPPORT.has(normalizeName(m.name)))return r&&r.kind!=='manual'?r:{kind:'special'};return r;};
+const baseMoveCoverage=moveCoverage;
+moveCoverage=function(m){const n=normalizeName(m.name),d=SD.moves[n];if(SPECIAL_SUPPORT.has(n)||VARIABLE_MOVES.has(n)||FIXED_MOVES.has(n)||PIVOT_MOVES.has(n)||RECHARGE_MOVES.has(n)||d?.flags?.charge||d?.forceSwitch||d?.volatileStatus||d?.secondary?.volatileStatus||d?.multihit||d?.ohko)return 'auto';return baseMoveCoverage(m);};
+const baseEffStat=effStat;
+effStat=function(f,k){if(fx(f,'powertrick')&&['atk','def'].includes(k))k=k==='atk'?'def':'atk';if(f._wonderRoom&&['def','spd'].includes(k))k=k==='def'?'spd':'def';const value=baseEffStat(f,k);return k==='spe'&&f._tailwind?value*2:value;};
+const baseHeal=heal;
+heal=function(g,f,n,reason){if(fx(f,'healblock')&&reason!=='arbitragem'){log(g,`${f.name}: Heal Block impediu a cura.`,'status');return 0;}if(f.hp<=0)return 0;return baseHeal(g,f,n,reason);};
+const baseTriggerHeld=triggerHeld;
+triggerHeld=function(g,f,event){if(fx(f,'embargo')||f._magicRoom)return;const keys=['taunt','encore','torment','healblock','attract'];if(held(f,'Mental Herb')&&(Object.values(f.disabled).some(n=>n>0)||keys.some(k=>fx(f,k)))){f.disabled={};for(const k of keys)if(f.flags.fx)delete f.flags.fx[k];f.heldItem='';log(g,`${f.name} consumiu Mental Herb e removeu as restrições.`,'item');return;}return baseTriggerHeld(g,f,event);};
+const baseStage=stage;
+stage=function(g,s,k,v,t,source,external){if(external&&v<0&&g.field?.['mist'+s])return false;if(has(active(g,s),'Simple'))v*=2;if(has(active(g,s),'Contrary'))v=-v;const ok=baseStage(g,s,k,v,t,source,external);if(ok){active(g,s).flags[v<0?'loweredTurn':'raisedTurn']=g.turn;}return ok;};
+const baseAddStatus=addStatus;
+addStatus=function(g,s,id,source='',reflected=false){const f=active(g,s);if(id==='sleep'&&[0,1].some(x=>fx(active(g,x),'uproar')))return false;
+ if(id==='burn'&&has(f,'Drizzle')&&weather(g)==='rain'||id==='freeze'&&(weather(g)==='sun'&&has(f,'Drought')||f.types.includes('Ice')))return false;
+ if(g.field?.['safeguard'+s]&&!['arbitragem','move-self'].includes(source))return false;
+ const blockedTerrain=g.terrain;if(blockedTerrain&&!grounded(g,f))g.terrain=null;try{return baseAddStatus(g,s,id,source,reflected);}finally{g.terrain=blockedTerrain;}};
+const baseWeather=weather;
+weather=function(g){return g.weatherLockUntil>=g.turn?'':baseWeather(g);};
+const baseRefreshWeather=refreshWeather;
+refreshWeather=function(g){baseRefreshWeather(g);const w=weather(g);for(const team of g.team)for(const f of team){f._weather=w;if(has(f,'Forecast')){const t={sun:'Fire',rain:'Water',hail:'Ice',snow:'Ice'}[w]||'Normal';if(!f.gimmicks?.tera?.active)f.types=[t];if(f.flags.forecastType!==t){f.effects=f.effects.filter(e=>e.source!=='Forecast');f.flags.forecastType=t;delete f.flags.forecastBoost;}}}};
+const baseSetWeather=setWeather;
+setWeather=function(g,id,owner=null){if(id!=='none'&&g.weatherLockUntil>=g.turn){log(g,'O clima não pode ser criado: Air Lock / Cloud Nine.','field');return;}
+ if(id!=='none'&&g.weather?.primal&&g.weather.owner!==null){const holder=active(g,g.weather.owner);if(holder.hp>0&&['desolateland','primordialsea'].includes(ability(holder))&&!['Desolate Land','Primordial Sea','Delta Stream'].some(n=>owner!==null&&has(active(g,owner),n))){log(g,'O clima primal bloqueou a alteração.','field');return;}}
+ baseSetWeather(g,id,owner);};
+function activateAbilityField(g,s){const f=active(g,s);if(has(f,'Drought'))setWeather(g,'sun',s);if(has(f,'Drizzle'))setWeather(g,'rain',s);if(has(f,'Sand Stream'))setWeather(g,'sand',s);if(has(f,'Snow Warning'))setWeather(g,f.snowWeather==='snow'?'snow':'hail',s);if(has(f,'Electric Surge'))setTerrain(g,'electric');if(has(f,'Grassy Surge'))setTerrain(g,'grass');if(has(f,'Misty Surge'))setTerrain(g,'misty');if(has(f,'Psychic Surge'))setTerrain(g,'psychic');}
+const baseOnEnter=onEnter;
+onEnter=function(g,s,initial=false){const f=active(g,s);if(!initial&&f.restoreCombat){f.abilityName=f.originalAbility||f.abilityName;f.stats={...(f.originalStats||f.stats)};f.moves=structuredClone(f.originalMoves||f.moves);if(f.originalPP){f.pp=f.originalPP;delete f.originalPP;}delete f.restoreCombat;}
+ baseOnEnter(g,s,initial);f.flags.enteredTurn=g.turn;if(f.hp<=0)return;
+ if(has(f,'Air Lock')||has(f,'Cloud Nine')){setWeather(g,'none');g.weatherLockUntil=g.turn+1;log(g,`${f.name}: ${f.abilityName} bloqueia novos climas até o fim da próxima rodada.`,'ability');}
+ if(has(f,'Desolate Land')||has(f,'Primordial Sea')){setWeather(g,has(f,'Desolate Land')?'sun':'rain',s);if(g.weather)g.weather.primal=has(f,'Desolate Land')?'sun':'rain';}
+ if(has(f,'Delta Stream'))setWeather(g,'wind',s);
+ if(has(f,'Electric Surge'))setTerrain(g,'electric');if(has(f,'Grassy Surge'))setTerrain(g,'grass');if(has(f,'Misty Surge'))setTerrain(g,'misty');if(has(f,'Psychic Surge'))setTerrain(g,'psychic');
+ if(g.healingWish?.[s]){f.hp=f.maxHp;f.status=null;for(const m of f.moves)f.pp[m.id]=m.maxPP||SD.moves[normalizeName(m.name)]?.pp||20;delete g.healingWish[s];log(g,`${f.name}: cura de entrada aplicada.`,'heal');}
+ refreshSpecialField(g);};
+const baseSwitch=switchTo;
+switchTo=function(g,s,index,forced=false){const old=active(g,s);if(!forced&&switchReason(g,s)){log(g,`${old.name}: ${switchReason(g,s)}.`,'status');return false;}
+ const wish=old.flags.wish;const other=active(g,1-s);const savedAbility=other.abilityName;if(forced)other.abilityName='';let ok;try{ok=baseSwitch(g,s,index);}finally{other.abilityName=savedAbility;}
+ if(ok){old.disabled={};if(old.status?.id==='toxic')old.status.scale=0;if(wish)active(g,s).flags.wish=wish;for(const p of g.team[1-s])for(const k of ['trapped','partiallytrapped','octolock'])if(fx(p,k)?.sourceId===old.id)delete p.flags.fx[k];refreshSpecialField(g);}return ok;};
+function pivot(g,s,n,index){const old=active(g,s),choices=reserves(g,s);if(!choices.length){log(g,`${SD.moves[n]?.name||n}: não há Pokémon vivo na reserva.`,'miss');return false;}
+ const target=choices.includes(+index)?+index:choices[0],effects=structuredClone(old.effects),sub=old.flags.substitute,pass={};if(n==='batonpass')for(const k of ['aquaring','ingrain','magnetrise','focusenergy','charge'])if(fx(old,k))pass[k]=structuredClone(fx(old,k));
+ const ok=switchTo(g,s,target,true);if(ok&&['batonpass','shedtail'].includes(n)){const f=active(g,s);if(n==='batonpass')f.effects=effects;if(sub)f.flags.substitute=sub;f.flags.fx={...(f.flags.fx||{}),...pass};}return ok;}
+function forceSwitch(g,s,sourceSide){const f=active(g,s),source=active(g,sourceSide);if(f.hp<=0||fx(f,'ingrain')||has(f,'Suction Cups')||has(f,'Heavy Metal')&&pokemonWeight(source)<pokemonWeight(f)){log(g,`${f.name}: troca forçada bloqueada.`,'ability');return false;}
+ const choices=reserves(g,s);return choices.length?switchTo(g,s,choices[roll(choices.length)-1],true):false;}
+const baseDamage=damage;
+damage=function(g,f,n,reason='dano'){const ctx=g._direct;
+ if(ctx&&ctx.target===f.id){const attacker=active(g,ctx.side);if(f.flags.substitute>0&&!ctx.bypass){const lost=Math.min(f.flags.substitute,Math.max(0,Math.floor(n)));f.flags.substitute-=lost;ctx.subHit=true;log(g,`${f.name}: Substitute absorveu ${lost} HP${f.flags.substitute<=0?' e foi destruído':''}.`,'screen');return 0;}
+ if(fx(f,'endure')?.started===g.turn||['falseswipe','holdback'].includes(ctx.moveName))n=Math.min(n,Math.max(0,f.hp-1));
+ if(held(f,'Focus Sash')&&f.hp===f.maxHp&&n>=f.hp){n=f.hp-1;f.heldItem='';}
+ if(has(f,'Sturdy')&&f.hp===f.maxHp&&n>=f.hp&&!f.flags.sturdyUsed){n=f.hp-1;f.flags.sturdyUsed=true;}
+ const amount=baseDamage(g,f,n,reason);if(amount>0){f.flags.received={turn:g.turn,amount,category:ctx.category,attacker:attacker.id};f.flags.hurtTurn=g.turn;}
+ if(f.hp===0){f.flags.faintedTurn=g.turn;if(fx(f,'destinybond')&&attacker.hp>0)baseDamage(g,attacker,attacker.hp,'Destiny Bond');if(fx(f,'grudge'))attacker.pp[ctx.moveId]=0;}
+ return amount;
+ }const amount=baseDamage(g,f,n,reason);if(amount>0)f.flags.hurtTurn=g.turn;if(f.hp<=0)f.flags.faintedTurn=g.turn;return amount;};
+const baseSecondary=applySecondary;
+applySecondary=function(g,s,m,hit){if(!hit)return;const n=normalizeName(m.name),md=SD.moves[n];if(g._direct?.subHit){for(const [k,v] of Object.entries(md?.self?.boosts||{}))stage(g,s,k,v,null,m.name);for(const x of md?.secondaries||(md?.secondary?[md.secondary]:[]))if(roll(100)<=(x.chance??100))for(const [k,v] of Object.entries(x.self?.boosts||{}))stage(g,s,k,v,null,m.name);return;}if(n==='secretpower'){if(roll(100)<=30){const t=terrain(g),env=g.environment;if(t==='grass'||!t&&['grass','forest'].includes(env))addStatus(g,1-s,'sleep','secondary');else if(t==='misty')stage(g,1-s,'spa',-1,3,m.name,true);else if(t==='psychic'||!t&&env==='sky')stage(g,1-s,'spe',-1,3,m.name,true);else if(!t&&env==='cave')applyVolatile(g,1-s,'flinch',s);else if(!t&&env==='sand')stage(g,1-s,'accuracy',-1,3,m.name,true);else if(!t&&env==='water')stage(g,1-s,'atk',-1,3,m.name,true);else if(!t&&env==='snow')addStatus(g,1-s,'freeze','secondary');else if(!t&&env==='space')stage(g,1-s,'spd',-1,3,m.name,true);else addStatus(g,1-s,'paralysis','secondary');}return;}baseSecondary(g,s,m,hit);
+ for(const x of md?.secondaries||(md?.secondary?[md.secondary]:[])){if(!x.volatileStatus||roll(100)>(x.chance??100))continue;applyVolatile(g,1-s,x.volatileStatus,s);}
+ if(md?.volatileStatus)applyVolatile(g,1-s,md.volatileStatus,s);
+ if(md?.self?.volatileStatus&&!['mustrecharge','lockedmove','uproar'].includes(md.self.volatileStatus))applyVolatile(g,s,md.self.volatileStatus,s);
+};
+function applyVolatile(g,s,k,source){const f=active(g,s);if(!f||f.hp<=0)return;if(k==='confusion')return addStatus(g,s,'confusion','secondary');if(k==='flinch'){if(!has(f,'Inner Focus')&&f.flags.actedTurn!==g.turn)f.flags.flinchTurn=g.turn;return;}
+ if(k==='partiallytrapped')return effect(g,s,k,4+roll(2)-1,{sourceId:active(g,source).id,sourceSide:source});
+ if(['trapped','octolock'].includes(k))return effect(g,s,k,null,{sourceId:active(g,source).id,sourceSide:source});if(['tarshot','healblock','torment'].includes(k))return effect(g,s,k,k==='healblock'?5:null);
+ if(k==='smackdown'){f.flags.smackdown=true;delete f.flags.fx?.magnetrise;delete f.flags.fx?.telekinesis;delete f.flags.charging;return;}
+}
+const baseRollAccuracy=rollAccuracy;
+rollAccuracy=function(g,s,m,evade){const a=active(g,s),d=active(g,1-s),n=normalizeName(m.name),hidden=d.flags.charging?.hidden;
+ if(hidden&&!has(a,'No Guard')&&!has(d,'No Guard')){const allowed={dig:['earthquake','magnitude','fissure'],dive:['surf','whirlpool'],fly:['thunder','hurricane','gust','twister','skyuppercut','smackdown','thousandarrows'],bounce:['thunder','hurricane','gust','twister','skyuppercut','smackdown','thousandarrows'],phantomforce:[],shadowforce:[]};if(!(allowed[hidden]||[]).includes(n))return {hit:false,crit:false,label:'Alvo fora de alcance',roll:0};}
+ if(fx(a,'lockon')?.targetId===d.id){delete a.flags.fx.lockon;return {hit:true,crit:false,label:'Lock-On / Mind Reader'};}
+ if(fx(d,'glaiverush')||has(a,'No Guard')||has(d,'No Guard')||fx(d,'telekinesis')||['thunder','hurricane'].includes(n)&&weather(g)==='rain'||n==='blizzard'&&['hail','snow'].includes(weather(g)))return {hit:true,crit:false,label:'Acerto garantido pelo efeito'};
+ let modified={...m};if(['thunder','hurricane'].includes(n)&&weather(g)==='sun')modified.accuracy=50;if(g.field?.gravity)modified.accuracy=Math.min(90,Math.floor(modified.accuracy*5/3));
+ if(has(d,'Light Metal')&&isContact(m))modified.accuracy=Math.floor(modified.accuracy*3/4);
+ const result=baseRollAccuracy(g,s,modified,evade);const ratio=SD.moves[n]?.critRatio||1;if(result.hit&&ratio>1&&result.roll&&result.roll<=Math.min(50,5*2**(ratio-1))){result.crit=true;result.artificial=false;}if(result.hit&&(fx(a,'laserfocus')||SD.moves[n]?.willCrit)){result.crit=true;result.artificial=false;}return result;};
+let gDirectType=null;
+const baseMatchup=matchup;
+matchup=function(mt,d,moveName=''){let mult=baseMatchup(mt,d);if(mt==='Ice'&&d.types.includes('Water')&&(normalizeName(moveName)==='freezedry'||gDirectType?.move==='freezedry'))mult*=4;if(['Normal','Fighting'].includes(mt)&&d.types.includes('Ghost')&&fx(d,'foresight'))mult=d.types.filter(t=>t!=='Ghost').reduce((r,t)=>r*(TYPE_CHART[mt]?.[t]??1),1);if(mt==='Psychic'&&d.types.includes('Dark')&&fx(d,'miracleeye'))mult=d.types.filter(t=>t!=='Dark').reduce((r,t)=>r*(TYPE_CHART[mt]?.[t]??1),1);if(gDirectType&&mt===gDirectType.primary&&gDirectType.secondary)mult*=baseMatchup(gDirectType.secondary,d);if(mt==='Ground'&&d._grounded&&d.types.includes('Flying'))mult=d.types.filter(t=>t!=='Flying').reduce((r,t)=>r*(TYPE_CHART[mt]?.[t]??1),1);if(d._weather==='wind'&&d.types.includes('Flying')&&['Rock','Electric','Ice'].includes(mt))mult/=2;return mult;};
+const baseCanAct=canAct;
+canAct=function(g,s){const f=active(g,s);if(f.flags.flinchTurn===g.turn){log(g,`${f.name}: Flinch impediu sua ação.`,'status');return false;}if(fx(f,'attract')&&roll(2)===1){log(g,`${f.name}: Attract impediu sua ação.`,'status');return false;}
+ if(f.flags.sleepUsable&&f.status?.id==='sleep'){f.status.remaining=Math.max(0,f.status.remaining-1);return true;}return baseCanAct(g,s);};
+function setStages(f,values,source){f.effects=f.effects.filter(e=>!Object.hasOwn(values,e.stat));for(const [stat,delta] of Object.entries(values))if(delta)f.effects.push({stat,delta:Math.max(-6,Math.min(6,delta)),remaining:null,source});}
+function environmentType(g){return {electric:'Electric',grass:'Grass',misty:'Fairy',psychic:'Psychic'}[terrain(g)]||{grass:'Grass',forest:'Grass',water:'Water',cave:'Rock',sand:'Ground',snow:'Ice',building:'Normal',sky:'Flying',space:'Psychic'}[g.environment]||'Normal';}
+function callMove(g,s,key,first=false){const a=active(g,s),md=typeof key==='object'?key:SD.moves[key];if(!md||g._callDepth>=3){log(g,'A chamada de Move falhou.','miss');return false;}
+ if(md.isZ||md.isMax||md.callsMove&&normalizeName(md.name)!=='naturepower'){log(g,'O Move não pode ser chamado em cadeia.','miss');return false;}
+ const m=md.power!==undefined?{...md}:{...HHLocale.move(md),id:'called-'+normalizeName(md.name)};g._callDepth=(g._callDepth||0)+1;try{return executeSpecialMove(g,s,m,first,{called:true});}finally{g._callDepth--;}}
+const baseSupport=support;
+support=function(g,s,m){const a=active(g,s),d=active(g,1-s),n=normalizeName(m.name),md=SD.moves[n]||{},fail=why=>{log(g,`${m.name} falhou: ${why}.`,'miss');a.flags.failedTurn=g.turn;return false;},ok=text=>{log(g,`${a.name}: ${text||m.name+' aplicado'}.`,'field');return true;};
+ if(PROTECT_MOVES.has(n)){if(n==='matblock'&&a.flags.enteredTurn!==g.turn)return fail('só pode ser usado na rodada de entrada');const streak=a.flags.protectUsedTurn===g.turn-1?(a.flags.protectStreak||0)+1:0;a.flags.protectStreak=streak;a.flags.protectUsedTurn=g.turn;if(streak&&roll(100)>100/3**streak)return fail('proteção repetida');a.flags.protectTurn=g.turn;a.flags.protectKind=n;return ok('proteção '+m.name);}
+ if(n==='endure')return effect(g,s,n,1);
+ if(n==='disable'){if(!d.flags.lastMove||d.flags.lastMove==='struggle')return fail('o alvo ainda não usou um Move válido');if(has(d,'Aroma Veil'))return fail('Aroma Veil');if(d.disabled[d.flags.lastMove])return fail('esse Move já está desabilitado');d.disabled[d.flags.lastMove]=4+(d.flags.actedTurn===g.turn?1:0);log(g,`${d.name}: ${SD.moves[d.flags.lastMove]?.name||d.flags.lastMove} selado por Disable (4 rodadas).`,'status');triggerHeld(g,d,'disable');return true;}
+ if(n==='nightmare'){if(d.status?.id!=='sleep'&&!has(d,'Comatose'))return fail('o alvo precisa estar dormindo');return effect(g,1-s,n);}
+ if(n==='taunt')return effect(g,1-s,n,3);
+ if(n==='encore'){if(!d.flags.lastMove||!d.moves.some(x=>normalizeName(x.name)===d.flags.lastMove)||SD.moves[d.flags.lastMove]?.flags?.failencore)return fail('não há último Move repetível');return effect(g,1-s,n,3,{move:d.flags.lastMove});}
+ if(['torment','embargo','healblock','powder','electrify','yawn','octolock','tarshot'].includes(n)){
+  if(n==='yawn'&&d.status)return fail('alvo já possui uma condição');if(n==='powder'&&d.types.includes('Grass'))return fail('Grass é imune');if(n==='tarshot')stage(g,1-s,'spe',-1,3,m.name,true);
+  return effect(g,1-s,n,['embargo','healblock'].includes(n)?5:['powder','electrify'].includes(n)?1:n==='yawn'?2:null,{sourceId:a.id,sourceSide:s,...(n==='yawn'?{until:g.turn+1}:{} )});}
+ if(n==='attract'){if(!['M','F'].includes(a.gender)||!['M','F'].includes(d.gender)||a.gender===d.gender)return fail('exige gêneros opostos definidos na ficha');return effect(g,1-s,n,null,{sourceId:a.id});}
+ if(n==='imprison')return effect(g,s,n);
+ if(n==='quash'){if(d.flags.actedTurn===g.turn)return fail('o alvo já agiu');return ok('o alvo executará sua ação depois do usuário');}
+ if(n==='leechseed'){if(d.types.includes('Grass'))return fail('Grass é imune');return effect(g,1-s,n,null,{sourceSide:s});}
+ if(n==='curse'){if(a.types.includes('Ghost')){if(fx(d,n))return fail('o alvo já está amaldiçoado');damage(g,a,Math.max(1,Math.floor(a.maxHp/2)),m.name);return effect(g,1-s,n);}for(const [k,v]of Object.entries({atk:1,def:1,spe:-1}))stage(g,s,k,v,null,m.name);return true;}
+ if(n==='perishsong'){for(let side=0;side<2;side++)if(!has(active(g,side),'Soundproof'))effect(g,side,n,null,{count:3,started:g.turn});return true;}
+ if(['aquaring','ingrain','destinybond','grudge','snatch','magiccoat','laserfocus','charge','defensecurl','noretreat'].includes(n)){
+  if(n==='noretreat'){if(fx(a,n))return fail('No Retreat já foi utilizado');for(const k of ['atk','def','spa','spd','spe'])stage(g,s,k,1,null,m.name);}
+  if(n==='charge')stage(g,s,'spd',1,null,m.name);if(n==='defensecurl')stage(g,s,'def',1,null,m.name);
+  return effect(g,s,n,['destinybond','grudge'].includes(n)?2:['snatch','magiccoat'].includes(n)?1:n==='laserfocus'?2:null);}
+ if(n==='substitute'||n==='shedtail'){const cost=Math.max(1,Math.floor(a.maxHp/(n==='shedtail'?2:4)));if(a.flags.substitute)return fail('já tem Substitute');if(a.hp<=cost)return fail('HP insuficiente');damage(g,a,cost,m.name);a.flags.substitute=Math.max(1,Math.floor(a.maxHp/4));if(n==='shedtail')pivot(g,s,n,g._moveAction?.switchIndex);return ok('Substitute com '+Math.floor(a.maxHp/4)+' HP');}
+ if(['trickroom','wonderroom','magicroom','gravity','fairylock','watersport','mudsport','iondeluge'].includes(n)){fieldEffect(g,n,n==='fairylock'?2:n==='iondeluge'?1:5);if(n==='gravity')for(let side=0;side<2;side++){const f=active(g,side);delete f.flags.fx?.magnetrise;delete f.flags.fx?.telekinesis;if(['fly','bounce','skydrop'].includes(f.flags.charging?.hidden))delete f.flags.charging;}return true;}
+ if(['tailwind','mist','safeguard','luckychant'].includes(n)){fieldEffect(g,n+s,n==='tailwind'?4:5,s);return true;}
+ if(n==='courtchange'){[g.hazards[0],g.hazards[1]]=[g.hazards[1],g.hazards[0]];[g.screens[0],g.screens[1]]=[g.screens[1],g.screens[0]];for(const key of ['tailwind','mist','safeguard','luckychant']){const x=g.field?.[key+0],y=g.field?.[key+1];g.field??={};delete g.field[key+0];delete g.field[key+1];if(x)g.field[key+1]=x;if(y)g.field[key+0]=y;}refreshSpecialField(g);return ok('efeitos dos dois lados trocados');}
+ if(n==='defog'){g.hazards=[{},{}];g.screens[1-s]={};g.terrain=null;stage(g,1-s,'evasion',-1,3,m.name,true);return ok('hazards e screens do inimigo removidos');}
+ if(n==='tidyup'){g.hazards=[{},{}];for(let side=0;side<2;side++)delete active(g,side).flags.substitute;stage(g,s,'atk',1,null,m.name);stage(g,s,'spe',1,null,m.name);return true;}
+ if(['lockon','mindreader'].includes(n))return effect(g,s,'lockon',2,{targetId:d.id});
+ if(['magnetrise','telekinesis'].includes(n)){if(g.field?.gravity)return fail('Gravity está ativo');return effect(g,n==='telekinesis'?1-s:s,n,n==='telekinesis'?3:5);}
+ if(['foresight','odorsleuth','miracleeye'].includes(n))return effect(g,1-s,n==='miracleeye'?n:'foresight');
+ if(['soak','magicpowder','camouflage','conversion','conversion2','reflecttype','forestscurse','trickortreat'].includes(n)){const target=['soak','magicpowder','forestscurse','trickortreat'].includes(n)?d:a;if(target.gimmicks?.tera?.active)return fail('Terastalização impede mudar o tipo');
+  if(n==='reflecttype')a.types=[...d.types];else if(n==='conversion')a.types=[a.moves[0]?.type||'Normal'];else if(n==='conversion2'){const last=SD.moves[d.flags.lastMove];if(!last)return fail('o alvo não usou um Move');const choices=TYPES.filter(t=>(TYPE_CHART[last.type]?.[t]??1)<1);a.types=[choices[roll(choices.length)-1]||'Normal'];}
+  else if(['forestscurse','trickortreat'].includes(n))target.types=[...new Set([...target.types,n==='forestscurse'?'Grass':'Ghost'])];else target.types=[n==='soak'?'Water':n==='magicpowder'?'Psychic':environmentType(g)];return ok(target.name+' agora é '+target.types.join('/'));}
+ if(n==='haze'){a.effects=[];d.effects=[];return ok('todos os estágios removidos');}
+ if(['psychup','topsyturvy','powerswap','guardswap','heartswap'].includes(n)){const keys=n==='powerswap'?['atk','spa']:n==='guardswap'?['def','spd']:['atk','def','spa','spd','spe','accuracy','evasion'],av=Object.fromEntries(keys.map(k=>[k,stages(a,k)])),dv=Object.fromEntries(keys.map(k=>[k,stages(d,k)]));if(n==='psychup')setStages(a,dv,m.name);else if(n==='topsyturvy')setStages(d,Object.fromEntries(keys.map(k=>[k,-dv[k]])),m.name);else{setStages(a,dv,m.name);setStages(d,av,m.name);}return ok('estágios atualizados');}
+ if(['powersplit','guardsplit','speedswap','powertrick','powershift'].includes(n)){a.restoreCombat=true;d.restoreCombat=true;if(n==='powertrick')return effect(g,s,n);const keys=n==='powersplit'?['atk','spa']:n==='guardsplit'?['def','spd']:n==='speedswap'?['spe']:['atk','def'];for(const k of keys){if(n==='powershift'){[a.stats.atk,a.stats.def]=[a.stats.def,a.stats.atk];break;}if(n==='speedswap')[a.stats[k],d.stats[k]]=[d.stats[k],a.stats[k]];else a.stats[k]=d.stats[k]=Math.floor((a.stats[k]+d.stats[k])/2);}return ok('atributos de combate atualizados');}
+ if(['bellydrum','filletaway','clangoroussoul'].includes(n)){const cost=Math.floor(a.maxHp/(n==='clangoroussoul'?3:2));if(a.hp<=cost)return fail('HP insuficiente');damage(g,a,cost,m.name);if(n==='bellydrum')setStages(a,{atk:6},m.name);else for(const k of n==='filletaway'?['atk','spa','spe']:['atk','def','spa','spd','spe'])stage(g,s,k,n==='filletaway'?2:1,null,m.name);return true;}
+ if(n==='stockpile'){const count=fx(a,n)?.count||0;if(count>=3)return fail('limite de 3 cargas');if(!count)effect(g,s,n,null,{count:1});else fx(a,n).count++;stage(g,s,'def',1,null,'Stockpile');stage(g,s,'spd',1,null,'Stockpile');return true;}
+ if(n==='swallow'){const count=fx(a,'stockpile')?.count||0;if(!count)return fail('não há Stockpile');heal(g,a,a.maxHp*(count===3?1:count===2?.5:.25),m.name);clearStockpile(a);return true;}
+ if(n==='strengthsap'){if((a.uses[n]||0)>=3)return fail('limite de 3 usos');a.uses[n]=(a.uses[n]||0)+1;if(stages(d,'atk')<=-6)return fail('Attack já está no mínimo');heal(g,a,effStat(d,'atk'),m.name);stage(g,1-s,'atk',-1,3,m.name,true);return true;}
+ if(n==='painsplit'){const hp=Math.floor((a.hp+d.hp)/2);for(const f of [a,d]){if(f.hp>hp)damage(g,f,f.hp-hp,m.name);else heal(g,f,hp-f.hp,m.name);}return true;}
+ if(['trick','switcheroo','bestow','corrosivegas','recycle','stuffcheeks','teatime'].includes(n)){
+  if(['trick','switcheroo'].includes(n)){if(has(d,'Sticky Hold'))return fail('Sticky Hold');if(!a.heldItem&&!d.heldItem)return fail('nenhum item para trocar');if([a,d].some(f=>/ite [xy]$|ium z$/i.test(f.heldItem)))return fail('item de transformação não pode ser trocado');[a.heldItem,d.heldItem]=[d.heldItem,a.heldItem];delete a.flags.choiceLock;delete d.flags.choiceLock;}
+  if(n==='bestow'){if(!a.heldItem||d.heldItem)return fail('exige usuário com item e alvo sem item');d.heldItem=a.heldItem;a.heldItem='';}
+  if(n==='corrosivegas'){if(has(d,'Sticky Hold'))return fail('Sticky Hold');d.flags.lostItem=d.heldItem;d.heldItem='';delete d.flags.choiceLock;}
+  if(n==='recycle'){if(a.heldItem||!a.flags.consumedItem)return fail('não há item consumido para restaurar');a.heldItem=a.flags.consumedItem;delete a.flags.consumedItem;}
+  if(['stuffcheeks','teatime'].includes(n)){if(n==='stuffcheeks'&&!/berry$/i.test(a.heldItem))return fail('exige Berry');for(const f of n==='teatime'?[a,d]:[a])if(/berry$/i.test(f.heldItem))consumeBerry(g,f,m.name);if(n==='stuffcheeks')stage(g,s,'def',2,null,m.name);}
+  return ok('itens atualizados');}
+ if(['roleplay','skillswap','entrainment','simplebeam','worryseed','gastroacid','doodle'].includes(n)){
+  a.restoreCombat=true;d.restoreCombat=true;const prohibited=f=>['multitype','rkssystem','stancechange','schooling','shieldsdown','battlebond','powerconstruct','disguise','iceface','comatose','terashift','terashell','teraformzero','zenmode'].includes(ability(f));if(prohibited(d)||n==='skillswap'&&prohibited(a))return fail('essa Ability não pode ser substituída');
+  if(['roleplay','doodle'].includes(n))a.abilityName=d.abilityName;else if(n==='skillswap')[a.abilityName,d.abilityName]=[d.abilityName,a.abilityName];else d.abilityName=n==='entrainment'?a.abilityName:n==='simplebeam'?'Simple':n==='worryseed'?'Insomnia':'';
+  if(n==='worryseed'&&d.status?.id==='sleep')d.status=null;activateAbilityField(g,s);activateAbilityField(g,1-s);refreshWeather(g);refreshSpecialField(g);return ok('Abilities de combate atualizadas');}
+ if(['copycat','mirrormove','mefirst','metronome','sleeptalk','assist','instruct','mimic','sketch','transform','naturepower'].includes(n)){
+  if(n==='transform'){a.originalPP={...a.pp};a.restoreCombat=true;if(d.flags.transformed||a.flags.transformed||d.flags.substitute)return fail('alvo não pode ser copiado');a.types=[...d.types];for(const k of ['atk','def','spa','spd','spe'])a.stats[k]=d.stats[k];a.effects=structuredClone(d.effects);a.moves=structuredClone(d.moves);for(const move of a.moves)a.pp[move.id]=5;a.flags.transformed=true;return ok('Transform copiou tipos, atributos e Moves');}
+  if(n==='naturepower'){const key={electric:'thunderbolt',grass:'energyball',misty:'moonblast',psychic:'psychic'}[terrain(g)]||{grass:'energyball',forest:'energyball',water:'hydropump',cave:'powergem',sand:'earthpower',snow:'icebeam',building:'triattack',sky:'airslash',space:'psychic'}[g.environment]||'triattack';return callMove(g,s,key);}
+  if(['mimic','sketch'].includes(n)){if(n==='mimic'){a.restoreCombat=true;a.originalPP={...a.pp};}const last=SD.moves[d.flags.lastMove];if(!last||last.flags?.failmimic)return fail('não há Move copiável');const copied={...HHLocale.move(last),id:m.id,maxPP:n==='mimic'?5:last.pp};a.moves[a.moves.findIndex(x=>x.id===m.id)]=copied;a.pp[m.id]=copied.maxPP;if(n==='sketch')a.originalMoves=structuredClone(a.moves);return ok('copiou '+last.name);}
+  let target=s,key=null;if(n==='instruct'){if(!d.flags.lastMove||SD.moves[d.flags.lastMove]?.flags?.failinstruct)return fail('não há Move repetível');key=d.moves.find(x=>normalizeName(x.name)===d.flags.lastMove);if(key)d.pp[key.id]=Math.max(0,(d.pp[key.id]??key.maxPP)-1);target=1-s;}
+  if(['copycat','mirrormove'].includes(n)){const last=n==='copycat'?g.lastSpecialMove:d.flags.lastMove;if(!last||SD.moves[last]?.flags?.failcopycat)return fail('não há Move copiável');key=last;}
+  if(n==='mefirst'){const action=g._queued?.[1-s],move=d.moves.find(x=>x.id===action?.moveId);if(!move||move.category==='Status'||d.flags.actedTurn===g.turn)return fail('o alvo não tem ataque pendente');key={...move,power:Math.floor(move.power*1.5)};}
+  if(n==='sleeptalk'){if(a.status?.id!=='sleep'&&!has(a,'Comatose'))return fail('o usuário não está dormindo');const pool=a.moves.filter(x=>!SD.moves[normalizeName(x.name)]?.flags?.nosleeptalk&&x.id!==m.id);key=pool[roll(pool.length)-1];}
+  if(n==='assist'){const pool=g.team[s].filter(f=>f!==a).flatMap(f=>f.moves).filter(x=>!SD.moves[normalizeName(x.name)]?.flags?.noassist&&!SD.moves[normalizeName(x.name)]?.callsMove);key=pool[roll(pool.length)-1];}
+  if(n==='metronome'){const pool=Object.values(SD.moves).filter(x=>x.flags?.metronome&&!x.isZ&&!x.isMax&&!x.callsMove);key=pool[roll(pool.length)-1];}
+  if(!key)return fail('não existe Move válido para chamar');return callMove(g,target,key);}
+ if(PIVOT_MOVES.has(n)){if(!reserves(g,s).length)return fail('não há reserva viva');if(n==='partingshot'){stage(g,1-s,'atk',-1,3,m.name,true);stage(g,1-s,'spa',-1,3,m.name,true);}if(n==='chillyreception')setWeather(g,'snow',s);return pivot(g,s,n,g._moveAction?.switchIndex);}
+ if(['roar','whirlwind'].includes(n))return forceSwitch(g,1-s,s);
+ if(['memento','healingwish','lunardance'].includes(n)){if(n==='memento'){stage(g,1-s,'atk',-2,3,m.name,true);stage(g,1-s,'spa',-2,3,m.name,true);}else{if(!reserves(g,s).length)return fail('não há reserva viva');g.healingWish??={};g.healingWish[s]=n;}damage(g,a,a.hp,m.name);return true;}
+ if(n==='revivalblessing'){if(a.uses[n])return fail('limite de 1 uso');const dead=g.team[s].find(f=>f.hp<=0);if(!dead)return fail('não há aliado nocauteado');dead.hp=Math.max(1,Math.floor(dead.maxHp/2));dead.status=null;a.uses[n]=1;return ok(dead.name+' foi revivido');}
+ if(n==='autotomize'){stage(g,s,'spe',2,null,m.name);a.flags.weightLoss=(a.flags.weightLoss||0)+100;return true;}
+ if(n==='acupressure'){const keys=['atk','def','spa','spd','spe','accuracy','evasion'].filter(k=>stages(a,k)<6);if(!keys.length)return fail('todos os estágios estão no máximo');return stage(g,s,keys[roll(keys.length)-1],2,null,m.name);}
+ if(n==='geomancy'){for(const k of ['spa','spd','spe'])stage(g,s,k,2,null,m.name);return true;}
+ if(['flatter','swagger'].includes(n)){stage(g,1-s,n==='flatter'?'spa':'atk',n==='flatter'?1:2,null,m.name,true);addStatus(g,1-s,'confusion','move');return true;}
+ if(['takeheart','junglehealing','lunarblessing','refresh','purify','lifedew','healpulse','floralhealing','healorder','shoreup','synthesis','moonlight','morningsun','roost'].includes(n)){
+  if(n==='purify'){if(!d.status)return fail('alvo sem condição');d.status=null;heal(g,a,a.maxHp/2,m.name);return true;}
+  if(n==='takeheart'){stage(g,s,'spa',1,null,m.name);stage(g,s,'spd',1,null,m.name);a.status=null;return true;}
+  if(n==='refresh'){a.status=null;return ok('condição removida');}
+  const target=['healpulse','floralhealing'].includes(n)?d:a;let fraction=['lifedew','junglehealing','lunarblessing'].includes(n)?.25:.5;
+  if(['synthesis','moonlight','morningsun'].includes(n))fraction=weather(g)==='sun'?2/3:weather(g)?.25:.5;if(n==='shoreup'&&weather(g)==='sand')fraction=2/3;if(n==='floralhealing'&&terrain(g)==='grass')fraction=2/3;
+  a.uses[n]=(a.uses[n]||0)+1;if(a.uses[n]>3){log(g,`${m.name} esgotado: limite de 3 usos.`,'miss');return false;}heal(g,target,target.maxHp*fraction,m.name);if(['junglehealing','lunarblessing'].includes(n))a.status=null;if(n==='roost'){a.flags.roostTypes=[...a.types];a.types=a.types.filter(t=>t!=='Flying');if(!a.types.length)a.types=['Normal'];}return true;}
+ if(n==='spite'||n==='eeriespell'){const last=d.moves.find(x=>normalizeName(x.name)===d.flags.lastMove);if(!last)return fail('alvo não usou Move');d.pp[last.id]=Math.max(0,(d.pp[last.id]??last.maxPP)-4);return ok('PP de '+last.name+' reduzidos');}
+ if(['flowershield','rototiller'].includes(n)){for(let side=0;side<2;side++){const f=active(g,side);if(f.types.includes('Grass')&&(n==='flowershield'||grounded(g,f)))for(const k of n==='flowershield'?['def']:['atk','spa'])stage(g,side,k,1,null,m.name);}return true;}
+ if(['magneticflux','gearup'].includes(n)){if(!['plus','minus'].includes(ability(a)))return fail('exige Plus ou Minus');for(const k of n==='gearup'?['atk','spa']:['def','spd'])stage(g,s,k,1,null,m.name);return true;}
+ if(n==='venomdrench'){if(!['poison','toxic'].includes(d.status?.id))return fail('alvo precisa estar envenenado');for(const k of ['atk','spa','spe'])stage(g,1-s,k,-1,3,m.name,true);return true;}
+ if(n==='captivate'){if(a.gender===d.gender||a.gender==='N'||d.gender==='N'||has(d,'Oblivious'))return fail('gêneros incompatíveis');return stage(g,1-s,'spa',-2,3,m.name,true);}
+ if(['celebrate','happyhour','splash','holdhands'].includes(n))return ok(m.name+' não altera o combate');
+ if(['afteryou','allyswitch','helpinghand','coaching','aromaticmist','dragoncheer','followme','ragepowder','spotlight'].includes(n))return fail('Move de apoio a aliados ou redirecionamento exige batalha em dupla');
+ return baseSupport(g,s,m);
+};
+function clearStockpile(f){delete f.flags.fx?.stockpile;f.effects=f.effects.filter(e=>e.source!=='Stockpile');}
+function consumeBerry(g,f,reason){const item=f.heldItem;f.flags.consumedItem=item;f.heldItem='';if(/lum|pecha|cheri|chesto|rawst|aspear|persim/i.test(item)){f.status=null;f.flags.confusion=0;}else heal(g,f,/oran/i.test(item)?10:Math.floor(f.maxHp/4),item);log(g,`${f.name} consumiu ${item} (${reason}).`,'item');}
+const baseDamageMove=damageMove;
+damageMove=function(g,s,m,accuracy,first){const a=active(g,s),d=active(g,1-s),n=normalizeName(m.name),md=SD.moves[n]||{},oldContext=g._direct;g._direct={side:s,target:d.id,category:m.category,moveId:m.id,moveName:n,bypass:!!md.flags?.bypasssub||!!md.flags?.sound||has(a,'Infiltrator')};
+ let dealt=0;const beforeSub=d.flags.substitute||0;try{
+  if(FIXED_MOVES.has(n)){if(matchup(m.type,d)===0||evalImmunity(g,a,d,m,matchup(m.type,d))){log(g,`${m.name}: alvo imune.`,'immune');return 0;}
+   let amount=0;if(['seismictoss','nightshade'].includes(n))amount=a.level;if(n==='dragonrage')amount=40;if(n==='sonicboom')amount=20;if(n==='psywave')amount=Math.max(1,Math.floor(a.level*(.5+roll(100)/100)));
+   if(['superfang','naturesmadness','ruination'].includes(n))amount=Math.max(1,Math.floor(d.hp/2));if(n==='endeavor')amount=Math.max(0,d.hp-a.hp);if(n==='finalgambit')amount=a.hp;
+   if(['counter','mirrorcoat','metalburst','comeuppance'].includes(n)){const hit=a.flags.received;const allowed=hit?.turn===g.turn&&hit.attacker===d.id&&(n!=='counter'||hit.category==='Physical')&&(n!=='mirrorcoat'||hit.category==='Special');if(allowed)amount=Math.floor(hit.amount*(['counter','mirrorcoat'].includes(n)?2:1.5));}
+   if(n==='bide')amount=(a.flags.bideDamage||0)*2;
+   dealt=damage(g,d,amount,m.name);log(g,`${a.name}: ${m.name} causou ${dealt} HP de dano específico.`,'attack');if(n==='finalgambit')baseDamage(g,a,a.hp,m.name);if(n==='bide')delete a.flags.bideDamage;
+  }else{dealt=baseDamageMove(g,s,m,accuracy,first);}
+  const hit=dealt>0||beforeSub>0&&g._direct.subHit;if(hit&&!g._direct.subHit){
+   if(d.status?.id==='freeze'&&(m.type==='Fire'||['scald','steameruption','scorchingsands','matchagotcha'].includes(n)))d.status=null;
+   if(n==='clearsmog')d.effects=[];if(['knockoff','thief','covet','incinerate'].includes(n)){if(n==='knockoff')d.heldItem='';if(['thief','covet'].includes(n)&&!a.heldItem&&!has(d,'Sticky Hold')){a.heldItem=d.heldItem;d.heldItem='';}if(n==='incinerate'&&/berry|gem/i.test(d.heldItem))d.heldItem='';delete d.flags.choiceLock;}
+   if(n==='wakeupslap'&&d.status?.id==='sleep'||n==='smellingsalts'&&d.status?.id==='paralysis'||n==='sparklingaria'&&['burn','deepburn'].includes(d.status?.id))d.status=null;
+   if(n==='eeriespell'){const move=d.moves.find(x=>normalizeName(x.name)===d.flags.lastMove);if(move)d.pp[move.id]=Math.max(0,(d.pp[move.id]??move.maxPP)-3);}
+   if(n==='direclaw'&&roll(100)<=50)addStatus(g,1-s,['poison','paralysis','sleep'][roll(3)-1],'secondary');
+   if(n==='alluringvoice'&&d.flags.raisedTurn===g.turn)addStatus(g,1-s,'confusion','secondary');
+   if(n==='saltcure')effect(g,1-s,n);if(n==='sparklingaria'&&d.status?.id==='burn')d.status=null;
+   if(['psychicnoise','throatchop'].includes(n))effect(g,1-s,n==='psychicnoise'?'healblock':'throatchop',2);
+   if(n==='ceaselessedge')g.hazards[1-s].spikes=Math.min(3,(g.hazards[1-s].spikes||0)+1);if(n==='stoneaxe')g.hazards[1-s].stealthRock=1;
+   if(md.forceSwitch&&d.hp>0)forceSwitch(g,1-s,s);
+  }
+  if(hit&&a.hp>0){if(PIVOT_MOVES.has(n)||md.selfSwitch)pivot(g,s,n,g._moveAction?.switchIndex);if(RECHARGE_MOVES.has(n)||md.self?.volatileStatus==='mustrecharge')a.flags.recharge=true;}
+  if(['outrage','petaldance','thrash','ragingfury'].includes(n)&&hit&&!fx(a,'lockedmove'))effect(g,s,'lockedmove',2+roll(2)-1,{move:n});if(n==='uproar'&&hit&&!fx(a,'uproar')){effect(g,s,'uproar',3);for(let side=0;side<2;side++)if(active(g,side).status?.id==='sleep')active(g,side).status=null;}
+  if(md.selfdestruct&&a.hp>0)baseDamage(g,a,a.hp,m.name);if(['mindblown','steelbeam','chloroblast'].includes(n)&&a.hp>0)indirect(g,a,Math.ceil(a.maxHp/2),m.name);
+  if(n==='spitup')clearStockpile(a);if(['fling','naturalgift'].includes(n)){a.flags.consumedItem=a.heldItem;a.heldItem='';}
+  if(fx(a,'charge')&&m.type==='Electric')delete a.flags.fx.charge;
+  if(md.ohko&&hit&&d.hp>0&&!has(d,'Sturdy')&&roll(100)<=25)damage(g,d,d.hp,m.name+' · KO imediato (25%)');
+  return dealt;
+ }finally{g._direct=oldContext;}
+};
+function executeSpecialMove(g,s,original,first,act={}){const a=active(g,s),d=active(g,1-s),n=normalizeName(original.name),md=SD.moves[n]||{},m=effectiveMove(g,s,original,first);d._grounded=grounded(g,d);
+ const selfTarget=['self','allySide','allyTeam','all','allies'].includes(md.target),blocked=()=>{a.flags.failedTurn=g.turn;return false;};
+ if(g.weather?.primal==='sun'&&m.category!=='Status'&&m.type==='Water'||g.weather?.primal==='rain'&&m.category!=='Status'&&m.type==='Fire'){log(g,`${m.name}: falhou pelo clima primal.`,'field');return blocked();}
+ if(fx(a,'powder')&&m.type==='Fire'){indirect(g,a,Math.max(1,Math.floor(a.maxHp/4)),'Powder');return blocked();}
+ if(md.flags?.powder&&(d.types.includes('Grass')||has(d,'Overcoat')||held(d,'Safety Goggles'))&&!selfTarget){log(g,`${d.name}: imune a pós.`,'immune');return blocked();}
+ if(md.flags?.sound&&has(d,'Soundproof')&&!selfTarget){log(g,`${d.name}: Soundproof.`,'immune');return blocked();}
+ if(terrain(g)==='psychic'&&grounded(g,d)&&getPriority(g,s,{kind:'move',moveId:original.id})>0&&!selfTarget){log(g,'Psychic Terrain bloqueou a prioridade.','field');return blocked();}
+ if(md.flags?.charge&&!a.flags.charging&&!act.called){const immediate=['solarbeam','solarblade'].includes(n)&&weather(g)==='sun'||n==='electroshot'&&weather(g)==='rain';if(!immediate&&!held(a,'Power Herb')){
+   a.flags.charging={move:structuredClone(original),hidden:['dig','dive','fly','bounce','phantomforce','shadowforce','skydrop'].includes(n)?n:null};if(n==='skullbash')stage(g,s,'def',1,null,m.name);if(['meteorbeam','electroshot'].includes(n))stage(g,s,'spa',1,null,m.name);log(g,`${a.name} começou a carregar ${m.name}; conclui na próxima rodada.`,'field');return true;
+  }if(!immediate&&held(a,'Power Herb')){a.flags.consumedItem=a.heldItem;a.heldItem='';log(g,`${a.name} consumiu Power Herb: ${m.name} imediato.`,'item');}if(['meteorbeam','electroshot'].includes(n))stage(g,s,'spa',1,null,m.name);
+ }
+ if(a.flags.charging)delete a.flags.charging;
+ if(n==='bide'&&!act.called){if(!a.flags.bide){a.flags.bide={turn:g.turn,move:original};a.flags.bideDamage=0;log(g,'Bide: acumulando dano por duas rodadas.','field');return true;}if(g.turn-a.flags.bide.turn<2)return true;delete a.flags.bide;}
+ if(['futuresight','doomdesire'].includes(n)&&!act.delayed){g.delayed??=[];if(g.delayed.some(x=>x.targetSide===1-s)){log(g,'Já existe um ataque futuro reservado para esse lado.','miss');return blocked();}g.delayed.push({due:g.turn+2,side:s,targetSide:1-s,attacker:structuredClone(a),move:structuredClone(m)});log(g,`${m.name}: atingirá o lado inimigo daqui a duas rodadas.`,'field');return true;}
+ const protect=d.flags.protectTurn===g.turn&&n!=='feint'&&!['phantomforce','shadowforce','hyperspacefury','hyperspacehole'].includes(n)&&!selfTarget&&md.flags?.protect!==0;
+ const pk=d.flags.protectKind||'protect',limited=pk==='quickguard'&&getPriority(g,s,{kind:'move',moveId:original.id})<=0||pk==='wideguard'&&!['allAdjacent','allAdjacentFoes'].includes(md.target)||pk==='craftyshield'&&m.category!=='Status'||['kingsshield','matblock'].includes(pk)&&m.category==='Status';
+ if(protect&&!limited){log(g,`${d.name} bloqueou ${m.name} com ${SD.moves[pk]?.name||'Protect'}.`,'screen');if(isContact(m)){if(pk==='spikyshield')indirect(g,a,a.maxHp/8,pk);if(pk==='banefulbunker')addStatus(g,s,'poison','ability');if(pk==='burningbulwark')addStatus(g,s,'burn','ability');if(pk==='kingsshield')stage(g,s,'atk',-1,3,pk,true);if(pk==='obstruct')stage(g,s,'def',-2,3,pk,true);if(pk==='silktrap')stage(g,s,'spe',-1,3,pk,true);}return blocked();}
+ if(n==='feint'){delete d.flags.protectTurn;delete d.flags.protectKind;}
+ if(d.flags.substitute>0&&m.category==='Status'&&!selfTarget&&!md.flags?.bypasssub&&!md.flags?.sound&&!has(a,'Infiltrator')){log(g,`${d.name}: Substitute bloqueou ${m.name}.`,'screen');return blocked();}
+ if(m.category==='Status'&&md.flags?.reflectable&&!act.reflected&&(has(d,'Magic Bounce')||fx(d,'magiccoat'))){log(g,`${m.name} foi refletido!`,'ability');return executeSpecialMove(g,1-s,original,first,{...act,reflected:true,called:true});}
+ if(selfTarget&&md.flags?.snatch&&fx(d,'snatch')&&!act.snatched){delete d.flags.fx.snatch;log(g,`${d.name} roubou ${m.name} com Snatch.`,'field');return executeSpecialMove(g,1-s,original,first,{...act,snatched:true,called:true});}
+ visual(g,{kind:'move',side:s,name:m.name,type:m.type,category:m.category});const accuracy=selfTarget&&md.accuracy===true?{hit:true,crit:false,label:'Efeito próprio'}:rollAccuracy(g,s,m,act.targetEvade||'none');
+ if(!accuracy.hit){visual(g,{kind:'miss',side:1-s,name:d.name});log(g,`${a.name} usou ${m.name}, mas ERROU (${accuracy.label}).`,'miss');return blocked();}
+ if(n==='focuspunch'&&a.flags.received?.turn===g.turn){log(g,'Focus Punch falhou: concentração interrompida.','miss');return blocked();}if(n==='suckerpunch'&&(g._queued?.[1-s]?.kind!=='move'||d.moves.find(x=>x.id===g._queued[1-s].moveId)?.category==='Status'||d.flags.actedTurn===g.turn))return blocked();
+ let result;if(m.category==='Status'){result=support(g,s,m);}else if(m.power<=0&&!FIXED_MOVES.has(n)){log(g,`${m.name} falhou: requisito de Power variável não atendido.`,'miss');result=false;}else result=damageMove(g,s,m,accuracy,first);
+ if(result!==false)g.lastSpecialMove=n;else a.flags.failedTurn=g.turn;return result;
+}
+handleMove=function(g,s,act,first){const a=active(g,s);let m=a.moves.find(x=>x.id===act.moveId);if(act.moveId==='__struggle')m={id:'__struggle',name:'Struggle',type:'Normal',category:'Physical',power:50,accuracy:90,alwaysHits:true,contact:true};if(!m)return;
+ if(a.flags.charging)m=a.flags.charging.move;if(a.flags.bide)m=a.flags.bide.move;const n=normalizeName(m.name);triggerHeld(g,a,'disable');const reason=n==='struggle'?'':moveBlockReason(g,s,m);
+ if(reason){log(g,`${a.name} não pôde usar ${m.name}: ${reason}.`,'status');a.flags.failedTurn=g.turn;return;}
+ if(has(active(g,1-s),'Damp')&&['selfdestruct','explosion','mindblown'].includes(n)){log(g,`${m.name} falhou: Damp.`,'ability');return;}
+ if(has(active(g,1-s),'Pressure')&&a.flags.lastMove===n&&a.flags.lastMoveTurn===g.turn-1&&!['struggle','explosion'].includes(n)){a.disabled[n]=roll(3)+1;triggerHeld(g,a,'disable');if(a.disabled[n]){log(g,`${m.name} foi selado por Pressure após repetição.`,'ability');return;}}
+ if(SD.moves[n]?.flags?.defrost&&a.status?.id==='freeze')a.status=null;
+ const sleeping=!!SD.moves[n]?.sleepUsable;a.flags.sleepUsable=sleeping;if(!canAct(g,s)){delete a.flags.sleepUsable;a.flags.failedTurn=g.turn;return;}delete a.flags.sleepUsable;
+ if(!a.flags.charging&&n!=='struggle')a.pp[m.id]=Math.max(0,(a.pp[m.id]??m.maxPP??20)-1);
+ delete a.flags.fx?.glaiverush;delete a.flags.fx?.destinybond;delete a.flags.fx?.grudge;a.flags.lastMove=n;a.flags.lastMoveTurn=g.turn;a.flags.actedTurn=g.turn;
+ if(['choiceband','choicespecs','choicescarf'].includes(effectiveHeldName(a)))a.flags.choiceLock=n;
+ const effective=effectiveMove(g,s,m,first,true);if(!a.gimmicks?.tera?.active&&has(a,'Protean')&&a.flags.proteanTurn!==g.turn){a.types=[effective.type];a.flags.proteanTurn=g.turn;}
+ if(has(a,'Forecast')&&!a.flags.forecastBoost&&a._weather&&m.category!=='Status'){stage(g,s,m.category==='Physical'?'atk':'spa',1,null,'Forecast');a.flags.forecastBoost=true;}
+ const old=g._moveAction;g._moveAction=act;try{const result=executeSpecialMove(g,s,m,first,act);if(n==='struggle')indirect(g,a,Math.max(1,Math.floor(a.maxHp/4)),'Struggle');if(has(a,'Solar Power')&&weather(g)==='sun'&&m.category!=='Status')indirect(g,a,sum(dice(1)),'Solar Power');return result;}finally{g._moveAction=old;}
+};
+const baseValidAction=validAction;
+validAction=function(g,s,act){if(act?.kind==='move'&&act.moveId==='__struggle')return active(g,s)?.hp>0&&!active(g,s).moves.some(m=>!moveBlockReason(g,s,m));if(act?.kind==='switch'&&switchReason(g,s))return false;
+ if(act?.kind==='move'){const m=active(g,s)?.moves.find(m=>m.id===act.moveId);if(!m||moveBlockReason(g,s,m))return false;if(act.switchIndex!==undefined&&!reserves(g,s).includes(+act.switchIndex))return false;}return baseValidAction(g,s,act);};
+const baseResolve=resolve;
+resolve=function(g,a,b){const replacing=replacementSides(g).some(Boolean);if(replacing)return baseResolve(g,a,b);
+ const actions=structuredClone([a,b]);for(let s=0;s<2;s++){const f=active(g,s);if(f.flags.recharge){actions[s]={kind:'pass',recharge:true};delete f.flags.recharge;log(g,`${f.name} recarrega e não age nesta rodada.`,'field');}}
+ g._queued=actions;g._callDepth=0;try{return baseResolve(g,actions[0],actions[1]);}finally{delete g._queued;delete g._callDepth;delete g._direct;delete g._moveAction;refreshSpecialField(g);}};
+const baseEndRound=endRound;
+endRound=function(g){
+ for(let s=0;s<2;s++){const f=active(g,s);if(f.hp<=0)continue;const effects=f.flags.fx||{};
+  if(effects.nightmare){if(f.status?.id==='sleep'||has(f,'Comatose'))indirect(g,f,Math.max(1,Math.floor(f.maxHp/4)),'Nightmare');else delete effects.nightmare;}
+  if(f.hp>0&&effects.leechseed){const drain=indirect(g,f,Math.max(1,Math.floor(f.maxHp/8)),'Leech Seed'),target=active(g,effects.leechseed.sourceSide);if(target.hp>0)heal(g,target,drain,'Leech Seed');}
+  if(f.hp>0&&effects.curse)indirect(g,f,Math.max(1,Math.floor(f.maxHp/4)),'Curse');
+  if(f.hp>0&&effects.saltcure)indirect(g,f,Math.max(1,Math.floor(f.maxHp/(f.types.some(t=>['Water','Steel'].includes(t))?4:8))),'Salt Cure');
+  if(f.hp>0&&effects.partiallytrapped){const source=g.team[effects.partiallytrapped.sourceSide].find(p=>p.id===effects.partiallytrapped.sourceId);if(source!==active(g,effects.partiallytrapped.sourceSide)||source.hp<=0)delete effects.partiallytrapped;else indirect(g,f,Math.max(1,Math.floor(f.maxHp/(held(source,'Binding Band')?6:8))),'Aprisionamento');}
+  if(f.hp>0&&effects.syrupbomb)stage(g,s,'spe',-1,3,'Syrup Bomb',true);
+  if(f.hp>0&&effects.octolock){stage(g,s,'def',-1,3,'Octolock',true);stage(g,s,'spd',-1,3,'Octolock',true);}
+  if(f.hp>0)for(const k of ['aquaring','ingrain'])if(effects[k])heal(g,f,Math.max(1,Math.floor(f.maxHp/16)),FX_NAMES[k]);
+  if(effects.yawn&&g.turn>=effects.yawn.until){delete effects.yawn;addStatus(g,s,'sleep','move');}
+  if(effects.perishsong&&g.turn>effects.perishsong.started){effects.perishsong.count--;log(g,`${f.name}: Perish Song ${effects.perishsong.count}.`,'status');if(effects.perishsong.count<=0)damage(g,f,f.hp,'Perish Song');}
+  if(f.flags.bide&&f.flags.received?.turn===g.turn)f.flags.bideDamage=(f.flags.bideDamage||0)+f.flags.received.amount;
+  for(const [k,v] of Object.entries(effects)){if(v.until!==null&&v.until!==undefined&&g.turn>=v.until){delete effects[k];log(g,`${f.name}: ${FX_NAMES[k]||k} terminou.`,'status');if(k==='lockedmove'&&!v.noConfusion)addStatus(g,s,'confusion','move-self');}}
+  if(f.flags.roostTypes){f.types=f.flags.roostTypes;delete f.flags.roostTypes;}
+ }
+ for(const event of (g.delayed||[]).filter(x=>x.due<=g.turn)){const target=active(g,event.targetSide);if(target.hp<=0)continue;const index=g.active[event.side],real=g.team[event.side][index];g.team[event.side][index]=event.attacker;try{log(g,`${event.move.name} atingiu o campo!`,'attack');damageMove(g,event.side,event.move,{hit:true,crit:false,label:'Ataque futuro'},false);}finally{g.team[event.side][index]=real;}}
+ g.delayed=(g.delayed||[]).filter(x=>x.due>g.turn);baseEndRound(g);
+ for(const [k,v] of Object.entries(g.field||{}))if(v.until<=g.turn){delete g.field[k];log(g,`${k}: efeito de campo terminou.`,'field');}refreshSpecialField(g);
+};
+const baseNewGame=newGame;
+newGame=function(a,b,options={}){const g=baseNewGame(a,b,options);g.environment=options.environment||'building';g.field??={};g.delayed??=[];for(let s=0;s<2;s++)active(g,s).flags.enteredTurn=g.turn;refreshWeather(g);return g;};
+for(const name of ['Air Lock','Cloud Nine','Forecast','Desolate Land','Primordial Sea','Delta Stream','Heavy Metal','Light Metal','Aroma Veil','Oblivious','Soundproof','No Guard','Inner Focus','Electric Surge','Grassy Surge','Misty Surge','Psychic Surge','Skill Link','Suction Cups','Sticky Hold']){AUTO_ABILITIES.push(name);AUTO.add(normalizeName(name));}
+
+const SPECIAL_DAMAGE=new Set(('beakblast belch bloodmoon blueflare boltstrike boomburst brickbreak bugbite burnup chipaway chloroblast clangingscales clearsmog collisioncourse coreenforcer covet darkestlariat disarmingvoice doomdesire dracometeor earthquake echoedvoice electrodrift explosion extremespeed falsesurrender falseswipe feint feintattack fellstinger ficklebeam firefang firepledge firstimpression flameburst fleurcannon flowertrick flyingpress focuspunch freezyfrost frostbreath furycutter fusionbolt fusionflare futuresight gigatonhammer grasspledge grassyglide gust headsmash hiddenpower highjumpkick holdback hydrosteam hyperdrill hyperspacehole iceball icefang icespinner incinerate ivycudgel jawlock judgment kowtowcleave lastresort lastrespects leafstorm lightofruin magicalleaf magnetbomb mightycleave mindblown mistyexplosion moongeistbeam multiattack orderup overheat payday photongeyser plasmafists pluck poltergeist psyblade psychicfangs psychoboost pursuit ragefist ragingbull revelationdance rollout round sacredsword sappyseed selfdestruct shelltrap shockwave skyuppercut smartstrike snipe shot spectral thief steelbeam steelroller stormthrow struggle sunsteelstrike supercellslam surf synchronoise technoblast terablast terastarstorm thief thousandwaves thunderfang triplearrows vcreate vitalthrow waterpledge wickedblow psychicnoise saltcure alluringvoice direclaw throatchop').replace('snipe shot','snipeshot').replace('spectral thief','spectralthief').split(' '));
+for(const n of ['block','meanlook','spiderweb','psychoshift','cottonspore','stringshot','sweetscent','supersonic','sweetkiss','teeterdance','toxicthread'])SPECIAL_SUPPORT.add(n);
+const ITEM_TYPES={flameplate:'Fire',splashplate:'Water',zapplate:'Electric',meadowplate:'Grass',icicleplate:'Ice',fistplate:'Fighting',toxicplate:'Poison',earthplate:'Ground',skyplate:'Flying',mindplate:'Psychic',insectplate:'Bug',stoneplate:'Rock',spookyplate:'Ghost',dracoplate:'Dragon',dreadplate:'Dark',ironplate:'Steel',pixieplate:'Fairy',burndrive:'Fire',dousedrive:'Water',shockdrive:'Electric',chilldrive:'Ice',cheriberry:'Fire',chestoberry:'Water',pechaberry:'Electric',rawstberry:'Grass',aspearberry:'Ice',leppaberry:'Fighting',oranberry:'Poison',persimberry:'Ground',lumberry:'Flying',sitrusberry:'Psychic',figyberry:'Bug',wikiberry:'Rock',magoberry:'Ghost',aguavberry:'Dragon',iapapaberry:'Dark',razzberry:'Steel',blukberry:'Fire',nanabberry:'Water',wepearberry:'Electric',pinapberry:'Grass',occaberry:'Fire',passhoberry:'Water',wacanberry:'Electric',rindoberry:'Grass',yacheberry:'Ice',chopleberry:'Fighting',kebiaberry:'Poison',shucaberry:'Ground',cobaberry:'Flying',payapaberry:'Psychic',tangaberry:'Bug',chartiberry:'Rock',kasibberry:'Ghost',habanberry:'Dragon',colburberry:'Dark',babiriberry:'Steel',chilanberry:'Normal',roseliberry:'Fairy'};
+const knownCoverage=moveCoverage;
+moveCoverage=function(m){const n=normalizeName(m.name),md=SD.moves[n];if(md?.isZ||md?.isMax)return knownCoverage(m);if(SPECIAL_DAMAGE.has(n)||n.startsWith('hiddenpower')||n==='jumpkick'||n==='pollenpuff'||md?.critRatio>1||md?.willCrit||md?.accuracy===true||md?.self?.boosts)return 'auto';return knownCoverage(m);};
+const specialSupportBase=support;
+support=function(g,s,m){const n=normalizeName(m.name),a=active(g,s),d=active(g,1-s),md=SD.moves[n];
+ if(['block','meanlook','spiderweb'].includes(n))return effect(g,1-s,'trapped',null,{sourceId:a.id,sourceSide:s});
+ if(n==='psychoshift'){if(!a.status)return false;const changed=addStatus(g,1-s,a.status.id,'move');if(changed)a.status=null;return changed;}
+ if(['cottonspore','stringshot','sweetscent'].includes(n)){for(const [k,v]of Object.entries(md.boosts))stage(g,1-s,k,v,3,m.name,true);return true;}
+ if(['supersonic','sweetkiss','teeterdance'].includes(n))return addStatus(g,1-s,'confusion','move');
+ if(n==='toxicthread'){stage(g,1-s,'spe',-1,3,m.name,true);return addStatus(g,1-s,'poison','move');}
+ if(n==='growth'&&weather(g)==='sun'){stage(g,s,'atk',2,null,m.name);stage(g,s,'spa',2,null,m.name);return true;}
+ return specialSupportBase(g,s,m);
+};
+const specialMoveBase=effectiveMove;
+effectiveMove=function(g,s,original,first=false,preview=false){const m=specialMoveBase(g,s,original,first,preview),a=active(g,s),d=active(g,1-s),n=normalizeName(m.name),item=normalizeName(a.heldItem);
+ if(n==='naturalgift'&&ITEM_TYPES[item]){m.type=ITEM_TYPES[item];m.power=80;}
+ if(n==='judgment')m.type=ITEM_TYPES[item]||'Normal';if(n==='technoblast')m.type=ITEM_TYPES[item]||'Normal';
+ if(n==='multiattack')m.type=TYPES.find(t=>item===normalizeName(t)+'memory')||'Normal';
+ if(n==='revelationdance')m.type=a.types[0];if(n==='ivycudgel')m.type=item==='wellspringmask'?'Water':item==='hearthflamemask'?'Fire':item==='cornerstonemask'?'Rock':'Grass';
+ if(n==='ragingbull')m.type=/paldea.*blaze/i.test(a.speciesSlug)?'Fire':/paldea.*aqua/i.test(a.speciesSlug)?'Water':/paldea/i.test(a.speciesSlug)?'Fighting':'Normal';
+ if(n==='terablast'&&a.gimmicks?.tera?.active){m.type=a.gimmicks.tera.type;m.category=effStat(a,'atk')>effStat(a,'spa')?'Physical':'Special';}
+ if(n==='photongeyser')m.category=effStat(a,'atk')>effStat(a,'spa')?'Physical':'Special';
+ if(n==='ragefist')m.power=Math.min(350,50+50*(a.hitCount||0));if(n==='lastrespects')m.power=50+50*(g.faintCounts?.[s]||0);
+ if(n==='hiddenpower'&&a.hiddenPowerType)m.type=a.hiddenPowerType;
+ if(n==='furycutter')m.power=Math.min(160,m.power*2**(a.flags.furyCutterCount||0));
+ if(['rollout','iceball'].includes(n))m.power*=2**(a.flags.rollCount||0)*(fx(a,'defensecurl')?2:1);
+ if(n==='echoedvoice')m.power=Math.min(200,40*(g.echoedVoice?.turn>=g.turn-1?(g.echoedVoice.count||0)+1:1));
+ if(n==='ficklebeam'&&!preview&&roll(100)<=30)m.power*=2;
+ if(n==='psyblade'&&terrain(g)==='electric')m.power=Math.floor(m.power*1.5);
+ if(['barbbarrage','infernalparade'].includes(n)&&(['poison','toxic'].includes(d.status?.id)||n==='infernalparade'&&d.status)){m.bonusBaseDice=powerDice(m.power);m.power*=2;}
+ if(n==='shellsidearm')m.category=effStat(a,'atk')/effStat(d,'def')>effStat(a,'spa')/effStat(d,'spd')?'Physical':'Special';if(n==='aurawheel'&&/hangry/i.test(a.speciesSlug))m.type='Dark';
+ if(n==='hydrosteam'&&weather(g)==='sun'){m.power=Math.floor(m.power*1.5);m.sunWaterBoost=true;}
+ if(n==='pursuit'&&g._queued?.[1-s]?.kind==='switch')m.power*=2;
+ if(['collisioncourse','electrodrift'].includes(n)&&matchup(m.type,d)>1)m.power=Math.floor(m.power*4/3);
+ if(n==='fusionbolt'&&g.lastSpecialMove==='fusionflare'&&g.lastSpecialMoveTurn===g.turn||n==='fusionflare'&&g.lastSpecialMove==='fusionbolt'&&g.lastSpecialMoveTurn===g.turn)m.power*=2;
+ if(n==='round'&&g.lastSpecialMove==='round'&&g.lastSpecialMoveTurn===g.turn)m.power*=2;
+ if(['sacredsword','chipaway','darkestlariat'].includes(n))m.ignoreDefStages=true;
+ if(['moongeistbeam','sunsteelstrike','photongeyser'].includes(n))m.ignoreAbility=true;
+ if(n==='flyingpress')m.secondaryType='Flying';
+ if(d.flags.charging?.hidden==='dig'&&['earthquake','magnitude'].includes(n)||d.flags.charging?.hidden==='dive'&&['surf','whirlpool'].includes(n)||['fly','bounce'].includes(d.flags.charging?.hidden)&&['gust','twister'].includes(n)){m.bonusBaseDice=(m.bonusBaseDice||0)+powerDice(m.power);m.power*=2;}
+ return m;};
+const specialBlockBase=moveBlockReason;
+moveBlockReason=function(g,s,m){if(!m)return 'Move inexistente';const base=specialBlockBase(g,s,m);if(base)return base;const f=active(g,s),n=normalizeName(m.name);if(SD.moves[n]?.flags?.cantusetwice&&f.flags.lastMove===n&&f.flags.lastMoveTurn===g.turn-1)return 'Não pode repetir na rodada seguinte';if(n==='belch'&&!f.ateBerry)return 'É preciso consumir uma Berry';return '';};
+const specialPriorityBase=getPriority;
+getPriority=function(g,s,act){const m=active(g,s).moves.find(x=>x.id===act.moveId),n=normalizeName(m?.name);if(n==='pursuit'&&g._queued?.[1-s]?.kind==='switch')return 7;return specialPriorityBase(g,s,act)+(n==='grassyglide'&&terrain(g)==='grass'&&grounded(g,active(g,s))?1:0);};
+const specialDamageBase=damage;
+damage=function(g,f,n,reason){const hp=f.hp,amount=specialDamageBase(g,f,n,reason);if(hp>0&&f.hp<=0){g.faintCounts??=[0,0];const side=g.team.findIndex(t=>t.includes(f));if(side>=0)g.faintCounts[side]++;}if(amount>0&&g._direct?.target===f.id)f.hitCount=(f.hitCount||0)+1;return amount;};
+const specialExecuteBase=executeSpecialMove;
+executeSpecialMove=function(g,s,m,first,act={}){const a=active(g,s),d=active(g,1-s),n=normalizeName(m.name),fail=why=>{a.flags.failedTurn=g.turn;log(g,`${m.name} falhou: ${why}.`,'miss');return false;};
+ if(n==='snore'&&a.status?.id!=='sleep'&&!has(a,'Comatose'))return fail('o usuário precisa estar dormindo');
+ if(n==='dreameater'&&d.status?.id!=='sleep'&&!has(d,'Comatose'))return fail('o alvo precisa estar dormindo');if(n==='thunderclap'&&(g._queued?.[1-s]?.kind!=='move'||d.moves.find(x=>x.id===g._queued[1-s].moveId)?.category==='Status'||d.flags.actedTurn===g.turn))return fail('o alvo não tem ataque pendente');if(n==='upperhand'&&(d.flags.actedTurn===g.turn||getPriority(g,1-s,g._queued?.[1-s]||{})<=0))return fail('o alvo não tem Move de prioridade pendente');
+ if(n==='synchronoise'&&!a.types.some(t=>d.types.includes(t)))return fail('os tipos não coincidem');
+ if(n==='steelroller'&&!g.terrain)return fail('exige terreno ativo');if(n==='poltergeist'&&!d.heldItem)return fail('o alvo não segura item');
+ if(['firstimpression','fakeout'].includes(n)&&a.flags.enteredTurn!==g.turn)return fail('só pode ser usado na entrada');
+ if(n==='lastresort'&&(!a.moves.some(x=>x.id!==m.id)||a.moves.some(x=>x.id!==m.id&&!a.flags.usedMoves?.includes(x.id))))return fail('os outros Moves ainda não foram usados');
+ if(n==='burnup'&&!a.types.includes('Fire')||n==='doubleshock'&&!a.types.includes('Electric'))return fail('tipo necessário ausente');
+ if(n==='shelltrap'&&!(a.flags.received?.turn===g.turn&&a.flags.received.category==='Physical'))return fail('não recebeu golpe físico nessa rodada');
+ const item=a.heldItem,result=specialExecuteBase(g,s,m,first,act);if(item&&!a.heldItem){a.flags.consumedItem=item;if(/berry$/i.test(item))a.ateBerry=true;}
+ a.flags.usedMoves??=[];if(!a.flags.usedMoves.includes(m.id))a.flags.usedMoves.push(m.id);
+ if(result!==false){g.lastSpecialMoveTurn=g.turn;if(n==='echoedvoice')g.echoedVoice={turn:g.turn,count:g.echoedVoice?.turn>=g.turn-1?(g.echoedVoice.count||0)+1:1};}
+ if(result===false&&['highjumpkick','jumpkick','supercellslam','axekick'].includes(n))indirect(g,a,Math.ceil(a.maxHp/2),m.name+' · falha');return result;};
+const specialDamageMoveBase=damageMove;
+damageMove=function(g,s,m,acc,first){const a=active(g,s),d=active(g,1-s),n=normalizeName(m.name);if(['brickbreak','psychicfangs','ragingbull'].includes(n))g.screens[1-s]={};
+ if(n==='spectralthief'){const keys=['atk','def','spa','spd','spe','accuracy','evasion'].filter(k=>stages(d,k)>0);for(const k of keys){const v=stages(d,k);setStages(d,{[k]:0},m.name);stage(g,s,k,v,null,m.name);}}
+ const before=d.hp,barrier=d.flags.substitute||0,ability=d.abilityName;const prevType=gDirectType;gDirectType={primary:m.type,secondary:m.secondaryType||null,move:n};if(m.ignoreAbility)d.abilityName='';let dealt;try{dealt=specialDamageMoveBase(g,s,m,acc,first);}finally{d.abilityName=ability;gDirectType=prevType;}
+ const hit=dealt>0||barrier>(d.flags.substitute||0);if(hit){
+  
+  if(n==='burningjealousy'&&d.flags.raisedTurn===g.turn)addStatus(g,1-s,'burn','secondary');if(n==='sparklyswirl')for(const f of g.team[s]){f.status=null;f.flags.confusion=0;}if(n==='glaiverush')effect(g,s,n,2);if(n==='syrupbomb')effect(g,1-s,n,3);
+  if(n==='fellstinger'&&d.hp<=0)stage(g,s,'atk',3,null,m.name);if(n==='freezyfrost'){a.effects=[];d.effects=[];}
+  if(['icespinner','steelroller'].includes(n))g.terrain=null;
+  if(n==='sappyseed'&&!d.types.includes('Grass'))effect(g,1-s,'leechseed',null,{sourceSide:s});
+  if(n==='jawlock'){effect(g,s,'trapped',null,{sourceId:d.id,sourceSide:1-s});effect(g,1-s,'trapped',null,{sourceId:a.id,sourceSide:s});}
+  if(n==='thousandwaves')effect(g,1-s,'trapped',null,{sourceId:a.id,sourceSide:s});
+  if(n==='coreenforcer'&&d.flags.actedTurn===g.turn){d.restoreCombat=true;d.abilityName='';}
+  if(['bugbite','pluck'].includes(n)&&/berry$/i.test(d.heldItem)){const old=a.heldItem;a.heldItem=d.heldItem;consumeBerry(g,a,m.name);a.heldItem=old;d.heldItem='';}
+  if(n==='burnup'&&!a.gimmicks?.tera?.active){a.types=a.types.filter(t=>t!=='Fire');if(!a.types.length)a.types=['Normal'];}
+  if(n==='doubleshock'&&!a.gimmicks?.tera?.active){a.types=a.types.filter(t=>t!=='Electric');if(!a.types.length)a.types=['Normal'];}
+  if(n==='plasmafists')fieldEffect(g,'iondeluge',1);
+  if(n==='furycutter')a.flags.furyCutterCount=(a.flags.furyCutterCount||0)+1;
+  if(['rollout','iceball'].includes(n)){a.flags.rollCount=(a.flags.rollCount||0)+1;if(a.flags.rollCount<5&&!fx(a,'lockedmove'))effect(g,s,'lockedmove',5,{move:n,noConfusion:true});if(a.flags.rollCount>=5){delete a.flags.fx?.lockedmove;a.flags.rollCount=0;}}
+ }
+ if(!hit){a.flags.failedTurn=g.turn;delete a.flags.furyCutterCount;if(['rollout','iceball'].includes(n)){a.flags.rollCount=0;delete a.flags.fx?.lockedmove;}}
+ return dealt;};
+const specialHeldBase=triggerHeld;
+triggerHeld=function(g,f,event){const item=f.heldItem;specialHeldBase(g,f,event);if(item&&!f.heldItem){f.flags.consumedItem=item;if(/berry$/i.test(item))f.ateBerry=true;}};
+const specialBerryBase=cureBerry;
+cureBerry=function(g,f,id){const item=f.heldItem;const ok=specialBerryBase(g,f,id);if(ok){f.flags.consumedItem=item;f.ateBerry=true;}return ok;};
+
 function sample(){const sceptile=normalizePokemon({id:'demo-sceptile',name:'Sceptile',imageUrl:'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/254.png',level:36,type1:'Grass',type2:'Dragon',abilityName:'Dracovergence',heldItem:'Leftovers',bagItems:[{name:'Potion',quantity:2}],maxHp:115,stats:{hp:115,atk:170,def:100,spa:120,spd:105,spe:140},moves:[
   {name:'Leaf Blade',type:'Grass',category:'Physical',power:90,accuracy:90,active:true},
   {name:'Dragon Claw',type:'Dragon',category:'Physical',power:80,accuracy:90,active:true},
@@ -1592,8 +2061,9 @@ function sample(){const sceptile=normalizePokemon({id:'demo-sceptile',name:'Scep
   {name:'Reflect',type:'Psychic',category:'Status',power:0,accuracy:90,active:true},
   {name:'Dragon Dance',type:'Dragon',category:'Status',power:0,accuracy:90,active:true}
  ]});return [sceptile,charizard];}
-return {TYPES,TYPE_CHART,AUTO_ABILITIES,AUTO,AUTOMATIC_ITEMS,AUTOMATIC_ITEM_KEYS,MEGA_TEST_FORMS,BAG_ITEMS,bagName,canUseBag,useBag,canMega,megaEvolve,itemEffectLabel,normalizeName,normalizePokemon,normalizeImport,newGame,active,alive,replacementSides,stage,stages,effStat,matchup,ruleFor,moveSupported,moveCoverage,resolve,switchTo,log,heal,damage,addStatus,sample,powerDice,statDice,matrixQuality,matrixQD,matrixBPData,matrixLevelBonus,matrixBaseExpression,matrixRollQD,matrixHitCount,matrixProfile,setDamageSystem};
+return {TYPES,TYPE_CHART,AUTO_ABILITIES,AUTO,AUTOMATIC_ITEMS,AUTOMATIC_ITEM_KEYS,MEGA_TEST_FORMS,BAG_ITEMS,bagName,canUseBag,useBag,canMega,megaEvolve,itemEffectLabel,normalizeName,normalizePokemon,normalizeImport,newGame,active,alive,replacementSides,stage,stages,effStat,matchup,ruleFor,moveSupported,moveCoverage,resolve,switchTo,log,heal,damage,addStatus,sample,powerDice,statDice,matrixQuality,matrixQD,matrixBPData,matrixLevelBonus,matrixBaseExpression,matrixRollQD,matrixHitCount,matrixProfile,setDamageSystem,effectiveMove,moveBlockReason,switchReason,specialEffectLabels,describeSpecial,pokemonWeight,fieldEffect,setWeather,setTerrain,grounded};
 })();
+const originalLocalizedMove=HHLocale.move;HHLocale.move=function(d){const m=originalLocalizedMove(d),special=HH.describeSpecial(m);if(special)m.description=special;return m;};
 if(typeof module!=='undefined'&&module.exports)module.exports=HH;
 </script>
 <script>/* Arena do jogador. Dados pessoais da ficha original não são transmitidos. */
@@ -1768,9 +2238,9 @@ function onPacket(p){if(!p||typeof p!=='object'||typeof p.t!=='string')return;
 function showBattle(){window.ArenaClosePlay?.();window.ArenaNavigate?.('battle');document.body.dataset.screen='battle';el('setup').classList.add('hide');el('battle').classList.remove('hide');el('returnSetup').classList.remove('hide');el('battleModeLabel').textContent=mode==='bot'?'TREINO LOCAL':mode==='host'?'ONLINE • ANFITRIÃO':'ONLINE • CONVIDADO';el('mySideLabel').textContent=`LADO ${mySide===0?'A':'B'}`;el('refPanel').classList.toggle('hide',mode==='guest');renderSession();el('battle').scrollIntoView({block:'start'});}
 function beginBot(){if(presenting){notify('Aguarde a animação terminar.');return;}try{const t=prepareSelected(),op=library.find(x=>x.key===el('localOpponent').value)?.p;if(!op)throw Error('Escolha um adversário importado.');closePeer();initialTeams=[t,[structuredClone(op)]];mySide=0;mode='bot';createMatch(initialTeams,true);showBattle();render();}catch(e){notify(e.message);}}
 function botAction(){const side=1,mon=HH.active(game,side);if(HH.replacementSides(game)[0]&&!HH.replacementSides(game)[1])return {kind:'pass'};if(game.needSwitch[side]||mon.hp<=0){const target=game.team[side].findIndex((p,i)=>p.hp>0&&i!==game.active[side]);return target<0?{kind:'pass'}:{kind:'switch',index:target};}
- const damaging=mon.moves.filter(m=>m.category!=='Status'&&m.power>0&&!mon.disabled[HH.normalizeName(m.name)]),all=mon.moves.filter(m=>!mon.disabled[HH.normalizeName(m.name)]);const pool=damaging.length&&Math.random()<.74?damaging:all;const m=pool[Math.floor(Math.random()*pool.length)];
+ const all=mon.moves.filter(m=>!HH.moveBlockReason(game,side,m)),damaging=all.filter(m=>m.category!=='Status');if(mon.flags.recharge)return {kind:'pass'};const pool=damaging.length&&Math.random()<.74?damaging:all;const m=pool[Math.floor(Math.random()*pool.length)];
  const mega=!!(m&&!game.megaUsed[side]&&mon.megaForms?.length&&HH.canMega(game,side,mon.megaForms[0].id)&&Math.random()<.85);
- return m?{kind:'move',moveId:m.id,evade:Math.random()<.25?'reactive':'none',mega,megaFormId:mega?mon.megaForms[0].id:undefined}:{kind:'pass'};}
+ return m?{kind:'move',moveId:m.id,evade:Math.random()<.25?'reactive':'none',mega,megaFormId:mega?mon.megaForms[0].id:undefined}:mon.flags.recharge?{kind:'pass'}:{kind:'move',moveId:'__struggle'};}
 function maybeResolve(){if(mode!=='host'||!game)return;const replacement=HH.replacementSides(game),replacing=replacement.some(Boolean);
  if(replacing?replacement.some((needed,s)=>needed&&!(s===0?localChoice:otherChoice)):!localChoice||!otherChoice)return;
  try{HH.resolve(game,replacing&&!replacement[0]?{kind:'pass'}:localChoice,replacing&&!replacement[1]?{kind:'pass'}:otherChoice);localChoice=null;otherChoice=null;send({t:'state',game});render();}catch(e){notify(e.message);localChoice=null;otherChoice=null;send({t:'invalid',message:'Ação inválida. Selecione outra.'});render();}}
@@ -1815,8 +2285,8 @@ function renderStages(prefix,p){const labels={atk:'ATK',def:'DEF',spa:'Sp.ATK',s
 function renderCombatant(prefix,p){el(prefix+'Name').textContent=p.name;el(prefix+'Level').textContent=`LV.${p.level}`;el(prefix+'Types').innerHTML=typeBadges(p);el(prefix+'HpText').textContent=`${p.hp} / ${p.maxHp}`;el(prefix+'HpBar').setAttribute('aria-valuenow',p.hp);el(prefix+'HpBar').setAttribute('aria-valuemax',p.maxHp);const pct=Math.max(0,100*p.hp/Math.max(1,p.maxHp));const hp=el(prefix+'HpFill');hp.style.width=pct+'%';hp.classList.toggle('yellow',pct<55&&pct>=25);hp.classList.toggle('red',pct<25);el(prefix+'Ability').textContent=p.abilityName;
  el(prefix+'StatusIcons').innerHTML=statusSymbols(p);
  const cond=[];if(p.status)cond.push(HHLocale.status(p.status.id));if(p.flags?.confusion>0)cond.push(`CONFUSÃO ${p.flags.confusion}`);if(p.hp<=0)cond.push('NOCAUTEADO');if(p.flags?.exhausted)cond.push('EXAUSTÃO');if(p.gimmicks?.tera?.active)cond.push('TERA '+p.gimmicks.tera.type);if(p.megaActive)cond.push('✦ MEGA EVOLUÍDO');if(p.heldItem)cond.push('🎒 '+HHLocale.item(p.heldItem));el(prefix+'Conditions').innerHTML=cond.map(t=>`<span>${safe(t)}</span>`).join('');const species=HH.normalizeName(p.speciesSlug||p.name),megaName=p.megaActive?p.name.replace(/^Mega\s+/i,'').replace(/\s+([XYZ])$/i,'-Mega-$1'):'',megaKey=megaName&& !/-Mega-[XYZ]$/i.test(megaName)?megaName+'-Mega':megaName,official=SD.dex[HH.normalizeName(megaKey)]||SD.dex[species];const spriteKey=official?official.name.toLowerCase().replace(/[^a-z0-9-]/g,'').replace('-mega-','-mega'):'';const custom=p.imageUrl&&(!/PokeAPI\/sprites.*official-artwork/i.test(p.imageUrl));const spriteUrl=spriteKey?`https://play.pokemonshowdown.com/sprites/${prefix==='my'?'ani-back':'ani'}/${spriteKey}.gif`:'';const cached=SD.sprites[(prefix==='my'?'ani-back-':'ani-')+spriteKey];const src=custom?p.imageUrl:cached||spriteUrl||p.imageUrl||'';const img=el(prefix+'Sprite');const fall=el(prefix+'Fallback');if(/^(data:image\/(?:png|jpeg|webp|gif);base64,|https:\/\/)/i.test(src)){if(img.dataset.src!==src){img.src=src;img.dataset.src=src;}img.hidden=img.dataset.failed===src;fall.hidden=!img.hidden;img.onload=()=>{img.dataset.failed='';img.hidden=false;fall.hidden=true;};img.onerror=()=>{if(p.imageUrl&&img.src!==p.imageUrl){img.src=p.imageUrl;return;}img.dataset.failed=src;img.hidden=true;fall.hidden=false;};}else{img.hidden=true;fall.hidden=false;}}
-function effectList(p){const a=[];if(p.flags?.exhausted)a.push('<span class="effect down">EXAUSTÃO</span>');if(p.gimmicks?.tera?.active)a.push(`<span class="effect up">TERA ${safe(p.gimmicks.tera.type)} • STAB +2d6</span>`);if(p.status)a.push(`<span class="effect down">${safe(HHLocale.status(p.status.id))}</span>`);if(p.flags?.confusion)a.push(`<span class="effect down">CONFUSÃO ${p.flags.confusion}</span>`);for(const k of ['atk','def','spa','spd','spe','accuracy','evasion']){const v=HH.stages(p,k);if(v)a.push(`<span class="effect ${v>0?'up':'down'}">${k.toUpperCase()} ${v>0?'+':''}${v}</span>`);}if(p.flags?.ironDefense)a.push('<span class="effect up">IRON DEFENSE • ½ PRÓXIMO DANO</span>');if(p.flags?.matrixSwords||p.flags?.swordsUntil>=game.turn)a.push('<span class="effect up">SWORDS DANCE • ×2 PRÓXIMO FÍSICO</span>');if(p.flags?.flashFire)a.push('<span class="effect up">FLASH FIRE +3d6</span>');if(p.flags?.focus)a.push('<span class="effect up">FOCUS ENERGY</span>');if(p.flags?.wish)a.push('<span class="effect up">WISH PENDENTE</span>');if(p.megaActive)a.push('<span class="effect up">✦ MEGA EVOLUTION</span>');if(p.heldItem)a.push(`<span class="effect">🎒 ${safe(HHLocale.item(p.heldItem))}</span>`);return a.join('')||blank('Nenhuma condição ou alteração.');}
-function renderField(){const chips=[];if(game.weather)chips.push(`<span class="field-chip">${{rain:'🌧 CHUVA',sun:'☀ SOL',sand:'◈ AREIA',hail:'❄ GRANIZO',snow:'❄ NEVE'}[game.weather.id]||game.weather.id} • ${game.weather.turns}T</span>`);if(game.terrain)chips.push(`<span class="field-chip">TERRENO ${safe(game.terrain.id.toUpperCase())} • ${game.terrain.turns}T</span>`);
+function effectList(p){const a=HH.specialEffectLabels(game,p).map(t=>`<span class="effect">${safe(t)}</span>`);if(p.flags?.exhausted)a.push('<span class="effect down">EXAUSTÃO</span>');if(p.gimmicks?.tera?.active)a.push(`<span class="effect up">TERA ${safe(p.gimmicks.tera.type)} • STAB +2d6</span>`);if(p.status)a.push(`<span class="effect down">${safe(HHLocale.status(p.status.id))}</span>`);if(p.flags?.confusion)a.push(`<span class="effect down">CONFUSÃO ${p.flags.confusion}</span>`);for(const k of ['atk','def','spa','spd','spe','accuracy','evasion']){const v=HH.stages(p,k);if(v)a.push(`<span class="effect ${v>0?'up':'down'}">${k.toUpperCase()} ${v>0?'+':''}${v}</span>`);}if(p.flags?.ironDefense)a.push('<span class="effect up">IRON DEFENSE • ½ PRÓXIMO DANO</span>');if(p.flags?.matrixSwords||p.flags?.swordsUntil>=game.turn)a.push('<span class="effect up">SWORDS DANCE • ×2 PRÓXIMO FÍSICO</span>');if(p.flags?.flashFire)a.push('<span class="effect up">FLASH FIRE +3d6</span>');if(p.flags?.focus)a.push('<span class="effect up">FOCUS ENERGY</span>');if(p.flags?.wish)a.push('<span class="effect up">WISH PENDENTE</span>');if(p.megaActive)a.push('<span class="effect up">✦ MEGA EVOLUTION</span>');if(p.heldItem)a.push(`<span class="effect">🎒 ${safe(HHLocale.item(p.heldItem))}</span>`);return a.join('')||blank('Nenhuma condição ou alteração.');}
+function renderField(){const chips=[`<span class="field-chip">AMBIENTE ${safe(game.environment||'building')}</span>`];for(const [k,v] of Object.entries(game.field||{}))chips.push(`<span class="field-chip">${safe(k.toUpperCase())} · ${Math.max(0,v.until-game.turn+1)}T</span>`);if(game.weather)chips.push(`<span class="field-chip">${{rain:'🌧 CHUVA',sun:'☀ SOL',sand:'◈ AREIA',hail:'❄ GRANIZO',snow:'❄ NEVE',wind:'🌪 VENTOS FORTES'}[game.weather.id]||game.weather.id} • ${game.weather.turns}T</span>`);if(game.terrain)chips.push(`<span class="field-chip">TERRENO ${safe(game.terrain.id.toUpperCase())} • ${game.terrain.turns}T</span>`);
  for(let s=0;s<2;s++){for(const [id,o]of Object.entries(game.screens[s]))if(o)chips.push(`<span class="field-chip">LADO ${s===0?'A':'B'} ${safe(id.toUpperCase())} • ${o.turns}T</span>`);for(const [id,o]of Object.entries(game.hazards[s]))if(o)chips.push(`<span class="field-chip">LADO ${s===0?'A':'B'} ${safe(id)} ${o>1?'×'+o:''}</span>`);}
  el('fieldChips').innerHTML=chips.join('')||'<span class="field-chip">◈ CAMPO PADRÃO</span>';el('battleScene').dataset.weather=game.weather?.id||'none';el('battleScene').dataset.terrain=game.terrain?.id||'none';const screen=[];for(let s=0;s<2;s++)for(const [id,v]of Object.entries(game.screens[s]))if(v)screen.push(`<span class="effect">LADO ${s===0?'A':'B'} • ${safe(id.toUpperCase())} • ${v.turns}T • −${Math.floor(v.level/2)} dano</span>`);el('screensInfo').innerHTML=screen.join('')||blank('Nenhuma Screen ativa.');}
 
@@ -1835,20 +2305,20 @@ function toggleDamageMode(){
  else{if(hosting&&conn?.open)send({t:'rules',damageSystem:experimentalEnabled?'matrix-v0.2':'standard'});renderDamageMode();}
  notify(experimentalEnabled?'Damage Matrix v0.2 ligada.':'Dano padrão d6 ligado.');
 }
-function moveDamageLabel(me,m){
- if(m.category==='Status')return '';
+function moveDamageLabel(me,m){m=HH.effectiveMove(game,mySide,m,false,true);if(me.flags.charging&&me.flags.charging.move.id===m.id)return ' • CONCLUIR CARGA';
+ if(m.category==='Status')return '';if(m.fixedDamage)return ' • DANO ESPECÍFICO';
  if(game.damageSystem!=='matrix-v0.2')return ' • '+HH.powerDice(m.power)+'d6 BASE';
  const profile=HH.matrixProfile(me,HH.active(game,1-mySide),m);return profile?' • '+safe(profile.expression):' • DANO ESPECÍFICO';
 }
-function moveDamageTitle(me,m){
- if(game.damageSystem!=='matrix-v0.2'||m.category==='Status')return m.description||m.name;
+function moveDamageTitle(me,m){m={...HH.effectiveMove(game,mySide,m,false,true),attackerSide:mySide};
+ if(game.damageSystem!=='matrix-v0.2'||m.category==='Status')return (HH.describeSpecial(m)||m.description||m.name)+(m.category!=='Status'?` · Power atual ${m.power}${m.specialNote?' · '+m.specialNote:''}`:'');
  const p=HH.matrixProfile(me,HH.active(game,1-mySide),m);if(!p)return m.description||m.name;
  return `Damage Matrix v0.2: ${p.expression}. BP efetivo ${p.effectiveBP}${p.hits>1?` (${p.hits} hits padrão)`:''}; atributo ofensivo atual ${p.offensiveStat} (Qualidade ${p.offensiveQuality}) vs defesa atual ${p.defensiveStat} (Qualidade ${p.defensiveQuality}); diferença ${p.gap>0?'+':''}${p.gap} → QD ${p.qd}. Lv.${me.level} +${p.levelBonus}. Bônus e reduções externos são calculados ao resolver a rodada. Crítico natural maximiza somente a base da QD; crítico artificial usa a média fixa de cada componente.`;
 }
 function renderMatrixPreviews(me){
  if(game.damageSystem!=='matrix-v0.2')return;
  const names={atk:'Attack',spa:'Sp.Atk',def:'Defense',spd:'Sp.Def'};
- el('matrixMovePreviews').innerHTML=me.moves.map(m=>{const p=HH.matrixProfile(me,HH.active(game,1-mySide),m);if(!p)return '';
+ el('matrixMovePreviews').innerHTML=me.moves.map(m=>{m={...HH.effectiveMove(game,mySide,m,false,true),attackerSide:mySide};const p=HH.matrixProfile(me,HH.active(game,1-mySide),m);if(!p)return '';
   return `<article class="matrix-preview-card"><b>${safe(m.name)}</b><small>BP efetivo ${p.effectiveBP}${p.hits>1?` · ${p.hits} hits padrão`:''}</small><p>${names[p.offensiveKey]} ${p.offensiveStat} (Qualidade ${p.offensiveQuality}) vs ${names[p.defensiveKey]} ${p.defensiveStat} (Qualidade ${p.defensiveQuality})<br>Diferença ${p.gap>0?'+':''}${p.gap} → QD ${p.qd}${p.effectiveness>1?' · Super efetivo +1 dado / +1 QD':p.effectiveness===0?' · Imunidade':p.effectiveness<1?' · Resistido −1 dado / −1 QD':''}</p><strong>${safe(p.expression)}</strong><small>Lv.${me.level} +${p.levelBonus}${p.hits>1?' · fixos e STAB entram uma vez':''}</small></article>`;
  }).join('')||blank('Moves de Status usam suas regras próprias.');
 }
@@ -1881,13 +2351,14 @@ function renderExtraCommands(me,locked,forced){const mega=el('battleMegaChoice')
  el('battleBagUse').disabled=locked||forced||!HH.canUseBag(game,mySide,item.value,+target.value);
  el('battleBagControl').classList.toggle('hide',!choices.length);
 }
+function renderSpecialControls(me,locked,forced){const pivot=el('pivotTarget'),old=pivot.value;pivot.innerHTML=game.team[mySide].map((p,i)=>i!==game.active[mySide]&&p.hp>0?`<option value="${i}">${safe(p.name)}</option>`:'').join('')||'<option value="">Sem reserva viva</option>';if([...pivot.options].some(o=>o.value===old))pivot.value=old;pivot.disabled=locked||forced;el('battleEnvironment').value=game.environment||'building';el('battleEnvironment').disabled=locked||!!otherChoice||mode==='guest';el('struggleBtn').hidden=me.moves.some(m=>!HH.moveBlockReason(game,mySide,m))||!!me.flags.recharge;el('struggleBtn').disabled=locked||forced;}
 function renderCommands(me){renderDamageMode();renderMatrixPreviews(me);const replacement=HH.replacementSides(game),waiting=replacement.some(Boolean)&&!replacement[mySide];const locked=waiting||presenting||!!localChoice||game.winner!==null||(mode!=='bot'&&!conn?.open)||!!game.arena?.surrenderRequested;const forced=!!game.needSwitch[mySide]||me.hp<=0;el('moveCount').textContent=`${me.moves.length} MOVES`;el('commandHelp').textContent=waiting?'Aguardando o adversário enviar outro Pokémon. Depois, os dois escolhem suas ações.':replacement[mySide]?'Seu Pokémon foi nocauteado. Escolha um Pokémon vivo da reserva; isso não gasta sua próxima ação.':'Escolha o Move e, se quiser, marque a esquiva desta rodada.';
- el('myMoves').innerHTML=me.moves.map(m=>{const supported=HH.moveSupported(m);const item=HH.normalizeName(me.heldItem),choice=['choiceband','choicespecs','choicescarf'].includes(item),dis=locked||forced||zArmed&&(m.category==='Status'||m.type!==me.gimmicks?.zMove?.type)||me.disabled?.[HH.normalizeName(m.name)]>0||item==='assaultvest'&&m.category==='Status'||choice&&!!me.flags.choiceLock&&me.flags.choiceLock!==HH.normalizeName(m.name);return `<button class="move" style="--movecolor:${typeColors[m.type]||'#888'}" data-move="${safe(m.id)}" ${dis?'disabled':''} title="${safe(moveDamageTitle(me,m))}"><b>${safe(m.name)}</b><span class="type">${safe(m.type)} • ${safe(HHLocale.category(m.category))}${moveDamageLabel(me,m)}</span><small>ACC ${Math.min(90,m.accuracy)}%${m.alwaysHits?' • SEM ROLAGEM':''}${me.disabled?.[HH.normalizeName(m.name)]>0?' • DISABLE':''}</small>${supported?'':'<span class="manual">'+(HH.moveCoverage(m)==='partial'?'PARCIAL':'MANUAL')+'</span>'}</button>`;}).join('')||blank('Nenhum Move ativo reconhecido.');
+ el('myMoves').innerHTML=me.moves.map(m=>{const supported=HH.moveSupported(m),reason=HH.moveBlockReason(game,mySide,m),shown=HH.effectiveMove(game,mySide,m,false,true);const item=me._magicRoom||me.flags?.fx?.embargo?'':HH.normalizeName(me.heldItem),choice=['choiceband','choicespecs','choicescarf'].includes(item),dis=locked||forced||!!reason||zArmed&&(m.category==='Status'||m.type!==me.gimmicks?.zMove?.type)||me.disabled?.[HH.normalizeName(m.name)]>0||item==='assaultvest'&&m.category==='Status'||choice&&!!me.flags.choiceLock&&me.flags.choiceLock!==HH.normalizeName(m.name);return `<button class="move" style="--movecolor:${typeColors[shown.type]||'#888'}" data-move="${safe(m.id)}" ${dis?'disabled':''} title="${safe(moveDamageTitle(me,m))}"><b>${safe(m.name)}</b><span class="type">${safe(shown.type)} • ${safe(HHLocale.category(shown.category))}${moveDamageLabel(me,m)}</span><small>ACC ${Math.min(90,m.accuracy)}%${m.alwaysHits?' • SEM ROLAGEM':''}${me.disabled?.[HH.normalizeName(m.name)]>0?' • DISABLE':''}${reason?' · '+safe(reason):''} · PP ${me.pp?.[m.id]??m.maxPP??20}</small>${supported?'':'<span class="manual">'+(HH.moveCoverage(m)==='partial'?'PARCIAL':'MANUAL')+'</span>'}</button>`;}).join('')||blank('Nenhum Move ativo reconhecido.');
  for(const btn of el('myMoves').querySelectorAll('button[data-move]'))btn.addEventListener('click',()=>submitAction({kind:'move',moveId:btn.dataset.move,evade:el('evadeSelect').value,
-  mega:!!el('battleMegaArm').checked,megaFormId:el('battleMegaChoice').value||undefined,tera:teraArmed,zMove:zArmed}));
- renderExtraCommands(me,locked,forced);
+  switchIndex:el('pivotTarget').value!==''?+el('pivotTarget').value:undefined,mega:!!el('battleMegaArm').checked,megaFormId:el('battleMegaChoice').value||undefined,tera:teraArmed,zMove:zArmed}));
+ renderSpecialControls(me,locked,forced);renderExtraCommands(me,locked,forced);
  el('activeEvasionBtn').disabled=locked||forced;el('passBtn').disabled=locked||forced;el('evadeSelect').disabled=locked||forced||me.status?.id==='freeze';el('roundDodge').disabled=el('evadeSelect').disabled;el('activeEvasionBtn').disabled=locked||forced||me.status?.id==='freeze';el('myActionText').classList.toggle('hide',!localChoice);el('myActionText').textContent=localChoice?`✓ COMANDO ENVIADO: ${localChoice.kind==='move'?me.moves.find(m=>m.id===localChoice.moveId)?.name||'Move':localChoice.kind.toUpperCase()}. Aguardando o adversário...`:'';
- const trap=HH.active(game,1-mySide);const shadowTrapped=me.hp>0&&trap?.hp>0&&HH.normalizeName(trap.abilityName)==='shadowtag'&&!me.types.includes('Ghost')&&HH.normalizeName(me.abilityName)!=='shadowtag';
+ const trap=HH.active(game,1-mySide);const shadowTrapped=!!HH.switchReason(game,mySide)||me.hp>0&&trap?.hp>0&&HH.normalizeName(trap.abilityName)==='shadowtag'&&!me.types.includes('Ghost')&&HH.normalizeName(me.abilityName)!=='shadowtag';
  el('myBench').innerHTML=game.team[mySide].map((p,i)=>`<button data-switch="${i}" class="${i===game.active[mySide]?'active':''} ${p.hp<=0?'dead':''}" ${i===game.active[mySide]||p.hp<=0||locked||shadowTrapped?'disabled':''} ${shadowTrapped?'title="Shadow Tag impede trocas voluntárias"':''}>${p.imageUrl&&/^(data:image\/(?:png|jpeg|webp|gif);base64,|https:\/\/)/i.test(p.imageUrl)?`<img src="${safe(p.imageUrl&&!/PokeAPI\/sprites.*official-artwork/i.test(p.imageUrl)?p.imageUrl:SD.sprites['ani-'+HH.normalizeName(p.speciesSlug||p.name)]||p.imageUrl)}" alt="">`:''}<b>${safe(p.name)}</b><span>${p.hp}/${p.maxHp} HP</span></button>`).join('');for(const btn of el('myBench').querySelectorAll('button[data-switch]'))btn.addEventListener('click',()=>submitAction({kind:'switch',index:+btn.dataset.switch}));
  el('readyStatus').textContent=game.winner!==null?(game.winner===2?'FIM • EMPATE':game.winner===mySide?'FIM • VOCÊ VENCEU':'FIM • VOCÊ PERDEU'):waiting?'AGUARDANDO NOVO POKÉMON':forced?'TROCA OBRIGATÓRIA':localChoice?'AGUARDANDO OPONENTE':'SELECIONE SEU COMANDO';}
 function render(){if(!game)return;if(commandTurn!==`${game.arena?.matchId}:${game.turn}:${game.actionRevision||0}`)resetRoundOptions();countResult();const visualKey=(game.arena?.matchId||'legacy')+':'+game.turn+':'+(game.actionRevision||0);if(!presenting&&game.visualEvents?.length&&lastVisualTurn!==visualKey){lastVisualTurn=visualKey;playPresentation(game.visualEvents);return;}if(presenting)return;if(mode==='bot'&&HH.replacementSides(game)[1]&&!HH.replacementSides(game)[0]){HH.resolve(game,{kind:'pass'},botAction());render();return;}const me=HH.active(game,mySide),opp=HH.active(game,1-mySide);el('roundNumber').textContent=game.turn;renderCombatant('my',me);renderCombatant('enemy',opp);el('myEffects').innerHTML=effectList(me);el('enemyEffects').innerHTML=effectList(opp);renderStages('my',me);renderStages('enemy',opp);el('abilityDescription').textContent=`${me.abilityName}: ${abilityText(me)}
@@ -1895,6 +2366,7 @@ ${me.heldItem?'🎒 '+me.heldItem+': '+(heldCatalog.get(HH.normalizeName(me.held
 ${opp.abilityName}: ${abilityText(opp)}
 ${opp.heldItem?'🎒 '+opp.heldItem+': '+(heldCatalog.get(HH.normalizeName(opp.heldItem))?.description||opp.heldItemText||'Item personalizado / consulte o árbitro.'):''}`;
  renderField();renderCommands(me);el('battleLog').innerHTML=game.log.slice().reverse().slice(0,100).map(item=>`<div class="log-row ${safe(item.kind||'info')}"><small>T${item.turn}</small>${safe(HHLocale.text(item.text))}</div>`).join('');el('logCount').textContent=`${game.log.length} EVENTOS`;el('modeIndicator').textContent=mode==='bot'?'SOLO • PLAYTEST':mode==='host'?'HOST • PLAYTEST':'P2P • PLAYTEST';renderSession();}
+el('struggleBtn').onclick=()=>submitAction({kind:'move',moveId:'__struggle'});el('battleEnvironment').onchange=()=>{if(!game||mode==='guest'||localChoice||otherChoice||presenting)return;game.environment=el('battleEnvironment').value;HH.log(game,'Ambiente alterado para '+game.environment+'.','field');if(mode==='host')send({t:'state',game});render();};
 function referee(){if(presenting)return;if(!game||mode==='guest'||game.winner!==null)return;const beforeReplacement=HH.replacementSides(game).join(',');const s=+el('refTarget').value,f=HH.active(game,s),kind=el('refAction').value,v=Math.max(-9999,Math.min(9999,+el('refValue').value||0));if(kind==='damage')HH.damage(game,f,Math.abs(v),'arbitragem');else if(kind==='heal')HH.heal(game,f,Math.abs(v),'arbitragem');else if(['atk','def','spa','spd','spe','accuracy','evasion'].includes(kind))HH.stage(game,s,kind,v,null,'Arbitragem');else if(kind==='exhausted'){f.flags.exhausted=true;HH.log(game,`${f.name} recebeu Exaustão.`,'manual');}else if(kind==='removeStatus'){f.status=null;f.flags.confusion=0;f.flags.exhausted=false;HH.log(game,`Status de ${f.name} removido pelo árbitro.`,'manual');}else HH.addStatus(game,s,kind,'arbitragem');const alive=game.team.map(t=>t.some(p=>p.hp>0));if(!alive[0]&&!alive[1])game.winner=2;else if(!alive[0])game.winner=1;else if(!alive[1])game.winner=0;else game.needSwitch[s]=f.hp<=0;if(beforeReplacement!==HH.replacementSides(game).join(',')){game.actionRevision=(game.actionRevision||0)+1;game.visualEvents=[];localChoice=null;otherChoice=null;}if(mode==='host')send({t:'state',game});render();}
 function handleError(f){return e=>{notify((e&&e.message)||'Erro inesperado.');console.error('Arena:',e);};}
 el('demoBtn').addEventListener('click',()=>{const samples=HH.sample().filter(p=>!library.some(x=>x.p.id===p.id));if(samples.length)addEntries(samples,chosen.size===0);else notify('A equipe de teste já está na sua Box.');});
@@ -2021,7 +2493,7 @@ function fromAny(p){const v=empty();if(!p||typeof p!=='object')return v;
  const snap=p.gimmicks?.mega?.active&&p.gimmicks?.mega?.snapshot;
  const origin=snap?{...p,...snap,name:snap.name||p.name,baseStats:snap.baseStats||p.baseStats,stats:snap.stats||p.stats}:p;
  p=origin;
- for(const k of ['id','name','level','type1','type2','natureName','abilityName','abilityText','heldItem','heldItemText','canEvolve','imageUrl','notes','speciesId','speciesSlug'])if(p[k]!==undefined)v[k]=p[k];
+ for(const k of ['id','name','level','type1','type2','natureName','abilityName','abilityText','heldItem','heldItemText','canEvolve','imageUrl','notes','speciesId','speciesSlug','weightkg','gender','happiness','snowWeather','hiddenPowerType'])if(p[k]!==undefined)v[k]=p[k];
  v.type1=p.type1||p.types?.[0]||'Normal';v.type2=p.type2||p.types?.[1]||'';
  const total=p.stats||p.baseStats||{};v.baseStats=Object.fromEntries(KEYS.map(k=>[k,clamp(Number(p.baseStats?.[k]??total[k]??70),1,9999)]));
  v.distribution=Object.fromEntries(KEYS.map(k=>[k,clamp(Number(p.distribution?.[k]??(Number(total[k]??v.baseStats[k])-v.baseStats[k])??0),0,9999)]));
@@ -2029,6 +2501,7 @@ function fromAny(p){const v=empty();if(!p||typeof p!=='object')return v;
  v.megaForms=Array.isArray(p.megaForms)?p.megaForms.map((f,i)=>HH.normalizeName(f.name)?structuredClone({...f,id:f.id||'mega-'+i}):null).filter(Boolean).slice(0,MAX_CUSTOM_FORMS):
    (p.gimmicks?.mega?.customForms||[]).map((f,i)=>({...structuredClone(f),id:f.id||'custom-'+i,stone:f.stone||'',custom:true})).slice(0,MAX_CUSTOM_FORMS);
  v.bagItems=Array.isArray(p.bagItems)?p.bagItems.map(it=>({name:HH.bagName(it.name),quantity:clamp(+it.quantity||0,0,20)})).filter(it=>it.name):[];
+ v.weightkg=p.weightkg||p.weight||(SD.dex[HH.normalizeName(p.speciesSlug||p.name)]?.weightkg)||null;v.gender=['M','F','N'].includes(p.gender)?p.gender:({male:'M',female:'F',masculino:'M',feminino:'F'}[HH.normalizeName(p.gender)]||'N');v.happiness=p.happiness??255;
  v.speciesSlug=p.speciesSlug||p.apiData?.speciesName||p.apiData?.pokemonName||v.name.toLowerCase().replace(/\s*\(.*\)$/,'').toLowerCase().replace(/[^a-z0-9]+/g,'-');
  if(!v.megaForms.length){const known=HH.MEGA_TEST_FORMS[HH.normalizeName(v.speciesSlug)]||HH.MEGA_TEST_FORMS[HH.normalizeName(v.name)];if(known)v.megaForms=structuredClone(known);}
  v.gimmicks=buildGimmicks(p);v.id=p.id||uid();return v;}
@@ -2038,15 +2511,15 @@ function notice(message){const t=$('toast');t.textContent=message;t.classList.ad
 function imageSafe(s){return typeof s==='string'&&(/^(https:\/\/[^\s]+)$/i.test(s)||/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(s))?s:'';}
 function persist(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(saved));return true;}catch{notice('A Box atingiu o limite de armazenamento local. Exporte o JSON para preservá-la.');return false;}}
 function put(id,value){const e=$(id);if(e)e.value=value??'';}
-function fillForms(){fillGimmickForm();put('workName',draft.name);put('workLevel',draft.level);put('workNature',draft.natureName);put('workType1',draft.type1);put('workType2',draft.type2);put('workAbility',draft.abilityName);put('workItem',draft.heldItem);put('workItemText',draft.heldItemText);$('workCanEvolve').checked=!!draft.canEvolve;put('workAbilityText',draft.abilityText);put('workImageUrl',draft.imageUrl?.startsWith('data:')?'':draft.imageUrl);put('workNotes',draft.notes);
+function fillForms(){put('workSnowWeather',draft.snowWeather||'hail');put('workWeight',draft.weightkg||'');put('workGender',draft.gender||'N');put('workHappiness',draft.happiness??255);fillGimmickForm();put('workName',draft.name);put('workLevel',draft.level);put('workNature',draft.natureName);put('workType1',draft.type1);put('workType2',draft.type2);put('workAbility',draft.abilityName);put('workItem',draft.heldItem);put('workItemText',draft.heldItemText);$('workCanEvolve').checked=!!draft.canEvolve;put('workAbilityText',draft.abilityText);put('workImageUrl',draft.imageUrl?.startsWith('data:')?'':draft.imageUrl);put('workNotes',draft.notes);
  for(const k of KEYS){put('workBase_'+k,draft.baseStats[k]);put('workDist_'+k,draft.distribution[k]);}
  $('workEditorMode').textContent=saved.some(s=>s.id===draft.id)?'EDITANDO BUILD SALVA':'RASCUNHO • NÃO SALVO';$('workPreviewId').textContent=draft.speciesId?'# '+String(draft.speciesId).padStart(3,'0'):'# CUSTOM';lastAbility='';showAbility();renderMoves();renderMegaList();renderItemResults();renderBagGrid();renderPreview();}
-function readForm(){readGimmickForm();draft.name=$('workName').value.trim()||'Novo Pokémon';draft.level=clamp(getNum('workLevel',1),1,100);draft.natureName=$('workNature').value;draft.type1=$('workType1').value||'Normal';draft.type2=$('workType2').value===draft.type1?'':$('workType2').value;draft.abilityName=$('workAbility').value.trim();draft.abilityText=$('workAbilityText').value.slice(0,1000);draft.heldItem=$('workItem').value.trim();draft.heldItemText=$('workItemText').value.slice(0,800);draft.canEvolve=$('workCanEvolve').checked;draft.notes=$('workNotes').value;const entered=$('workImageUrl').value.trim();if(entered)draft.imageUrl=imageSafe(entered)||draft.imageUrl;else if(!draft.imageUrl?.startsWith('data:'))draft.imageUrl='';
+function readForm(){draft.snowWeather=$('workSnowWeather').value;draft.weightkg=+$('workWeight').value>0?clamp(+$('workWeight').value,.1,9999):null;draft.gender=$('workGender').value;draft.happiness=clamp(+$('workHappiness').value,0,255);readGimmickForm();draft.name=$('workName').value.trim()||'Novo Pokémon';draft.level=clamp(getNum('workLevel',1),1,100);draft.natureName=$('workNature').value;draft.type1=$('workType1').value||'Normal';draft.type2=$('workType2').value===draft.type1?'':$('workType2').value;draft.abilityName=$('workAbility').value.trim();draft.abilityText=$('workAbilityText').value.slice(0,1000);draft.heldItem=$('workItem').value.trim();draft.heldItemText=$('workItemText').value.slice(0,800);draft.canEvolve=$('workCanEvolve').checked;draft.notes=$('workNotes').value;const entered=$('workImageUrl').value.trim();if(entered)draft.imageUrl=imageSafe(entered)||draft.imageUrl;else if(!draft.imageUrl?.startsWith('data:'))draft.imageUrl='';
  for(const k of KEYS){draft.baseStats[k]=clamp(getNum('workBase_'+k,1),1,9999);draft.distribution[k]=clamp(getNum('workDist_'+k,0),0,9999);}
  }
 function statTotals(){return Object.fromEntries(KEYS.map(k=>[k,draft.baseStats[k]+draft.distribution[k]]));}
 function toPokemon(d=draft){const stats=Object.fromEntries(KEYS.map(k=>[k,clamp(+d.baseStats[k]+ +d.distribution[k],1,9999)]));const n=NATURES.find(x=>x[0]===d.natureName);
- return {id:d.id,name:d.name,level:d.level,type1:d.type1,type2:d.type2,baseStats:d.baseStats,distribution:d.distribution,stats,maxHp:stats.hp,natureName:d.natureName||'',naturePlus:n?.[2]||'',natureMinus:n?.[3]||'',abilityName:d.abilityName||'Sem Ability',abilityText:d.abilityText||'',heldItem:d.heldItem||'',heldItemText:d.heldItemText||'',canEvolve:!!d.canEvolve,speciesId:d.speciesId||null,speciesSlug:d.speciesSlug||'',gimmicks:{...buildGimmicks(d),mega:{active:false,formName:'',snapshot:null,customForms:structuredClone(d.megaForms||[])}},megaForms:structuredClone(d.megaForms||[]),bagItems:structuredClone(d.bagItems||[]),imageUrl:d.imageUrl||'',notes:d.notes||'',moves:d.moves.slice(0,5).map((m,i)=>({...m,id:m.id||'move-'+i,active:true}))};}
+ return {id:d.id,name:d.name,level:d.level,weightkg:d.weightkg||SD.dex[HH.normalizeName(d.speciesSlug||d.name)]?.weightkg||50,gender:d.gender||'N',happiness:d.happiness??255,snowWeather:d.snowWeather||'hail',hiddenPowerType:d.hiddenPowerType||'',type1:d.type1,type2:d.type2,baseStats:d.baseStats,distribution:d.distribution,stats,maxHp:stats.hp,natureName:d.natureName||'',naturePlus:n?.[2]||'',natureMinus:n?.[3]||'',abilityName:d.abilityName||'Sem Ability',abilityText:d.abilityText||'',heldItem:d.heldItem||'',heldItemText:d.heldItemText||'',canEvolve:!!d.canEvolve,speciesId:d.speciesId||null,speciesSlug:d.speciesSlug||'',gimmicks:{...buildGimmicks(d),mega:{active:false,formName:'',snapshot:null,customForms:structuredClone(d.megaForms||[])}},megaForms:structuredClone(d.megaForms||[]),bagItems:structuredClone(d.bagItems||[]),imageUrl:d.imageUrl||'',notes:d.notes||'',moves:d.moves.slice(0,5).map((m,i)=>({...m,id:m.id||'move-'+i,active:true}))};}
 function fromPreset(key,quiet=false){const p=PRESETS[key];if(!p){draft=empty();fillForms();return;}draft=fromAny({...p,id:uid(),moves:p.moves.map((name,i)=>({...MOVES.get(HH.normalizeName(name)),id:'w'+i,active:true})),imageUrl:art(p.speciesId)});fillForms();if(!quiet)notice(`${draft.name}: modelo carregado. Altere os dados antes de salvar.`);}
 function showAbility(){const match=ABILITY_MAP.get(HH.normalizeName(draft.abilityName));const auto=HH.AUTO.has(HH.normalizeName(draft.abilityName));const badge=$('workAbilityBadge');badge.innerHTML=match?`<span class="work-badge ${auto?'is-auto':'is-manual'}">${auto?'⚡ SUPORTE NO MOTOR':'◈ COMPÊNDIO / CONSULTA'}</span><strong>${esc(match.name)}</strong>`:`<span class="work-badge is-manual">✧ PERSONALIZADA</span>${draft.abilityName?`<strong>${esc(draft.abilityName)}</strong>`:'Escolha uma Ability ou crie a sua'}`;
  if(match&&draft.abilityName!==lastAbility){draft.abilityText=match.text.slice(0,1000);put('workAbilityText',draft.abilityText);}lastAbility=draft.abilityName;}
@@ -2107,7 +2580,7 @@ $('workMoveSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){e.prevent
 $('workFetchMove').onclick=async()=>{const name=$('workMoveSearch').value.trim();if(!name){notice('Digite um Move para buscar.');return;}const slug=name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');$('workFetchMove').disabled=true;$('workMoveFeedback').textContent='⌛ Consultando o Move oficial...';try{const r=await fetch('https://pokeapi.co/api/v2/move/'+encodeURIComponent(slug)+'/');if(!r.ok)throw Error('Move não encontrado na PokéAPI. Use o cadastro manual.');const d=await r.json(),cat={physical:'Physical',special:'Special',status:'Status'}[d.damage_class?.name]||'Status';const desc=HHLocale.move(SD.moves[HH.normalizeName(name)]||{name,type:d.type?.name,category:cat,basePower:d.power||0,accuracy:d.accuracy===null?true:d.accuracy}).description;const type=(d.type?.name||'normal');addMove({name:d.name.split('-').map(x=>x.charAt(0).toUpperCase()+x.slice(1)).join(' '),type:type[0].toUpperCase()+type.slice(1),category:cat,power:d.power||0,accuracy:Math.min(90,d.accuracy||90),description:desc,alwaysHits:d.accuracy===null});$('workMoveFeedback').textContent='✓ Dados oficiais carregados. A regra RPG será aplicada pelo simulador quando houver suporte.';}catch(err){$('workMoveFeedback').textContent='✕ '+err.message;notice(err.message);}finally{$('workFetchMove').disabled=draft.moves.length>=5;}};
 $('workImageFile').addEventListener('change',e=>{const file=e.target.files?.[0];e.target.value='';if(!file)return;if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type)){notice('Selecione PNG, JPG, GIF ou WebP.');return;}if(file.size>8*1024*1024){notice('A imagem deve ter até 8 MB.');return;}const img=new Image();const obj=URL.createObjectURL(file);img.onload=()=>{try{const c=document.createElement('canvas'),scale=Math.min(1,480/Math.max(img.naturalWidth,img.naturalHeight));c.width=Math.max(1,Math.round(img.naturalWidth*scale));c.height=Math.max(1,Math.round(img.naturalHeight*scale));c.getContext('2d').drawImage(img,0,0,c.width,c.height);draft.imageUrl=c.toDataURL('image/webp',.78);put('workImageUrl','');renderPreview();notice('Imagem adicionada ao preview e à build.');}catch(err){notice('Não foi possível preparar esta imagem.');}finally{URL.revokeObjectURL(obj);}};img.onerror=()=>{URL.revokeObjectURL(obj);notice('Arquivo de imagem inválido.');};img.src=obj;});
 $('workStatEditor').innerHTML=KEYS.map(k=>`<div class="work-stat-row"><span class="work-stat-label" data-stat="${k}">${LABELS[k]}</span><input aria-label="Base ${LABELS[k]}" id="workBase_${k}" type="number" min="1" max="9999" value="70"><input aria-label="Pontos ${LABELS[k]}" id="workDist_${k}" type="number" min="0" max="9999" value="0"><output id="workTotal_${k}">70</output><div class="work-stat-meter"><i id="workMeter_${k}"></i></div></div>`).join('');
-for(const id of ['workName','workLevel','workNature','workType1','workType2','workAbility','workImageUrl','workNotes'])$(id).addEventListener('input',()=>{readForm();if(id==='workAbility')showAbility();renderPreview();});
+for(const id of ['workSnowWeather','workWeight','workGender','workHappiness','workName','workLevel','workNature','workType1','workType2','workAbility','workImageUrl','workNotes'])$(id).addEventListener('input',()=>{readForm();if(id==='workAbility')showAbility();renderPreview();});
 for(const k of KEYS)for(const which of ['workBase_','workDist_'])$(which+k).addEventListener('input',()=>{readForm();renderPreview();});
 for(const t of HH.TYPES){const o=document.createElement('option');o.value=t;o.textContent=t;$('workType1').appendChild(o);$('workType2').appendChild(o.cloneNode(true));}
 $('workType2').insertAdjacentHTML('afterbegin','<option value="">Sem tipo secundário</option>');
