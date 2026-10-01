@@ -1303,7 +1303,7 @@ function renderSession(){
  el('rematchBtn').textContent=el('resultRematch').textContent=a.ready[mySide]?'✓ REVANCHE SOLICITADA':'↻ REVANCHE';
  const info=!connected?'O outro jogador desconectou.':!finished?'Cada vitória vale 1 ponto.':online?(a.ready[mySide]?'Você está pronto. Aguardando seu amigo...':a.ready[1-mySide]?'Seu amigo quer uma revanche. Clique para aceitar.':'Os dois continuam na sala. Clique em Revanche para ficar pronto.'):'Jogue novamente com os mesmos times.';
  el('sessionHint').textContent=info;el('resultHint').textContent=info;
- el('surrenderBtn').disabled=finished||presenting||!connected||!!game.arena?.surrenderRequested;
+ el('surrenderBtn').disabled=finished||presenting||!connected||!!game.arena?.surrenderRequested;el('refApply').disabled=finished||presenting||mode==='guest';
  el('leaveRoom').hidden=!online;el('leaveRoom').disabled=!finished;
  el('resultTitle').textContent=game.winner===2?'EMPATE':game.winner===mySide?'VITÓRIA!':'DERROTA';
  el('battleResult').dataset.outcome=game.winner===2?'draw':game.winner===mySide?'win':'loss';
@@ -1312,7 +1312,7 @@ function renderSession(){
  el('resultMyScore').textContent=a.score[mySide];el('resultEnemyScore').textContent=a.score[1-mySide];
  el('resultCareer').textContent=`SEU HISTÓRICO · ${career.wins} V · ${career.losses} D · ${career.draws} E`;
  el('viewResult').hidden=!finished;
- if(finished&&!presenting&&resultVisibleFor!==a.matchId){el('battleResult').hidden=false;resultVisibleFor=a.matchId;}
+ if(finished&&!presenting&&resultVisibleFor!==a.matchId){el('battleResult').hidden=false;resultVisibleFor=a.matchId;if(!el('battle').classList.contains('hide'))el('battleResult').scrollIntoView({block:'center',behavior:'smooth'});}
  if(!finished)el('battleResult').hidden=true;
 }
 function requestRematch(){
@@ -1499,7 +1499,7 @@ el('returnSetup').addEventListener('click',()=>{if(typeof window.ArenaNavigate==
 el('rematchBtn').addEventListener('click',requestRematch);
 el('resultRematch').addEventListener('click',requestRematch);
 el('resultReview').onclick=()=>{el('battleResult').hidden=true;};
-el('viewResult').onclick=()=>{if(game?.winner!==null)el('battleResult').hidden=false;};
+el('viewResult').onclick=()=>{if(game&&game.winner!==null){el('battleResult').hidden=false;el('battleResult').scrollIntoView({block:'center',behavior:'smooth'});}};
 for(const id of ['battleHome','resultHome'])el(id).onclick=()=>window.ArenaNavigate?.('setup');
 el('surrenderBtn').onclick=()=>{if(!game||game.winner!==null||presenting)return;if(!window.confirm('Desistir desta partida? Seu adversário ganha 1 ponto. A sala continua aberta para revanche.'))return;
  if(mode==='guest'){if(send({t:'surrender',matchId:game.arena.matchId})){game.arena.surrenderRequested=true;render();}}else finishBySurrender(mySide);};
