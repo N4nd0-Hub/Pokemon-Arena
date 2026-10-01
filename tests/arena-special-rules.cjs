@@ -50,6 +50,9 @@ for(const system of ['standard','matrix-v0.2']){
  g=game(['Solar Beam'],['Tackle'],system,{heldItem:'Power Herb'});H.resolve(g,A('Solar Beam'),P);ok(!H.active(g,0).flags.charging);ok(H.active(g,1).hp<400);eq(H.active(g,0).heldItem,'');
  g=game(['Encore','Disable'],['Tackle'],system);H.resolve(g,P,A('Tackle'));H.resolve(g,A('Encore'),P);H.resolve(g,A('Disable'),P);ok(H.moveBlockReason(g,1,H.active(g,1).moves[0]));const turn=g.turn;H.damage(g,H.active(g,0),9999,'test KO');g.needSwitch[0]=true;const snapshot=JSON.stringify(H.active(g,1));H.resolve(g,{kind:'switch',index:1},P);eq(JSON.stringify(H.active(g,1)),snapshot,'KO replacement does not tick exotic restrictions');eq(g.turn,turn);eq(JSON.parse(JSON.stringify(g)).team[1][0].pp,H.active(g,1).pp,'state is serializable');
 }
+
+{const g=game(['Tackle']);H.active(g,0).disabled.tackle=4;H.active(g,1).types=['Ghost'];H.resolve(g,{kind:'move',moveId:'__struggle'},P);ok(H.active(g,1).hp<400,'Struggle ignores type immunities');eq(H.active(g,0).hp,300,'Struggle recoil is quarter HP');}
+{const g=game(['Tackle']);const f=H.active(g,0);f.gimmicks.zMove={type:'Normal',prepared:true,used:false};H.resolve(g,{...A('Tackle'),zMove:true},P);ok(g.zUsed[0]&&f.gimmicks.zMove.used,'Z declaration still consumes team resource');}
 for(const [ability,weather]of [['Snow Warning','hail'],['Sand Stream','sand'],['Drought','sun'],['Drizzle','rain']]){const g=game(['Tackle'],['Tackle'],'standard',{name:ability==='Snow Warning'?'Aurorus':'Tyranitar',abilityName:ability});eq(g.weather.id,weather);eq(g.weather.turns,5);}
  console.log(checks+' special-rule assertions passed; all inline scripts parse.');
 console.log('Unsupported status:',Object.values(SD.moves).filter(m=>m.category==='Status'&&!m.isZ&&!m.isMax&&H.moveCoverage({name:m.name,category:m.category})!=='auto').map(m=>m.name).join(', '));
