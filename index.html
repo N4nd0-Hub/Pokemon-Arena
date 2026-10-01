@@ -1622,7 +1622,7 @@ function moveBlockReason(g,s,m){const f=active(g,s),o=active(g,1-s),n=normalizeN
  return '';
 }
 function fieldEffect(g,k,turns=5,s=null){g.field??={};if(g.field[k]&&['trickroom','wonderroom','magicroom'].includes(k)){delete g.field[k];log(g,`${k}: efeito encerrado.`,'field');}else{g.field[k]={until:g.turn+turns-1,side:s};log(g,`${SD.moves[k]?.name||k} ativado (${turns} rodadas).`,'field');}refreshSpecialField(g);}
-function refreshSpecialField(g){for(const team of g.team)for(const f of team){f._wonderRoom=!!g.field?.wonderroom;f._magicRoom=!!g.field?.magicroom;f._tailwind=!!g.field?.['tailwind'+g.team.indexOf(team)];}}
+function refreshSpecialField(g){for(const team of g.team)for(const f of team){f._wonderRoom=!!g.field?.wonderroom;f._magicRoom=!!g.field?.magicroom;f._tailwind=!!g.field?.['tailwind'+g.team.indexOf(team)];f._grounded=grounded(g,f);}}
 function effectiveMove(g,s,original,first=false,preview=false){const a=active(g,s),d=active(g,1-s),m={...original},n=normalizeName(m.name),w=weather(g),t=terrain(g);m.fixedDamage=FIXED_MOVES.has(n);m.specialResolved=true;m.originalPower=original.power;m.attackerSide=s;
  if(n==='struggle')m.type='Typeless';
  const hp=a.hp/a.maxHp,dhp=d.hp/d.maxHp,ratio=effStat(a,'spe')/Math.max(1,effStat(d,'spe')),pos=f=>['atk','def','spa','spd','spe','accuracy','evasion'].reduce((v,k)=>v+Math.max(0,stages(f,k)),0);
@@ -1676,7 +1676,7 @@ function specialEffectLabels(g,f){const a=[];for(const [k,v] of Object.entries(f
 }
 
 // Extend existing rules without replacing the RPG damage system or KO replacement phase.
-const baseMegaEvolve=megaEvolve;megaEvolve=function(g,s,id){const ok=baseMegaEvolve(g,s,id);if(ok){const f=active(g,s);f.weightkg=SD.dex[normalizeName(f.megaActive)]?.weightkg||f.weightkg;if(!has(f,'Drought')&&!has(f,'Drizzle'))activateAbilityField(g,s);refreshWeather(g);}return ok;};
+const baseMegaEvolve=megaEvolve;megaEvolve=function(g,s,id){const ok=baseMegaEvolve(g,s,id);if(ok){const f=active(g,s);f.weightkg=SD.dex[normalizeName(f.megaActive)]?.weightkg||f.weightkg;f.originalStats={...f.stats};f.originalAbility=f.abilityName;if(!has(f,'Drought')&&!has(f,'Drizzle'))activateAbilityField(g,s);refreshWeather(g);}return ok;};
 const baseNormalize=normalizePokemon;
 normalizePokemon=function(p){const f=baseNormalize(p),species=SD.dex[normalizeName(p.speciesSlug||p.name)]||Object.values(SD.dex).find(x=>x.num===+p.speciesId);
  f.snowWeather=p.snowWeather==='snow'?'snow':'hail';f.hiddenPowerType=type(p.hiddenPowerType)||'';f.weightkg=num(parseFloat(String(p.weightkg??p.weight??species?.weightkg??50).replace(',','.')),.1,9999);f.gender=['M','F','N'].includes(p.gender)?p.gender:({male:'M',female:'F',masculino:'M',feminino:'F'}[normalizeName(p.gender)]||species?.gender||'N');f.happiness=num(p.happiness??p.friendship??255,0,255);f.originalAbility=f.abilityName;f.originalStats={...f.stats};f.originalMoves=structuredClone(f.moves);f.pp={};
@@ -1913,7 +1913,7 @@ function executeSpecialMove(g,s,original,first,act={}){const a=active(g,s),d=act
  if(result!==false)g.lastSpecialMove=n;else a.flags.failedTurn=g.turn;return result;
 }
 handleMove=function(g,s,act,first){const a=active(g,s);let m=a.moves.find(x=>x.id===act.moveId);if(act.moveId==='__struggle')m={id:'__struggle',name:'Struggle',type:'Normal',category:'Physical',power:50,accuracy:90,alwaysHits:true,contact:true};if(!m)return;
- if(a.flags.charging)m=a.flags.charging.move;if(a.flags.bide)m=a.flags.bide.move;const n=normalizeName(m.name);triggerHeld(g,a,'disable');const reason=n==='struggle'?'':moveBlockReason(g,s,m);
+ if(a.flags.charging)m=a.flags.charging.move;if(a.flags.bide)m=a.flags.bide.move;if(fx(a,'encore')&&act.moveId!=='__struggle'&&!act.zMove)m=a.moves.find(x=>normalizeName(x.name)===fx(a,'encore').move)||m;const n=normalizeName(m.name);triggerHeld(g,a,'disable');const reason=n==='struggle'?'':moveBlockReason(g,s,m);
  if(reason){log(g,`${a.name} não pôde usar ${m.name}: ${reason}.`,'status');a.flags.failedTurn=g.turn;return;}
  if(has(active(g,1-s),'Damp')&&['selfdestruct','explosion','mindblown'].includes(n)){log(g,`${m.name} falhou: Damp.`,'ability');return;}
  if(has(active(g,1-s),'Pressure')&&a.flags.lastMove===n&&a.flags.lastMoveTurn===g.turn-1&&!['struggle','explosion'].includes(n)){a.disabled[n]=roll(3)+1;triggerHeld(g,a,'disable');if(a.disabled[n]){log(g,`${m.name} foi selado por Pressure após repetição.`,'ability');return;}}
