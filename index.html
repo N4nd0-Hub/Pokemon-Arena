@@ -1327,11 +1327,11 @@ function damageMove(g,s,m,accuracy,actingFirst){const a=active(g,s),d=active(g,1
  if(has(a,'Mega Launcher')&&/(pulse|aura)/i.test(m.name))pw=Math.floor(pw*1.50);
  const critical=accuracy.crit&&!(has(d,'Battle Armor')||has(d,'Shell Armor'));
  const profile=matrix?matrixProfile(a,d,m,critical&&!accuracy.artificial):null;
- const hits=matrix?1:matrixHitCount(a,m,critical&&!accuracy.artificial);const bd=matrix?powerDice(profile.effectiveBP):powerDice(m.bonusBaseDice?m.originalPower:pw)*hits+(m.bonusBaseDice||0),stab=a.gimmicks?.tera?.active&&a.gimmicks.tera.type===m.type?2:a.types.includes(m.type)?has(a,'Adaptability')?1+Math.ceil(bd/2):1:0;
+ const hits=matrix?1:matrixHitCount(a,m,critical&&!accuracy.artificial);const bd=matrix?powerDice(profile.effectiveBP):powerDice(m.bonusBaseDice?m.originalPower:pw)*hits+(m.bonusBaseDice||0),stab=(a.gimmicks?.tera?.active&&a.gimmicks.tera.type===m.type?2:a.types.includes(m.type)?has(a,'Adaptability')?1+Math.ceil((matrix?bd:powerDice(pw))/2):1:0)*(matrix?1:hits);
  let bonus=matrix?{dice:0,fixed:0}:statDice(effStat(m.offensiveSide!==undefined&&m.offensiveSide!==s?d:a,ak)),defense=matrix?{dice:0,fixed:0}:statDice(effStat(m.ignoreDefStages?{...d,effects:d.effects.filter(e=>e.stat!==dk)}:d,dk));
  let offensive=bonus.dice,fixed=bonus.fixed+(matrix?profile.fixedBase:0),defDice=defense.dice,defFixed=defense.fixed;
  if(mult>=2){defDice=0;defFixed=0;}else if(!matrix&&mult<1){offensive=0;fixed=0;}
- let added=stab+(matrix?0:mult>=4?2:mult>=2?1:mult<=.25?-2:mult<1?-1:0),extraDice=stab,reduceDice=0,pierceDice=0;
+ let added=stab+(matrix?0:(mult>=4?2:mult>=2?1:mult<=.25?-2:mult<1?-1:0)*hits),extraDice=stab,reduceDice=0,pierceDice=0;
  const adjustDice=delta=>{added+=delta;if(delta>0)extraDice+=delta;else reduceDice-=delta;};
  if(physical&&has(a,'Guts')&&a.status)adjustDice(2);
  if(physical&&has(a,'Hustle'))adjustDice(2);
@@ -1624,6 +1624,7 @@ function moveBlockReason(g,s,m){const f=active(g,s),o=active(g,1-s),n=normalizeN
 function fieldEffect(g,k,turns=5,s=null){g.field??={};if(g.field[k]&&['trickroom','wonderroom','magicroom'].includes(k)){delete g.field[k];log(g,`${k}: efeito encerrado.`,'field');}else{g.field[k]={until:g.turn+turns-1,side:s};log(g,`${SD.moves[k]?.name||k} ativado (${turns} rodadas).`,'field');}refreshSpecialField(g);}
 function refreshSpecialField(g){for(const team of g.team)for(const f of team){f._wonderRoom=!!g.field?.wonderroom;f._magicRoom=!!g.field?.magicroom;f._tailwind=!!g.field?.['tailwind'+g.team.indexOf(team)];}}
 function effectiveMove(g,s,original,first=false,preview=false){const a=active(g,s),d=active(g,1-s),m={...original},n=normalizeName(m.name),w=weather(g),t=terrain(g);m.fixedDamage=FIXED_MOVES.has(n);m.specialResolved=true;m.originalPower=original.power;m.attackerSide=s;
+ if(n==='struggle')m.type='Typeless';
  const hp=a.hp/a.maxHp,dhp=d.hp/d.maxHp,ratio=effStat(a,'spe')/Math.max(1,effStat(d,'spe')),pos=f=>['atk','def','spa','spd','spe','accuracy','evasion'].reduce((v,k)=>v+Math.max(0,stages(f,k)),0);
  if(['lowkick','grassknot'].includes(n)){const kg=pokemonWeight(d);m.power=kg>=200?120:kg>=100?100:kg>=50?80:kg>=25?60:40;m.specialNote=`Peso do alvo ${kg.toFixed(1)} kg`;}
  if(['heavyslam','heatcrash'].includes(n)){const r=pokemonWeight(a)/pokemonWeight(d);m.power=r>=5?120:r>=4?100:r>=3?80:r>=2?60:40;m.specialNote=`Peso ${pokemonWeight(a).toFixed(1)} / ${pokemonWeight(d).toFixed(1)} kg`;}
@@ -1923,6 +1924,7 @@ handleMove=function(g,s,act,first){const a=active(g,s);let m=a.moves.find(x=>x.i
  if(['choiceband','choicespecs','choicescarf'].includes(effectiveHeldName(a)))a.flags.choiceLock=n;
  const effective=effectiveMove(g,s,m,first,true);if(!a.gimmicks?.tera?.active&&has(a,'Protean')&&a.flags.proteanTurn!==g.turn){a.types=[effective.type];a.flags.proteanTurn=g.turn;}
  if(has(a,'Forecast')&&!a.flags.forecastBoost&&a._weather&&m.category!=='Status'){stage(g,s,m.category==='Physical'?'atk':'spa',1,null,'Forecast');a.flags.forecastBoost=true;}
+ if(act.zMove){a.gimmicks.zMove.used=true;g.zUsed[s]=true;log(g,`Z-Move ${a.gimmicks.zMove.type} utilizado através de ${m.name}. Dano-base aplicado; efeito especial por arbitragem.`,'manual');}
  const old=g._moveAction;g._moveAction=act;try{const result=executeSpecialMove(g,s,m,first,act);if(n==='struggle')indirect(g,a,Math.max(1,Math.floor(a.maxHp/4)),'Struggle');if(has(a,'Solar Power')&&weather(g)==='sun'&&m.category!=='Status')indirect(g,a,sum(dice(1)),'Solar Power');return result;}finally{g._moveAction=old;}
 };
 const baseValidAction=validAction;
