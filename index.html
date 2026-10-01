@@ -1311,7 +1311,7 @@ function renderSession(){
  el('resultSubtitle').textContent=game.winner===2?'Os dois times foram nocauteados.':game.winner===mySide?'Você venceu esta partida. +1 ponto!':'Seu adversário venceu esta partida.';
  el('resultMyScore').textContent=a.score[mySide];el('resultEnemyScore').textContent=a.score[1-mySide];
  el('resultCareer').textContent=`SEU HISTÓRICO · ${career.wins} V · ${career.losses} D · ${career.draws} E`;
- el('viewResult').hidden=!finished;
+ el('viewResult').hidden=!finished;el('resumeBattle').textContent=finished?'↩ Voltar à sala e ao resultado':'↩ Continuar batalha em andamento';
  if(finished&&!presenting&&resultVisibleFor!==a.matchId){el('battleResult').hidden=false;resultVisibleFor=a.matchId;if(!el('battle').classList.contains('hide'))el('battleResult').scrollIntoView({block:'center',behavior:'smooth'});}
  if(!finished)el('battleResult').hidden=true;
 }
@@ -1385,7 +1385,7 @@ function wireConnection(c){conn=c;c.on('open',()=>{status('CONECTADO',true);netw
 function send(obj){if(obj.t==='state')countResult();if(conn?.open){conn.send(obj);return true;}notify('O outro jogador está desconectado.');return false;}
 function onPacket(p){if(!p||typeof p!=='object'||typeof p.t!=='string')return;
  if(hosting){
-  if(p.t==='join'&&(!game||game.winner!==null)){const t=Array.isArray(p.team)?p.team.slice(0,6).map(HH.normalizePokemon):[];if(!t.length)return;guestTeam=t;el('guestInfo').textContent=`✓ Jogador B pronto: ${t.map(x=>x.name).join(', ')}`;el('startOnlineBtn').disabled=false;send({t:'welcome',code:roomCode});if(game)send({t:'state',game});}
+  if(p.t==='join'&&(!game||game.winner!==null)){const t=Array.isArray(p.team)?p.team.slice(0,6).map(HH.normalizePokemon):[];if(!t.length)return;guestTeam=t;el('guestInfo').textContent=`✓ Jogador B pronto: ${t.map(x=>x.name).join(', ')}`;el('startOnlineBtn').disabled=!!game;send({t:'welcome',code:roomCode});if(game)send({t:'state',game});}
   else if(p.t==='choice'&&game&&game.winner===null&&p.matchId===game.arena?.matchId&&p.turn===game.turn&&networkReady&&guestTeam){if(otherChoice)return;otherChoice=p.action;send({t:'ready',side:1});maybeResolve();}
   else if(p.t==='rematch'&&game&&game.winner!==null&&p.matchId===game.arena?.matchId){game.arena.ready[1]=true;tryRematch();}
   else if(p.t==='surrender'&&game&&game.winner===null&&p.matchId===game.arena?.matchId){if(presenting)presentationToken++;finishBySurrender(1);}
@@ -1486,7 +1486,7 @@ const drop=el('dropzone');drop.addEventListener('dragover',e=>{e.preventDefault(
 el('localStartBtn').addEventListener('click',beginBot);
 el('hostBtn').addEventListener('click',async()=>{if(!peerAvailable())return;try{hostTeam=await transmitTeam();closePeer();game=null;guestTeam=null;series=null;hosting=true;roomCode=makeCode();peer=new window.Peer('hh-arena-'+roomCode);status('CRIANDO SALA');el('hostBtn').disabled=true;el('hostTools').classList.remove('hide');el('roomCode').textContent=roomCode;el('guestInfo').textContent='Registrando sala no serviço de conexão...';peer.on('open',()=>{status('SALA ABERTA',true);el('guestInfo').textContent='Envie o código para o outro jogador.';});peer.on('connection',c=>{if(conn?.open){c.close();return;}wireConnection(c);});peer.on('error',e=>{status('ERRO');el('guestInfo').textContent=e.message||e.type||'Erro ao criar sala.';el('hostBtn').disabled=false;notify('Não foi possível criar a sala: '+(e.message||e.type));});}catch(e){notify(e.message);}});
 el('copyRoom').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(roomCode);notify('Código copiado: '+roomCode);}catch{notify('Código: '+roomCode+' — selecione e copie manualmente.');}});
-el('startOnlineBtn').addEventListener('click',()=>{if(!guestTeam?.length||!conn?.open)return;try{if(game&&game.winner===null){showBattle();return;}initialTeams=[structuredClone(hostTeam),structuredClone(guestTeam)];mode='host';mySide=0;createMatch(initialTeams,true);showBattle();send({t:'state',game});render();}catch(e){notify(e.message);}});
+el('startOnlineBtn').addEventListener('click',()=>{if(!guestTeam?.length||!conn?.open)return;try{if(game&&game.winner===null){showBattle();return;}initialTeams=[structuredClone(hostTeam),structuredClone(guestTeam)];mode='host';mySide=0;createMatch(initialTeams,true);el('startOnlineBtn').disabled=true;showBattle();send({t:'state',game});render();}catch(e){notify(e.message);}});
 el('joinBtn').addEventListener('click',async()=>{if(!peerAvailable())return;const code=el('joinCode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');if(code.length!==6){notify('Insira o código de 6 caracteres da sala.');return;}try{hostTeam=await transmitTeam();closePeer();game=null;series=null;roomCode=code;hosting=false;peer=new window.Peer();status('PROCURANDO SALA');el('joinBtn').disabled=true;peer.on('open',()=>{el('joinInfo').textContent='Conectando ao anfitrião...';wireConnection(peer.connect('hh-arena-'+code,{reliable:true}));});peer.on('error',e=>{el('joinBtn').disabled=false;el('joinInfo').textContent=e.message||e.type||'Não foi possível entrar.';notify('Falha: '+(e.message||e.type));});}catch(e){notify(e.message);}});
 el('battleMegaChoice').addEventListener('change',()=>{if(game)renderCommands(HH.active(game,mySide));});
 el('battleBagItem').addEventListener('change',()=>{if(game)renderExtraCommands(HH.active(game,mySide),!!localChoice,!!game.needSwitch[mySide]);});
