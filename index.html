@@ -623,6 +623,13 @@ html[data-font-theme="arcade"] .arena-topbar .logo strong{font-size:10px}html[da
 }
 
 </style>
+<style id="damageMatrixStyles">
+.damage-mode-toggle[aria-pressed="true"]{border-color:var(--accent2);background:color-mix(in srgb,var(--accent2) 17%,var(--panel));color:var(--text);box-shadow:inset 0 -3px var(--accent2)}
+#battle .cinema-controls .damage-mode-toggle{margin-right:auto;font-size:11px;white-space:normal}
+.damage-mode-hint,.matrix-last-damage{border-left:3px solid var(--accent2);padding:8px 11px;background:var(--bg2);border-radius:0 6px 6px 0;font-size:11px;margin-bottom:10px}
+.play-dialog-footer{flex-wrap:wrap}.play-dialog-footer #playCreateTeam{flex:1 1 260px;width:auto}.play-dialog-footer .damage-mode-toggle{flex:1 1 240px;font-size:11px}
+@media(max-width:630px){#battle .cinema-controls .damage-mode-toggle{width:100%;margin-right:0}.matrix-last-damage{font-size:10px}}
+</style>
 </head>
 <body>
 <header class="topbar arena-topbar"><div class="logo"><span class="logo-icon" aria-hidden="true"></span><div><strong>POKÉMON RPG</strong><small>ARENA • HEAVEN &amp; HELL</small></div></div><span id="arenaPageLabel" class="arena-page-label">Início</span><div class="top-right"><span class="pill" id="onlineIndicator">◌ OFFLINE</span><span id="modeIndicator" hidden>PLAYTEST</span><button type="button" id="arenaPersonalize" class="arena-personalize" aria-haspopup="dialog" aria-controls="arenaAppearance" aria-label="Personalizar aparência, fontes e cores"><span class="appearance-button-icon" aria-hidden="true">◷</span><span><b>Personalizar</b><small id="arenaAppearanceLabel">Básico • Padrão</small></span></button><details class="arena-nav-menu" id="arenaNavMenu"><summary><span aria-hidden="true">☰</span> Menu <span class="nav-menu-chevron" aria-hidden="true">⌄</span></summary><nav class="main-nav" aria-label="Navegação principal"><button type="button" class="nav-link active" id="navArena" aria-current="page"><span>⌂</span><b>Início</b></button><button type="button" class="nav-link" id="navWorkshop"><span>◓</span><b>Criar Time</b></button><button type="button" class="nav-link" id="navRules"><span>▤</span><b>Fontes &amp; Regras</b></button><button type="button" class="nav-link" id="navSmogon" hidden>Smogon</button><div class="nav-menu-separator"></div><a class="ficha-link" href="https://n4nd0-hub.github.io/ficha-pokemon/" target="_blank" rel="noopener"><span>↗</span><b>Abrir Ficha Pokémon</b></a></nav></details><button id="returnSetup" class="hide" hidden>Voltar</button></div></header>
@@ -667,7 +674,7 @@ html[data-font-theme="arcade"] .arena-topbar .logo strong{font-size:10px}html[da
       <div class="offline-note">⚠ Versão experimental. O multiplayer usa conexão direta entre navegadores com um serviço público de sinalização. Os dois precisam ficar online durante a partida. Algumas redes móveis podem impedir a conexão direta.</div>
     </div>
   </div>
-</div><div class="play-dialog-footer"><button id="playCreateTeam" type="button" class="btn ghost full">＋ Criar um Pokémon no Workshop</button></div></dialog>
+</div><div class="play-dialog-footer"><button id="playDamageToggle" type="button" class="btn damage-mode-toggle" aria-pressed="false" title="BP define a quantidade; atributos definem o dado; nível limita o dado. O anfitrião escolhe no online.">🧪 Dano experimental: desligado</button><button id="playCreateTeam" type="button" class="btn ghost full">＋ Criar um Pokémon no Workshop</button></div></dialog>
 <section id="builderPage" class="hide builder-page"><div class="screen-title"><div><span class="eyebrow">MONTE SUA EQUIPE</span><h1>Criar Time</h1><p>Crie seu Pokémon ou adapte uma build para o sistema.</p></div><button type="button" class="btn ghost mini" data-menu-home>↩ Menu</button></div><div class="builder-tabs" role="tablist" aria-label="Criação de Pokémon"><button type="button" id="builderWorkshop" role="tab" aria-selected="true">Workshop</button><button type="button" id="builderSmogon" role="tab" aria-selected="false">Smogon</button></div><section id="workshop" class="workshop-screen hide" aria-labelledby="workshopTitle">
   <div class="work-mobile-dock" aria-label="Atalhos do Workshop"><button type="button" id="workMobileEditor">✎ EDITOR</button><button type="button" id="workMobileCard">⬡ PREVIEW</button><button type="button" id="workMobileTest">⚔ TESTAR</button></div>
 <div class="work-studio-heading"><span class="studio-mark" aria-hidden="true">◓</span><div><h2 id="workshopTitle">Seu Pokémon, do seu jeito.</h2><p>Monte a build por etapas e acompanhe o cartão ao lado.</p></div><span class="studio-build-badge">WORKSHOP</span></div>
@@ -804,7 +811,7 @@ html[data-font-theme="arcade"] .arena-topbar .logo strong{font-size:10px}html[da
   <div class="battle-banner"><span>◈ BATALHA DE TREINADORES</span><strong>HEAVEN &amp; HELL <em>ARENA</em></strong><span>CADA VITÓRIA CONTA</span></div>
   <div class="battle-shell">
     <div class="battle-top"><div id="fieldChips" class="field-chips"><span class="field-chip">◈ CAMPO PADRÃO</span></div><span class="big-turn">VS</span></div>
-    <div class="cinema-controls"><label><input id="battleAnimations" type="checkbox" checked> Animações</label><label>Ritmo <select id="battleSpeed"><option value="1">Normal</option><option value="2">Rápido</option></select></label><button class="btn mini ghost" id="replayTurn">↻ Rever turno</button><button class="btn mini ghost" id="skipPresentation" hidden>Pular animação</button></div><div class="battle-scene" id="battleScene" data-weather="none" data-terrain="none">
+    <div class="cinema-controls"><button id="damageModeToggle" type="button" class="btn mini damage-mode-toggle" aria-pressed="false" aria-describedby="damageModeHint">🧪 Dano experimental: desligado</button><label><input id="battleAnimations" type="checkbox" checked> Animações</label><label>Ritmo <select id="battleSpeed"><option value="1">Normal</option><option value="2">Rápido</option></select></label><button class="btn mini ghost" id="replayTurn">↻ Rever turno</button><button class="btn mini ghost" id="skipPresentation" hidden>Pular animação</button></div><div class="battle-scene" id="battleScene" data-weather="none" data-terrain="none">
       <div class="arena-stands" aria-hidden="true"></div><div class="arena-lights" aria-hidden="true"></div>
       <div id="battleCaption" class="battle-caption" role="status" aria-live="polite">Escolha seu comando.</div><div id="battleFx" class="battle-fx" aria-hidden="true"></div>
       <div class="combatant opp"><div class="combat-hud" id="enemyHud"><div class="name-row"><b class="side-name" id="enemyName">ADVERSÁRIO</b><span class="tag" id="enemyLevel">LV.—</span></div><div class="type-list" id="enemyTypes"></div><div class="hud-health"><span>HP</span><div class="hp-track" role="progressbar" id="enemyHpBar" aria-label="Vida do Pokémon" aria-valuemin="0"><div class="hp-fill" id="enemyHpFill"></div></div><small id="enemyHpText">— / —</small></div><div id="enemyStatusIcons" class="hud-status-icons" aria-label="Condições do Pokémon"></div><div class="hud-details"><small id="enemyAbility">ABILITY</small><div class="conditions" id="enemyConditions"></div></div></div><img id="enemySprite" class="combat-sprite" alt="Pokémon adversário" hidden><div id="enemyFallback" class="sprite-fallback">◓</div></div>
@@ -815,6 +822,7 @@ html[data-font-theme="arcade"] .arena-topbar .logo strong{font-size:10px}html[da
     </div>
   </div>
   <div class="combat-footer"><div class="panel"><div class="panel-head"><div><div class="section-label">03 // COMANDOS</div><h2>Seu próximo movimento</h2><p>Escolha o Move e, se quiser, marque a esquiva desta rodada.</p></div><span class="pill" id="moveCount">0 MOVES</span></div>
+<p id="damageModeHint" class="helper damage-mode-hint" hidden>Damage Matrix v0.1 · BP define a quantidade; atributos definem o dado; nível limita o dado. STAB e bônus continuam em d6.</p><p id="lastDamageText" class="helper matrix-last-damage" hidden></p>
     <div class="moves-grid" id="myMoves" style="margin-top:12px"></div>
     <div class="battle-command-options"><button id="roundDodge" type="button" class="btn round-dodge" aria-pressed="false">↺ Esquivar nesta rodada <small>Evasiva Reativa −25</small></button><span class="helper">A opção desmarca ao passar a rodada.</span></div><select id="evadeSelect" hidden aria-hidden="true" tabindex="-1"><option value="none">Sem Evasiva</option><option value="reactive">Evasiva Reativa −25</option></select>
 
@@ -972,6 +980,46 @@ const roll=(s=6)=>Math.floor(Math.random()*s)+1;
 const dice=n=>Array.from({length:Math.max(0,Math.min(80,Math.floor(n)))},()=>roll());
 const sum=a=>a.reduce((x,y)=>x+y,0);
 const powerDice=p=>p<=0?0:p<=20?1:p<=40?2:p<=60?3:p<=80?4:p<=100?5:6;
+
+// Opt-in Damage Matrix v0.1, based on the uploaded experimental specification.
+const MATRIX_DICE=[4,6,8,10,12,14,16,18,20];
+function matrixGrade(stat){return stat<=49?0:stat<=75?1:stat<=100?2:stat<=125?3:stat<=150?4:stat<=175?5:stat<=200?6:stat<=225?7:8;}
+function matrixDieCap(level){return level<=9?8:level<=19?10:level<=29?12:level<=39?14:level<=49?16:level<=59?18:20;}
+function matrixDie(gap){return gap<0?4:gap===0?6:gap===1?8:gap<=3?10:gap===4?12:gap===5?14:gap===6?16:gap===7?18:20;}
+function matrixHitCount(a,m,naturalCritical=false){
+ const raw=SD.moves[normalizeName(m.name)]?.multihit||m.multihit||(m.isMultiHit?[2,5]:null);
+ if(!raw)return 1;
+ if(typeof raw==='number')return Math.max(1,Math.min(10,Math.trunc(raw)));
+ const lo=Math.max(1,Math.min(10,Math.trunc(raw[0]||2))),hi=Math.max(lo,Math.min(10,Math.trunc(raw[1]||lo)));
+ if(has(a,'Skill Link')||naturalCritical)return hi;
+ if(m.hitCount)return Math.max(lo,Math.min(hi,Math.trunc(m.hitCount)));
+ return Math.floor((lo+hi)/2);
+}
+function matrixPower(a,m){let power=m.power;
+ if(has(a,'Technician')&&power<=60)power=Math.floor(power*1.5);
+ if(has(a,'Tough Claws')&&isContact(m))power=Math.floor(power*1.30);
+ if(has(a,'Mega Launcher')&&/(pulse|aura)/i.test(m.name))power=Math.floor(power*1.50);
+ return power;
+}
+function matrixProfile(a,d,m,naturalCritical=false){
+ if(m.category==='Status'||m.power<=0)return null;
+ const offensiveStat=effStat(a,m.category==='Physical'?'atk':'spa'),defensiveStat=effStat(d,m.category==='Physical'?'def':'spd');
+ const offensiveGrade=matrixGrade(offensiveStat),defensiveGrade=matrixGrade(defensiveStat),gap=offensiveGrade-defensiveGrade;
+ const hits=matrixHitCount(a,m,naturalCritical),effectiveBP=matrixPower(a,m)*hits,cap=matrixDieCap(a.level),penalty=Math.max(0,-gap-1);
+ let count=Math.max(1,powerDice(effectiveBP)-penalty),die=Math.min(matrixDie(gap),cap);
+ const effectiveness=matchup(m.type,d);
+ if(effectiveness>1){count++;die=MATRIX_DICE[Math.min(MATRIX_DICE.length-1,MATRIX_DICE.indexOf(die)+1)];}
+ else if(effectiveness>0&&effectiveness<1){count=Math.max(1,count-1);die=MATRIX_DICE[Math.max(0,MATRIX_DICE.indexOf(die)-1)];}
+ die=Math.min(die,cap);
+ const stab=a.gimmicks?.tera?.active&&a.gimmicks.tera.type===m.type?2:a.types.includes(m.type)?has(a,'Adaptability')?1+Math.ceil(powerDice(effectiveBP)/2):1:0;
+ return {count,die,cap,hits,effectiveBP,offensiveStat,defensiveStat,offensiveGrade,defensiveGrade,gap,penalty,effectiveness,stab,expression:effectiveness===0?'Imune • 0 HP':`${count}d${die} base${stab?` + ${stab}d6 STAB`:''}`};
+}
+function setDamageSystem(g,enabled){const next=enabled?'matrix-v0.1':'standard';if(g.damageSystem===next)return false;
+ g.damageSystem=next;
+ for(const team of g.team)for(const p of team){if(enabled&&p.flags.swordsUntil>=g.turn){p.flags.matrixSwords=true;delete p.flags.swordsUntil;}else if(!enabled&&p.flags.matrixSwords){p.flags.swordsUntil=g.turn;delete p.flags.matrixSwords;}}
+ log(g,enabled?'🧪 Damage Matrix v0.1 ativada: dados variáveis; bônus externos em d6.':'Dano padrão d6 ativado.','system');return true;
+}
+
 /* Reproduz a função statDice da própria Ficha V5 Mestre, inclusive fixo +1 / 15 acima de 175. */
 const statDice=v=>v<50?{dice:0,fixed:0}:v<=75?{dice:1,fixed:0}:v<=100?{dice:2,fixed:0}:v<=125?{dice:3,fixed:0}:v<=150?{dice:4,fixed:0}:v<=175?{dice:5,fixed:0}:{dice:6,fixed:Math.floor((v-175)/15)};
 function stages(f,k){return Math.max(-6,Math.min(6,(f.effects||[]).filter(x=>x.stat===k).reduce((n,x)=>n+x.delta,0)));}
@@ -1040,7 +1088,7 @@ function normalizePokemon(p){
   moves:usable.slice(0,5).map((m,i)=>({id:String(m.id||'m'+i).slice(0,70),name:String(m.name||'Move').slice(0,80),
    type:type(m.type)||'Normal',category:(['Physical','Special','Status'].find(c=>c.toLowerCase()===String(m.category||'Status').toLowerCase())||'Status'),
    power:num(m.power,0,300),accuracy:num(m.accuracy||90,1,100),alwaysHits:!!m.alwaysHits,description:String(m.description||'').slice(0,2500),
-   contact:!!m.contact})),
+   contact:!!m.contact,isMultiHit:!!m.isMultiHit,hitCount:Number.isFinite(+m.hitCount)&&+m.hitCount>0?Math.trunc(num(m.hitCount,1,10)):null,multihit:Array.isArray(m.multihit)?m.multihit.slice(0,2).map(v=>Math.trunc(num(v,1,10))):Number.isFinite(+m.multihit)&&+m.multihit>0?Math.trunc(num(m.multihit,1,10)):null})),
   status:null,effects:[],flags:{},uses:{},disabled:{},hp:num(p.maxHp||(p.stats||p.baseStats||{}).hp,1,9999)
  };
 }
@@ -1054,12 +1102,12 @@ function normalizeImport(parsed){const input=Array.isArray(parsed)?parsed:Array.
  }
  return result;
 }
-function newGame(team0,team1){if(!team0.length||!team1.length)throw Error('Cada jogador precisa de pelo menos um Pokémon.');
- const g={turn:1,team:[team0.slice(0,6).map(p=>normalizePokemon(p)),team1.slice(0,6).map(p=>normalizePokemon(p))],
+function newGame(team0,team1,options={}){if(!team0.length||!team1.length)throw Error('Cada jogador precisa de pelo menos um Pokémon.');
+ const g={damageSystem:options.damageSystem==='matrix-v0.1'?'matrix-v0.1':'standard',turn:1,team:[team0.slice(0,6).map(p=>normalizePokemon(p)),team1.slice(0,6).map(p=>normalizePokemon(p))],
  active:[0,0],bag:[{},{}],weather:null,terrain:null,screens:[{},{}],hazards:[{},{}],log:[],winner:null,needSwitch:[false,false],
  last:{},ready:[false,false],megaUsed:[false,false],teraUsed:[false,false],zUsed:[false,false]};
  for(let s=0;s<2;s++){const groups=new Set();for(const f of g.team[s]){if(f.bagGroup&&groups.has(f.bagGroup))continue;if(f.bagGroup)groups.add(f.bagGroup);for(const it of f.bagItems||[]){g.bag[s][it.name]=Math.min(50,(g.bag[s][it.name]||0)+it.quantity);}}}
- log(g,'⚔ A batalha começou.','system');for(let i=0;i<2;i++)onEnter(g,i,true);return g;}
+ log(g,'⚔ A batalha começou.','system');if(g.damageSystem==='matrix-v0.1')log(g,'🧪 Damage Matrix v0.1 • sistema experimental de dano e redução.','system');for(let i=0;i<2;i++)onEnter(g,i,true);return g;}
 function visual(g,event){if(g.visualEvents)g.visualEvents.push(event);}
 function log(g,text,kind='info'){g.log.push({turn:g.turn,text:String(text).slice(0,500),kind});g.log=g.log.slice(-150);}
 function active(g,s){return g.team[s][g.active[s]];}
@@ -1200,49 +1248,59 @@ function applySecondary(g,s,m,hit){if(!hit)return;const d=SD.moves[normalizeName
 function damageMove(g,s,m,accuracy,actingFirst){const a=active(g,s),d=active(g,1-s);
  let mult=matchup(m.type,d);if(mult===0){log(g,`${d.name} é imune por tipagem!`,'immune');return 0;}
  let immune=evalImmunity(g,a,d,m,mult);if(immune){log(g,`${d.name}: ${immune} anulou ${m.name}!`,'ability');return 0;}
+ const matrix=g.damageSystem==='matrix-v0.1';
  const physical=m.category==='Physical',ak=physical?'atk':'spa',dk=physical?'def':'spd';
  let pw=m.power;if(has(a,'Technician')&&pw<=60)pw=Math.floor(pw*1.5);
  if(has(a,'Tough Claws')&&isContact(m))pw=Math.floor(pw*1.30);
  if(has(a,'Mega Launcher')&&/(pulse|aura)/i.test(m.name))pw=Math.floor(pw*1.50);
- const bd=powerDice(pw),stab=a.gimmicks?.tera?.active&&a.gimmicks.tera.type===m.type?2:a.types.includes(m.type)?has(a,'Adaptability')?1+Math.ceil(bd/2):1:0;
- let bonus=statDice(effStat(a,ak)),defense=statDice(effStat(d,dk));
+ const critical=accuracy.crit&&!(has(d,'Battle Armor')||has(d,'Shell Armor'));
+ const profile=matrix?matrixProfile(a,d,m,critical&&!accuracy.artificial):null;
+ const bd=powerDice(matrix?profile.effectiveBP:pw),stab=a.gimmicks?.tera?.active&&a.gimmicks.tera.type===m.type?2:a.types.includes(m.type)?has(a,'Adaptability')?1+Math.ceil(bd/2):1:0;
+ let bonus=matrix?{dice:0,fixed:0}:statDice(effStat(a,ak)),defense=matrix?{dice:0,fixed:0}:statDice(effStat(d,dk));
  let offensive=bonus.dice,fixed=bonus.fixed,defDice=defense.dice,defFixed=defense.fixed;
  if(mult>=2){defDice=0;defFixed=0;}else if(mult<1){offensive=0;fixed=0;}
- let added=stab+(mult>=4?2:mult>=2?1:mult<=.25?-2:mult<1?-1:0);
- if(physical&&has(a,'Guts')&&a.status)added+=2;
- if(physical&&has(a,'Hustle'))added+=2;
- if(physical&&has(a,'Defiant')&&a.flags.defiantTurn===g.turn)added+=1;
- if(has(a,'Chlorophyll')&&weather(g)==='sun'&&m.type==='Grass')added++;
- if(has(a,'Ice Body')&&['hail','snow'].includes(weather(g))&&m.type==='Ice')added++;
- if(has(a,'Flash Fire')&&a.flags.flashFire&&m.type==='Fire')added+=3;
- if(has(a,'Gale Wings')&&a.hp===a.maxHp&&m.type==='Flying')added+=2;
- if(has(a,'Iron Fist')&&/punch/i.test(m.name)){added+=2;defDice=Math.max(0,defDice-1);}
- if(has(a,'Tough Claws')&&isContact(m)&&a.flags.toughClawsTurn!==g.turn){defDice=Math.max(0,defDice-1);a.flags.toughClawsTurn=g.turn;}
- if(has(a,'Overgrow')&&a.hp<=a.maxHp/3&&m.type==='Grass')added+=2;
- if(has(a,'Blaze')&&a.hp<=a.maxHp/3&&m.type==='Fire')added+=2;
- if(has(a,'Torrent')&&a.hp<=a.maxHp/3&&m.type==='Water')added+=2;
- if(has(a,'Swarm')&&a.hp<=a.maxHp/3&&m.type==='Bug')added+=2;
- if(has(a,'Dracovergence')&&a.flags.dracoBonus)added+=a.flags.dracoBonus;
+ let added=stab+(matrix?0:mult>=4?2:mult>=2?1:mult<=.25?-2:mult<1?-1:0),extraDice=stab,reduceDice=0,pierceDice=0;
+ const adjustDice=delta=>{added+=delta;if(delta>0)extraDice+=delta;else reduceDice-=delta;};
+ if(physical&&has(a,'Guts')&&a.status)adjustDice(2);
+ if(physical&&has(a,'Hustle'))adjustDice(2);
+ if(physical&&has(a,'Defiant')&&a.flags.defiantTurn===g.turn)adjustDice(1);
+ if(has(a,'Chlorophyll')&&weather(g)==='sun'&&m.type==='Grass')adjustDice(1);
+ if(has(a,'Ice Body')&&['hail','snow'].includes(weather(g))&&m.type==='Ice')adjustDice(1);
+ if(has(a,'Flash Fire')&&a.flags.flashFire&&m.type==='Fire')adjustDice(3);
+ if(has(a,'Gale Wings')&&a.hp===a.maxHp&&m.type==='Flying')adjustDice(2);
+ if(has(a,'Iron Fist')&&/punch/i.test(m.name)){adjustDice(2);defDice=Math.max(0,defDice-1);pierceDice++;}
+ if(has(a,'Tough Claws')&&isContact(m)&&a.flags.toughClawsTurn!==g.turn){defDice=Math.max(0,defDice-1);pierceDice++;a.flags.toughClawsTurn=g.turn;}
+ if(has(a,'Overgrow')&&a.hp<=a.maxHp/3&&m.type==='Grass')adjustDice(2);
+ if(has(a,'Blaze')&&a.hp<=a.maxHp/3&&m.type==='Fire')adjustDice(2);
+ if(has(a,'Torrent')&&a.hp<=a.maxHp/3&&m.type==='Water')adjustDice(2);
+ if(has(a,'Swarm')&&a.hp<=a.maxHp/3&&m.type==='Bug')adjustDice(2);
+ if(matrix&&profile.effectiveBP>120)log(g,`${m.name}: BP efetivo ${profile.effectiveBP} limitado à faixa de 6 dados-base antes da tipagem; regras especiais de BP 121+ exigem arbitragem.`,'manual');
+ if(has(a,'Dracovergence')&&a.flags.dracoBonus)adjustDice(a.flags.dracoBonus);
  if(has(a,'Moxie')&&a.flags.moxie)fixed+=a.flags.moxie;
  if(has(a,'Analytic')&&!actingFirst)fixed+=6;
- if(weather(g)==='rain'){if(m.type==='Water')added++;if(m.type==='Fire')added--;}
- if(weather(g)==='sun'){if(m.type==='Fire')added++;if(m.type==='Water')added--;}
- if(terrain(g)==='grass'){if(m.type==='Grass')added++;if(['earthquake','bulldoze','magnitude'].includes(normalizeName(m.name)))added--;}
- if(terrain(g)==='electric'&&m.type==='Electric')added++;
- if(terrain(g)==='psychic'&&m.type==='Psychic')added++;
- if(terrain(g)==='misty'&&m.type==='Dragon')added--;
- if(physical&&a.status?.id==='burn'&&!has(a,'Guts'))added--;
- if(physical&&a.status?.id==='deepburn')added--;
- if(has(d,'Multiscale')&&d.hp===d.maxHp&&mult>=2)added-=2;
- if(has(d,'Thick Fat')&&['Fire','Ice'].includes(m.type))added-=2;
- if(has(d,'Dry Skin')&&m.type==='Fire')added++;
- if(has(d,'Rain Dish')&&m.type==='Fire'&&weather(g)==='rain')added--;
- if(has(d,'Overcoat')&&((weather(g)==='sand'&&['Ground','Rock'].includes(m.type))||(['hail','snow'].includes(weather(g))&&m.type==='Ice')))added--;
- const crit=accuracy.crit&&!(has(d,'Battle Armor')||has(d,'Shell Armor'));
- if(crit){defDice=Math.max(0,defDice-1);visual(g,{kind:'critical',side:1-s});}
+ if(weather(g)==='rain'){if(m.type==='Water')adjustDice(1);if(m.type==='Fire')adjustDice(-1);}
+ if(weather(g)==='sun'){if(m.type==='Fire')adjustDice(1);if(m.type==='Water')adjustDice(-1);}
+ if(terrain(g)==='grass'){if(m.type==='Grass')adjustDice(1);if(['earthquake','bulldoze','magnitude'].includes(normalizeName(m.name)))adjustDice(-1);}
+ if(terrain(g)==='electric'&&m.type==='Electric')adjustDice(1);
+ if(terrain(g)==='psychic'&&m.type==='Psychic')adjustDice(1);
+ if(terrain(g)==='misty'&&m.type==='Dragon')adjustDice(-1);
+ if(physical&&a.status?.id==='burn'&&!has(a,'Guts'))adjustDice(-1);
+ if(!matrix&&physical&&a.status?.id==='deepburn')adjustDice(-1);
+ if(has(d,'Multiscale')&&d.hp===d.maxHp&&mult>=2)adjustDice(-(2));
+ if(has(d,'Thick Fat')&&['Fire','Ice'].includes(m.type))adjustDice(-(2));
+ if(has(d,'Dry Skin')&&m.type==='Fire')adjustDice(1);
+ if(has(d,'Rain Dish')&&m.type==='Fire'&&weather(g)==='rain')adjustDice(-1);
+ if(has(d,'Overcoat')&&((weather(g)==='sand'&&['Ground','Rock'].includes(m.type))||(['hail','snow'].includes(weather(g))&&m.type==='Ice')))adjustDice(-1);
+ const crit=critical;
+ if(crit){if(!matrix)defDice=Math.max(0,defDice-1);visual(g,{kind:'critical',side:1-s});}
  const ignoringScreens=has(a,'Infiltrator');
  const counts=Math.max(1,bd+offensive+added-defDice);
- const rolled=crit?(accuracy.artificial?bd*4:bd*6)+sum(dice(Math.max(0,counts-bd))):sum(dice(counts));
+ let baseRoll=0,bonusRoll=0,reductionRoll=0;
+ if(matrix){baseRoll=crit?profile.count*(accuracy.artificial?profile.die/2+1:profile.die):sum(Array.from({length:profile.count},()=>roll(profile.die)));
+  bonusRoll=sum(dice(extraDice));if(has(a,'Skill Link')&&profile.hits>1)pierceDice=Math.max(pierceDice,1);reduceDice=Math.max(0,reduceDice-pierceDice);
+  reductionRoll=sum(dice(reduceDice));
+ }
+ const rolled=matrix?baseRoll+bonusRoll:crit?(accuracy.artificial?bd*4:bd*6)+sum(dice(Math.max(0,counts-bd))):sum(dice(counts));
  let total=Math.max(0,rolled+fixed-defFixed);
  const item=normalizeName(a.heldItem);
  if(item==='lifeorb')total=Math.floor(total*1.30);
@@ -1250,20 +1308,24 @@ function damageMove(g,s,m,accuracy,actingFirst){const a=active(g,s),d=active(g,1
  if(item==='muscleband'&&physical)total=Math.floor(total*1.10);
  if(item==='wiseglasses'&&!physical)total=Math.floor(total*1.10);
  let shieldInfo='';
- if(d.flags.ironDefense){total=Math.floor(total/2);d.flags.ironDefense=false;shieldInfo=' • Iron Defense';}
+ if(matrix){if(physical&&(a.flags.matrixSwords||a.flags.swordsUntil>=g.turn)){total*=2;delete a.flags.matrixSwords;delete a.flags.swordsUntil;shieldInfo+=' • Swords Dance ×2';}total=Math.max(0,total-reductionRoll);}
+
+ if(d.flags.ironDefense){total=Math.floor(total/2);d.flags.ironDefense=false;shieldInfo+=' • Iron Defense';}
  if(has(d,'Multiscale')&&d.hp===d.maxHp)total=Math.floor(total/2);
  if(has(d,'Battle Armor')&&mult>=2)total=Math.max(0,total-5);
  if(has(d,'Wyrmscale')&&mult>=2)total=Math.max(0,total-5);
- if(!crit&&!ignoringScreens){const scr=g.screens[1-s];const reduction=Math.floor((scr.veil?.level||scr[physical?'reflect':'light']?.level||0)/2);
+ if((matrix||!crit)&&!ignoringScreens){const scr=g.screens[1-s];const reduction=Math.floor((scr.veil?.level||scr[physical?'reflect':'light']?.level||0)/2);
   if(reduction){total=Math.max(0,total-reduction);shieldInfo+=` • Screen −${reduction}`;}}
- if(physical&&a.flags.swordsUntil===g.turn){total*=2;delete a.flags.swordsUntil;shieldInfo+=' • Swords Dance ×2';}
+ if(!matrix&&physical&&a.flags.swordsUntil===g.turn){total*=2;delete a.flags.swordsUntil;shieldInfo+=' • Swords Dance ×2';}
  if(a.status?.id==='deepburn'&&physical)total=Math.floor(total/2);
+ if(matrix)total=Math.max(1,total);
  if(held(d,'Focus Sash')&&d.hp===d.maxHp&&total>=d.hp){total=d.hp-1;d.heldItem='';shieldInfo+=' • Focus Sash';log(g,`${d.name} resistiu com Focus Sash!`,'item');}
  if(has(d,'Sturdy')&&d.hp===d.maxHp&&!d.flags.sturdyUsed&&total>=d.hp){total=d.hp-1;d.flags.sturdyUsed=true;stage(g,1-s,'def',1,null,'Sturdy');shieldInfo+=' • Sturdy';}
  const before=d.hp;damage(g,d,total,m.name);const dealt=before-d.hp;
+ if(matrix)g.lastDamage={turn:g.turn,attacker:a.name,defender:d.name,move:m.name,...profile,extraDice,reduceDice,baseRoll,bonusRoll,reductionRoll,fixed,total,dealt,critical:crit?(accuracy.artificial?'artificial':'natural'):'none'};
  if(dealt&&item==='shellbell')heal(g,a,Math.max(1,Math.floor(dealt/8)),'Shell Bell');
  if(dealt&&item==='lifeorb')indirect(g,a,Math.max(1,Math.floor(a.maxHp/10)),'Life Orb');
- log(g,`${a.name} usou ${m.name}: ${accuracy.label}${crit?' • CRÍTICO':''}${mult>=2?' • SUPER EFETIVO':mult<1?' • Resistido':''} • ${counts}d6 efetivos • ${dealt} HP${shieldInfo}.`,crit?'critical':'attack');
+ log(g,`${a.name} usou ${m.name}: ${accuracy.label}${crit?' • CRÍTICO':''}${mult>=2?' • SUPER EFETIVO':mult<1?' • Resistido':''} • ${matrix?`${profile.count}d${profile.die} base + ${extraDice}d6 bônus${reduceDice?` − ${reduceDice}d6 redução`:''} • BP ${profile.effectiveBP}${profile.hits>1?` (${profile.hits} hits)`:''} • Graus ${profile.offensiveGrade}/${profile.defensiveGrade} • teto d${profile.cap} • base ${baseRoll}, bônus ${bonusRoll}${reductionRoll?`, redução ${reductionRoll}`:''}`:`${counts}d6 efetivos`} • ${dealt} HP${shieldInfo}.`,crit?'critical':'attack');
  if(has(a,'Dracovergence')&&mult>=2&&dealt>0){
   if(stages(a,'spe')<3)stage(g,s,'spe',1,null,'Dracovergence');if(stages(a,'atk')<3)stage(g,s,'atk',1,null,'Dracovergence');a.flags.dracoAccuracy=true;
  }
@@ -1291,7 +1353,7 @@ function support(g,s,m){const a=active(g,s),d=active(g,1-s),r=ruleFor(m),n=norma
  if(r.kind==='manual'){log(g,`${m.name}: efeito manual. ${m.description||''}`,'manual');return;}
  if(r.kind==='buff'||r.kind==='debuff'){
   const target=r.kind==='buff'?s:1-s;for(const [k,v] of Object.entries(r.st))stage(g,target,k,v,Math.abs(v)>=2?2:v<0?3:null,m.name,r.kind==='debuff');return;}
- if(r.kind==='nextPhysical'){a.flags.swordsUntil=g.turn+1;log(g,`${a.name}: Swords Dance — próximo golpe físico no turno seguinte causa ×2 dano.`,'stage');return;}
+ if(r.kind==='nextPhysical'){if(g.damageSystem==='matrix-v0.1'){a.flags.matrixSwords=true;log(g,`${a.name}: Swords Dance — o próximo Move físico de dano causa ×2.`,'stage');return;}a.flags.swordsUntil=g.turn+1;log(g,`${a.name}: Swords Dance — próximo golpe físico no turno seguinte causa ×2 dano.`,'stage');return;}
  if(r.kind==='nextHalf'){a.flags.ironDefense=true;log(g,`${a.name}: Iron Defense — próximo dano direto recebido cai 50%.`,'screen');return;}
  if(r.kind==='focus'){a.flags.focus=true;log(g,`${a.name}: Focus Energy — margem de crítico artificial 1–30.`,'stage');return;}
  if(r.kind==='screen'){
@@ -1445,7 +1507,7 @@ function sample(){const sceptile=normalizePokemon({id:'demo-sceptile',name:'Scep
   {name:'Reflect',type:'Psychic',category:'Status',power:0,accuracy:90,active:true},
   {name:'Dragon Dance',type:'Dragon',category:'Status',power:0,accuracy:90,active:true}
  ]});return [sceptile,charizard];}
-return {TYPES,TYPE_CHART,AUTO_ABILITIES,AUTO,AUTOMATIC_ITEMS,AUTOMATIC_ITEM_KEYS,MEGA_TEST_FORMS,BAG_ITEMS,bagName,canUseBag,useBag,canMega,megaEvolve,itemEffectLabel,normalizeName,normalizePokemon,normalizeImport,newGame,active,alive,stage,stages,effStat,matchup,ruleFor,moveSupported,moveCoverage,resolve,switchTo,log,heal,damage,addStatus,sample,powerDice,statDice};
+return {TYPES,TYPE_CHART,AUTO_ABILITIES,AUTO,AUTOMATIC_ITEMS,AUTOMATIC_ITEM_KEYS,MEGA_TEST_FORMS,BAG_ITEMS,bagName,canUseBag,useBag,canMega,megaEvolve,itemEffectLabel,normalizeName,normalizePokemon,normalizeImport,newGame,active,alive,stage,stages,effStat,matchup,ruleFor,moveSupported,moveCoverage,resolve,switchTo,log,heal,damage,addStatus,sample,powerDice,statDice,matrixGrade,matrixDieCap,matrixDie,matrixHitCount,matrixProfile,setDamageSystem};
 })();
 if(typeof module!=='undefined'&&module.exports)module.exports=HH;
 </script>
@@ -1461,7 +1523,7 @@ const typeColors={Normal:'#899098',Fire:'#de5b3e',Water:'#477fbd',Electric:'#d5a
 let library=[],nextKey=1,chosen=new Set(),mode='idle',game=null,mySide=0,initialTeams=null;
 const favorites=new Set();
 let peer=null,conn=null,hosting=false,roomCode='',hostTeam=null,guestTeam=null,localChoice=null,otherChoice=null,networkReady=false;
-let toastHandle=null,commandTurn=null,teraArmed=false,zArmed=false;
+let toastHandle=null,commandTurn=null,teraArmed=false,zArmed=false,experimentalEnabled=false;
 function notify(message){const t=el('toast');t.textContent=message;t.classList.add('show');clearTimeout(toastHandle);toastHandle=setTimeout(()=>t.classList.remove('show'),3500);}
 function status(text,live=false){el('onlineIndicator').textContent=(live?'● ':'◌ ')+text;el('onlineIndicator').classList.toggle('live',live);}
 const selectedEntries=()=>Array.from(chosen).map(key=>library.find(x=>x.key===key)).filter(Boolean).slice(0,6);
@@ -1474,7 +1536,7 @@ try{const s=JSON.parse(localStorage.getItem('hh-arena-record-v1')||'null');if(s)
 const matchId=()=>Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,12);
 function createMatch(teams,newSeries=false){
  if(newSeries||!series)series={id:matchId(),score:[0,0],round:0};
- game=HH.newGame(...teams);game.arena={seriesId:series.id,matchId:matchId(),round:++series.round,score:[...series.score],scored:false,ready:[false,false]};
+ game=HH.newGame(...teams,{damageSystem:experimentalEnabled?'matrix-v0.1':'standard'});game.arena={seriesId:series.id,matchId:matchId(),round:++series.round,score:[...series.score],scored:false,ready:[false,false]};
  localChoice=null;otherChoice=null;lastReplay=[];lastVisualTurn=-1;lastVisualGame=null;resultVisibleFor=null;
  resetRoundOptions();el('battleResult').hidden=true;el('battleMegaArm').checked=false;caption('Escolha o comando do próximo turno.');
 }
@@ -1489,7 +1551,7 @@ function countResult(){
  }
 }
 function renderSession(){
- if(!game)return;countResult();const a=game.arena||{score:[0,0],round:1,ready:[false,false]};
+ renderDamageMode();if(!game)return;countResult();const a=game.arena||{score:[0,0],round:1,ready:[false,false]};
  el('sessionMyScore').textContent=a.score[mySide];el('sessionEnemyScore').textContent=a.score[1-mySide];el('sessionMatch').textContent=`PARTIDA ${a.round}`;
  const online=mode!=='bot',connected=!online||!!conn?.open,finished=game.winner!==null;
  el('sessionRoom').textContent=online?`SALA ${roomCode||'ONLINE'} · ${connected?'CONECTADA':'DESCONECTADA'}`:'TREINO LOCAL';
@@ -1583,25 +1645,26 @@ function syncLobbyTeam(){const revision=++teamSyncVersion;clearTimeout(teamSyncT
 async function importFiles(files){for(const f of Array.from(files||[])){if(!f.name.toLowerCase().endsWith('.json')){notify('Use somente o arquivo JSON exportado pela ficha.');continue;}
  try{const parsed=JSON.parse(await f.text());const list=HH.normalizeImport(parsed);if(!list.length)throw Error('Arquivo sem Pokémon reconhecíveis.');const orig=Array.isArray(parsed)?parsed:(Array.isArray(parsed.pokemon)?parsed.pokemon:(Array.isArray(parsed.team)?parsed.team:[]));addEntries(list,chosen.size===0,list.map(p=>orig.find(q=>String(q.id||'')===p.id)||p));el('importNotice').textContent=`✓ ${safe(f.name)}: ${list.length} Pokémon reconhecidos. Você pode escolher até 6 por partida. A importação nunca altera o arquivo original.`;}catch(e){notify(`Erro em ${f.name}: ${e.message}`);}}
 }
-function closePeer(){try{conn?.close();peer?.destroy();}catch{}conn=null;peer=null;hosting=false;networkReady=false;el('hostBtn').disabled=false;el('joinBtn').disabled=false;}
+function closePeer(){try{conn?.close();peer?.destroy();}catch{}conn=null;peer=null;hosting=false;networkReady=false;el('hostBtn').disabled=false;el('joinBtn').disabled=false;renderDamageMode();}
 const makeCode=()=>{const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from(crypto.getRandomValues(new Uint8Array(6)),x=>chars[x%chars.length]).join('');};
 function peerAvailable(){if(typeof window.Peer!=='function'){notify('O serviço de conexão não carregou. Abra o site pela internet (HTTPS) e atualize.');return false;}return true;}
-function wireConnection(c){conn=c;c.on('open',()=>{status('CONECTADO',true);networkReady=true;if(hosting){el('guestInfo').textContent='Conexão estabelecida. Recebendo equipe...';}else{c.send({t:'join',team:hostTeam});el('joinInfo').textContent='Conectado! Aguardando o anfitrião iniciar.';}notify('Jogadores conectados.');});
+function wireConnection(c){conn=c;c.on('open',()=>{status('CONECTADO',true);networkReady=true;if(hosting){el('guestInfo').textContent='Conexão estabelecida. Recebendo equipe...';send({t:'rules',damageSystem:experimentalEnabled?'matrix-v0.1':'standard'});}else{c.send({t:'join',team:hostTeam});el('joinInfo').textContent='Conectado! Aguardando o anfitrião iniciar.';}renderDamageMode();notify('Jogadores conectados.');});
  c.on('data',packet=>{if(c!==conn)return;try{onPacket(packet);}catch(err){notify('Falha ao processar mensagem recebida: '+err.message);}});
  c.on('close',()=>{if(c!==conn)return;status('DESCONECTADO');networkReady=false;el('startOnlineBtn').disabled=true;renderSession();if(game&&!presenting)render();notify('A conexão foi encerrada. Seus dados de batalha continuam nesta página.');});
  c.on('error',e=>{status('ERRO DE CONEXÃO');notify(`Conexão: ${e.message||e.type||'erro'}`);});}
 function send(obj){if(obj.t==='state')countResult();if(conn?.open){conn.send(obj);return true;}notify('O outro jogador está desconectado.');return false;}
 function onPacket(p){if(!p||typeof p!=='object'||typeof p.t!=='string')return;
  if(hosting){
-  if((p.t==='join'||p.t==='team')&&(!game||game.winner!==null)){const t=Array.isArray(p.team)?p.team.slice(0,6).map(HH.normalizePokemon):[];guestTeam=t;if(!t.length){el('guestInfo').textContent='O outro jogador precisa selecionar sua equipe.';el('startOnlineBtn').disabled=true;return;}el('guestInfo').textContent=`✓ Jogador B pronto: ${t.map(x=>x.name).join(', ')}`;el('startOnlineBtn').disabled=!!game;send({t:'welcome',code:roomCode});if(game)send({t:'state',game});}
-  else if(p.t==='choice'&&game&&game.winner===null&&p.matchId===game.arena?.matchId&&p.turn===game.turn&&networkReady&&guestTeam){if(otherChoice)return;otherChoice=p.action;send({t:'ready',side:1});maybeResolve();}
+  if((p.t==='join'||p.t==='team')&&(!game||game.winner!==null)){const t=Array.isArray(p.team)?p.team.slice(0,6).map(HH.normalizePokemon):[];guestTeam=t;if(!t.length){el('guestInfo').textContent='O outro jogador precisa selecionar sua equipe.';el('startOnlineBtn').disabled=true;return;}el('guestInfo').textContent=`✓ Jogador B pronto: ${t.map(x=>x.name).join(', ')}`;el('startOnlineBtn').disabled=!!game;send({t:'welcome',code:roomCode,damageSystem:experimentalEnabled?'matrix-v0.1':'standard'});if(game)send({t:'state',game});}
+  else if(p.t==='choice'&&game&&game.winner===null&&p.matchId===game.arena?.matchId&&p.turn===game.turn&&networkReady&&guestTeam){if(otherChoice)return;if((p.damageSystem||'standard')!==(game.damageSystem||'standard')){send({t:'invalid',message:'O modo de dano mudou. Confira o botão e escolha sua ação novamente.'});return;}otherChoice=p.action;send({t:'ready',side:1});maybeResolve();renderDamageMode();}
   else if(p.t==='rematch'&&game&&game.winner!==null&&p.matchId===game.arena?.matchId){game.arena.ready[1]=true;tryRematch();}
   else if(p.t==='surrender'&&game&&game.winner===null&&p.matchId===game.arena?.matchId){if(presenting)presentationToken++;finishBySurrender(1);}
   else if(p.t==='surrender'&&game&&game.winner!==null&&p.matchId===game.arena?.matchId)send({t:'state',game});
   else if(p.t==='request'&&game)send({t:'state',game});
  }else{
-  if(p.t==='welcome'){roomCode=String(p.code||'');el('joinInfo').textContent=`✓ Sala ${p.code}. Aguardando início...`;}
-  else if(p.t==='state'&&p.game&&Array.isArray(p.game.team)&&p.game.team.length===2){const newMatch=game?.arena?.matchId!==p.game.arena?.matchId;const turnChanged=game?.turn!==p.game.turn;game=p.game;mode='guest';mySide=1;if(newMatch||turnChanged||game.winner!==null){localChoice=null;otherChoice=null;}if(newMatch){lastReplay=[];resultVisibleFor=null;showBattle();}render();}
+  if(p.t==='rules'){experimentalEnabled=p.damageSystem==='matrix-v0.1';renderDamageMode();}
+  else if(p.t==='welcome'){experimentalEnabled=p.damageSystem==='matrix-v0.1';renderDamageMode();roomCode=String(p.code||'');el('joinInfo').textContent=`✓ Sala ${p.code}. Aguardando início...`;}
+  else if(p.t==='state'&&p.game&&Array.isArray(p.game.team)&&p.game.team.length===2){const newMatch=game?.arena?.matchId!==p.game.arena?.matchId;const turnChanged=game?.turn!==p.game.turn;const rulesChanged=game?.damageSystem!==p.game.damageSystem;game=p.game;experimentalEnabled=game.damageSystem==='matrix-v0.1';mode='guest';mySide=1;if(newMatch||turnChanged||rulesChanged||game.winner!==null){localChoice=null;otherChoice=null;}if(newMatch){lastReplay=[];resultVisibleFor=null;showBattle();}render();}
   else if(p.t==='ready'&&game&&game.winner===null){el('readyStatus').textContent='ANFITRIÃO PRONTO';}
   else if(p.t==='invalid'&&game){localChoice=null;notify(p.message||'Selecione outra ação.');render();}
  }
@@ -1616,7 +1679,7 @@ function maybeResolve(){if(mode!=='host'||!localChoice||!otherChoice||!game)retu
 function submitAction(action){if(presenting)return;if(!game||game.winner!==null||localChoice||game.arena?.surrenderRequested)return;if(mode!=='bot'&&!conn?.open){notify('O outro jogador desconectou.');return;}try{
  if(mode==='bot'){HH.resolve(game,action,botAction());render();}
  else if(mode==='host'){localChoice=action;send({t:'ready',side:0});maybeResolve();render();}
- else if(mode==='guest'){if(send({t:'choice',matchId:game.arena?.matchId,turn:game.turn,action})){localChoice=action;render();}}
+ else if(mode==='guest'){if(send({t:'choice',matchId:game.arena?.matchId,turn:game.turn,damageSystem:game.damageSystem||'standard',action})){localChoice=action;render();}}
  }catch(e){notify(e.message);}}
 let presenting=false,lastVisualTurn=-1,lastVisualGame=null,presentationToken=0,lastReplay=[];
 const caption=message=>el('battleCaption').textContent=HHLocale.text(message);
@@ -1654,10 +1717,38 @@ function renderStages(prefix,p){const labels={atk:'ATK',def:'DEF',spa:'Sp.ATK',s
 function renderCombatant(prefix,p){el(prefix+'Name').textContent=p.name;el(prefix+'Level').textContent=`LV.${p.level}`;el(prefix+'Types').innerHTML=typeBadges(p);el(prefix+'HpText').textContent=`${p.hp} / ${p.maxHp}`;el(prefix+'HpBar').setAttribute('aria-valuenow',p.hp);el(prefix+'HpBar').setAttribute('aria-valuemax',p.maxHp);const pct=Math.max(0,100*p.hp/Math.max(1,p.maxHp));const hp=el(prefix+'HpFill');hp.style.width=pct+'%';hp.classList.toggle('yellow',pct<55&&pct>=25);hp.classList.toggle('red',pct<25);el(prefix+'Ability').textContent=p.abilityName;
  el(prefix+'StatusIcons').innerHTML=statusSymbols(p);
  const cond=[];if(p.status)cond.push(HHLocale.status(p.status.id));if(p.flags?.confusion>0)cond.push(`CONFUSÃO ${p.flags.confusion}`);if(p.hp<=0)cond.push('NOCAUTEADO');if(p.flags?.exhausted)cond.push('EXAUSTÃO');if(p.gimmicks?.tera?.active)cond.push('TERA '+p.gimmicks.tera.type);if(p.megaActive)cond.push('✦ MEGA EVOLUÍDO');if(p.heldItem)cond.push('🎒 '+HHLocale.item(p.heldItem));el(prefix+'Conditions').innerHTML=cond.map(t=>`<span>${safe(t)}</span>`).join('');const species=HH.normalizeName(p.speciesSlug||p.name),megaName=p.megaActive?p.name.replace(/^Mega\s+/i,'').replace(/\s+([XYZ])$/i,'-Mega-$1'):'',megaKey=megaName&& !/-Mega-[XYZ]$/i.test(megaName)?megaName+'-Mega':megaName,official=SD.dex[HH.normalizeName(megaKey)]||SD.dex[species];const spriteKey=official?official.name.toLowerCase().replace(/[^a-z0-9-]/g,'').replace('-mega-','-mega'):'';const custom=p.imageUrl&&(!/PokeAPI\/sprites.*official-artwork/i.test(p.imageUrl));const spriteUrl=spriteKey?`https://play.pokemonshowdown.com/sprites/${prefix==='my'?'ani-back':'ani'}/${spriteKey}.gif`:'';const cached=SD.sprites[(prefix==='my'?'ani-back-':'ani-')+spriteKey];const src=custom?p.imageUrl:cached||spriteUrl||p.imageUrl||'';const img=el(prefix+'Sprite');const fall=el(prefix+'Fallback');if(/^(data:image\/(?:png|jpeg|webp|gif);base64,|https:\/\/)/i.test(src)){if(img.dataset.src!==src){img.src=src;img.dataset.src=src;}img.hidden=img.dataset.failed===src;fall.hidden=!img.hidden;img.onload=()=>{img.dataset.failed='';img.hidden=false;fall.hidden=true;};img.onerror=()=>{if(p.imageUrl&&img.src!==p.imageUrl){img.src=p.imageUrl;return;}img.dataset.failed=src;img.hidden=true;fall.hidden=false;};}else{img.hidden=true;fall.hidden=false;}}
-function effectList(p){const a=[];if(p.flags?.exhausted)a.push('<span class="effect down">EXAUSTÃO</span>');if(p.gimmicks?.tera?.active)a.push(`<span class="effect up">TERA ${safe(p.gimmicks.tera.type)} • STAB +2d6</span>`);if(p.status)a.push(`<span class="effect down">${safe(HHLocale.status(p.status.id))}</span>`);if(p.flags?.confusion)a.push(`<span class="effect down">CONFUSÃO ${p.flags.confusion}</span>`);for(const k of ['atk','def','spa','spd','spe','accuracy','evasion']){const v=HH.stages(p,k);if(v)a.push(`<span class="effect ${v>0?'up':'down'}">${k.toUpperCase()} ${v>0?'+':''}${v}</span>`);}if(p.flags?.ironDefense)a.push('<span class="effect up">IRON DEFENSE • ½ PRÓXIMO DANO</span>');if(p.flags?.swordsUntil>=game.turn)a.push('<span class="effect up">SWORDS DANCE • ×2 PRÓXIMO FÍSICO</span>');if(p.flags?.flashFire)a.push('<span class="effect up">FLASH FIRE +3d6</span>');if(p.flags?.focus)a.push('<span class="effect up">FOCUS ENERGY</span>');if(p.flags?.wish)a.push('<span class="effect up">WISH PENDENTE</span>');if(p.megaActive)a.push('<span class="effect up">✦ MEGA EVOLUTION</span>');if(p.heldItem)a.push(`<span class="effect">🎒 ${safe(HHLocale.item(p.heldItem))}</span>`);return a.join('')||blank('Nenhuma condição ou alteração.');}
+function effectList(p){const a=[];if(p.flags?.exhausted)a.push('<span class="effect down">EXAUSTÃO</span>');if(p.gimmicks?.tera?.active)a.push(`<span class="effect up">TERA ${safe(p.gimmicks.tera.type)} • STAB +2d6</span>`);if(p.status)a.push(`<span class="effect down">${safe(HHLocale.status(p.status.id))}</span>`);if(p.flags?.confusion)a.push(`<span class="effect down">CONFUSÃO ${p.flags.confusion}</span>`);for(const k of ['atk','def','spa','spd','spe','accuracy','evasion']){const v=HH.stages(p,k);if(v)a.push(`<span class="effect ${v>0?'up':'down'}">${k.toUpperCase()} ${v>0?'+':''}${v}</span>`);}if(p.flags?.ironDefense)a.push('<span class="effect up">IRON DEFENSE • ½ PRÓXIMO DANO</span>');if(p.flags?.matrixSwords||p.flags?.swordsUntil>=game.turn)a.push('<span class="effect up">SWORDS DANCE • ×2 PRÓXIMO FÍSICO</span>');if(p.flags?.flashFire)a.push('<span class="effect up">FLASH FIRE +3d6</span>');if(p.flags?.focus)a.push('<span class="effect up">FOCUS ENERGY</span>');if(p.flags?.wish)a.push('<span class="effect up">WISH PENDENTE</span>');if(p.megaActive)a.push('<span class="effect up">✦ MEGA EVOLUTION</span>');if(p.heldItem)a.push(`<span class="effect">🎒 ${safe(HHLocale.item(p.heldItem))}</span>`);return a.join('')||blank('Nenhuma condição ou alteração.');}
 function renderField(){const chips=[];if(game.weather)chips.push(`<span class="field-chip">${{rain:'🌧 CHUVA',sun:'☀ SOL',sand:'◈ AREIA',hail:'❄ GRANIZO',snow:'❄ NEVE'}[game.weather.id]||game.weather.id} • ${game.weather.turns}T</span>`);if(game.terrain)chips.push(`<span class="field-chip">TERRENO ${safe(game.terrain.id.toUpperCase())} • ${game.terrain.turns}T</span>`);
  for(let s=0;s<2;s++){for(const [id,o]of Object.entries(game.screens[s]))if(o)chips.push(`<span class="field-chip">LADO ${s===0?'A':'B'} ${safe(id.toUpperCase())} • ${o.turns}T</span>`);for(const [id,o]of Object.entries(game.hazards[s]))if(o)chips.push(`<span class="field-chip">LADO ${s===0?'A':'B'} ${safe(id)} ${o>1?'×'+o:''}</span>`);}
  el('fieldChips').innerHTML=chips.join('')||'<span class="field-chip">◈ CAMPO PADRÃO</span>';el('battleScene').dataset.weather=game.weather?.id||'none';el('battleScene').dataset.terrain=game.terrain?.id||'none';const screen=[];for(let s=0;s<2;s++)for(const [id,v]of Object.entries(game.screens[s]))if(v)screen.push(`<span class="effect">LADO ${s===0?'A':'B'} • ${safe(id.toUpperCase())} • ${v.turns}T • −${Math.floor(v.level/2)} dano</span>`);el('screensInfo').innerHTML=screen.join('')||blank('Nenhuma Screen ativa.');}
+
+function renderDamageMode(){
+ const enabled=game?game.damageSystem==='matrix-v0.1':experimentalEnabled,guest=mode==='guest'||!!peer&&!hosting;
+ const locked=presenting||!!localChoice||!!otherChoice||!!game?.arena?.surrenderRequested;
+ for(const id of ['playDamageToggle','damageModeToggle']){const button=el(id);button.setAttribute('aria-pressed',String(enabled));button.textContent=`🧪 Dano experimental: ${enabled?'ligado':'desligado'}`;button.disabled=guest||locked;button.title=guest?'O anfitrião escolhe o sistema de dano da sala.':locked?'Aguarde a rodada terminar para mudar o sistema.':enabled?'Desligar Damage Matrix v0.1 e usar o dano padrão d6.':'Ligar Damage Matrix v0.1: BP → quantidade, atributos → dado, nível → teto.';}
+ el('damageModeHint').hidden=!enabled;
+ const last=game?.lastDamage;el('lastDamageText').hidden=!enabled||!last;
+ if(enabled&&last)el('lastDamageText').textContent=`Último cálculo · ${last.attacker} / ${last.move}: ${last.count}d${last.die} + ${last.extraDice}d6 bônus${last.reduceDice?` − ${last.reduceDice}d6 redução`:''} · Graus ${last.offensiveGrade}/${last.defensiveGrade} · teto d${last.cap} · ${last.total} de dano calculado / ${last.dealt} HP perdido${last.critical!=='none'?` · crítico ${last.critical==='natural'?'natural':'artificial'}`:''}.`;
+}
+function toggleDamageMode(){
+ if(mode==='guest'||peer&&!hosting||presenting||localChoice||otherChoice||game?.arena?.surrenderRequested)return;
+ experimentalEnabled=!(game?game.damageSystem==='matrix-v0.1':experimentalEnabled);
+ if(game){HH.setDamageSystem(game,experimentalEnabled);if(mode==='host')send({t:'state',game});render();}
+ else{if(hosting&&conn?.open)send({t:'rules',damageSystem:experimentalEnabled?'matrix-v0.1':'standard'});renderDamageMode();}
+ notify(experimentalEnabled?'Damage Matrix v0.1 ligada.':'Dano padrão d6 ligado.');
+}
+function moveDamageLabel(me,m){
+ if(m.category==='Status')return '';
+ if(game.damageSystem!=='matrix-v0.1')return ' • '+HH.powerDice(m.power)+'d6 BASE';
+ const profile=HH.matrixProfile(me,HH.active(game,1-mySide),m);return profile?' • '+safe(profile.expression):' • DANO ESPECÍFICO';
+}
+function moveDamageTitle(me,m){
+ if(game.damageSystem!=='matrix-v0.1'||m.category==='Status')return m.description||m.name;
+ const p=HH.matrixProfile(me,HH.active(game,1-mySide),m);if(!p)return m.description||m.name;
+ return `Damage Matrix v0.1: ${p.expression}. BP efetivo ${p.effectiveBP}${p.hits>1?` (${p.hits} hits padrão)`:''}; grau ofensivo ${p.offensiveGrade} vs defensivo ${p.defensiveGrade}; teto do Lv.${me.level}: d${p.cap}. Bônus e reduções externos são calculados ao resolver a rodada. Crítico natural maximiza somente a base; crítico artificial usa dado/2 + 1 por dado-base.`;
+}
+el('playDamageToggle').onclick=toggleDamageMode;el('damageModeToggle').onclick=toggleDamageMode;
+
 function renderExtraCommands(me,locked,forced){const mega=el('battleMegaChoice'),toggle=el('battleMegaArm'),previous=mega.value;
  const forms=me.megaForms||[],unavailable=!!game.megaUsed[mySide]||!!me.megaActive||!!me.gimmicks?.tera?.active||teraArmed;
  mega.innerHTML=forms.map(f=>`<option value="${safe(f.id)}">✦ ${safe(f.name)}${f.stone?' • '+safe(f.stone):''}</option>`).join('')||'<option value="">Sem Mega Evolution</option>';
@@ -1685,8 +1776,8 @@ function renderExtraCommands(me,locked,forced){const mega=el('battleMegaChoice')
  el('battleBagUse').disabled=locked||forced||!HH.canUseBag(game,mySide,item.value,+target.value);
  el('battleBagControl').classList.toggle('hide',!choices.length);
 }
-function renderCommands(me){const locked=presenting||!!localChoice||game.winner!==null||(mode!=='bot'&&!conn?.open)||!!game.arena?.surrenderRequested;const forced=!!game.needSwitch[mySide]||me.hp<=0;el('moveCount').textContent=`${me.moves.length} MOVES`;
- el('myMoves').innerHTML=me.moves.map(m=>{const supported=HH.moveSupported(m);const item=HH.normalizeName(me.heldItem),choice=['choiceband','choicespecs','choicescarf'].includes(item),dis=locked||forced||zArmed&&(m.category==='Status'||m.type!==me.gimmicks?.zMove?.type)||me.disabled?.[HH.normalizeName(m.name)]>0||item==='assaultvest'&&m.category==='Status'||choice&&!!me.flags.choiceLock&&me.flags.choiceLock!==HH.normalizeName(m.name);return `<button class="move" style="--movecolor:${typeColors[m.type]||'#888'}" data-move="${safe(m.id)}" ${dis?'disabled':''} title="${safe(m.description||m.name)}"><b>${safe(m.name)}</b><span class="type">${safe(m.type)} • ${safe(HHLocale.category(m.category))}${m.category==='Status'?'':' • '+HH.powerDice(m.power)+'d6 BASE'}</span><small>ACC ${Math.min(90,m.accuracy)}%${m.alwaysHits?' • SEM ROLAGEM':''}${me.disabled?.[HH.normalizeName(m.name)]>0?' • DISABLE':''}</small>${supported?'':'<span class="manual">'+(HH.moveCoverage(m)==='partial'?'PARCIAL':'MANUAL')+'</span>'}</button>`;}).join('')||blank('Nenhum Move ativo reconhecido.');
+function renderCommands(me){renderDamageMode();const locked=presenting||!!localChoice||game.winner!==null||(mode!=='bot'&&!conn?.open)||!!game.arena?.surrenderRequested;const forced=!!game.needSwitch[mySide]||me.hp<=0;el('moveCount').textContent=`${me.moves.length} MOVES`;
+ el('myMoves').innerHTML=me.moves.map(m=>{const supported=HH.moveSupported(m);const item=HH.normalizeName(me.heldItem),choice=['choiceband','choicespecs','choicescarf'].includes(item),dis=locked||forced||zArmed&&(m.category==='Status'||m.type!==me.gimmicks?.zMove?.type)||me.disabled?.[HH.normalizeName(m.name)]>0||item==='assaultvest'&&m.category==='Status'||choice&&!!me.flags.choiceLock&&me.flags.choiceLock!==HH.normalizeName(m.name);return `<button class="move" style="--movecolor:${typeColors[m.type]||'#888'}" data-move="${safe(m.id)}" ${dis?'disabled':''} title="${safe(moveDamageTitle(me,m))}"><b>${safe(m.name)}</b><span class="type">${safe(m.type)} • ${safe(HHLocale.category(m.category))}${moveDamageLabel(me,m)}</span><small>ACC ${Math.min(90,m.accuracy)}%${m.alwaysHits?' • SEM ROLAGEM':''}${me.disabled?.[HH.normalizeName(m.name)]>0?' • DISABLE':''}</small>${supported?'':'<span class="manual">'+(HH.moveCoverage(m)==='partial'?'PARCIAL':'MANUAL')+'</span>'}</button>`;}).join('')||blank('Nenhum Move ativo reconhecido.');
  for(const btn of el('myMoves').querySelectorAll('button[data-move]'))btn.addEventListener('click',()=>submitAction({kind:'move',moveId:btn.dataset.move,evade:el('evadeSelect').value,
   mega:!!el('battleMegaArm').checked,megaFormId:el('battleMegaChoice').value||undefined,tera:teraArmed,zMove:zArmed}));
  renderExtraCommands(me,locked,forced);
@@ -1705,10 +1796,10 @@ el('demoBtn').addEventListener('click',()=>{const samples=HH.sample().filter(p=>
 el('fileInput').addEventListener('change',e=>{importFiles(e.target.files);e.target.value='';});
 const drop=el('dropzone');drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag');});drop.addEventListener('dragleave',()=>drop.classList.remove('drag'));drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('drag');importFiles(e.dataTransfer.files);});
 el('localStartBtn').addEventListener('click',beginBot);
-el('hostBtn').addEventListener('click',async()=>{if(!peerAvailable())return;try{hostTeam=await transmitTeam();closePeer();game=null;guestTeam=null;series=null;hosting=true;roomCode=makeCode();peer=new window.Peer('hh-arena-'+roomCode);status('CRIANDO SALA');el('hostBtn').disabled=true;el('hostTools').classList.remove('hide');el('roomCode').textContent=roomCode;el('guestInfo').textContent='Registrando sala no serviço de conexão...';peer.on('open',()=>{status('SALA ABERTA',true);el('guestInfo').textContent='Envie o código para o outro jogador.';});peer.on('connection',c=>{if(conn?.open){c.close();return;}wireConnection(c);});peer.on('error',e=>{status('ERRO');el('guestInfo').textContent=e.message||e.type||'Erro ao criar sala.';el('hostBtn').disabled=false;notify('Não foi possível criar a sala: '+(e.message||e.type));});}catch(e){notify(e.message);}});
+el('hostBtn').addEventListener('click',async()=>{if(!peerAvailable())return;try{hostTeam=await transmitTeam();closePeer();game=null;mode='idle';guestTeam=null;series=null;hosting=true;roomCode=makeCode();peer=new window.Peer('hh-arena-'+roomCode);status('CRIANDO SALA');el('hostBtn').disabled=true;el('hostTools').classList.remove('hide');el('roomCode').textContent=roomCode;el('guestInfo').textContent='Registrando sala no serviço de conexão...';peer.on('open',()=>{status('SALA ABERTA',true);renderDamageMode();el('guestInfo').textContent='Envie o código para o outro jogador.';});peer.on('connection',c=>{if(conn?.open){c.close();return;}wireConnection(c);});peer.on('error',e=>{status('ERRO');el('guestInfo').textContent=e.message||e.type||'Erro ao criar sala.';el('hostBtn').disabled=false;notify('Não foi possível criar a sala: '+(e.message||e.type));});}catch(e){notify(e.message);}});
 el('copyRoom').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(roomCode);notify('Código copiado: '+roomCode);}catch{notify('Código: '+roomCode+' — selecione e copie manualmente.');}});
 el('startOnlineBtn').addEventListener('click',async()=>{if(!guestTeam?.length||!conn?.open)return;try{if(game&&game.winner===null){showBattle();return;}hostTeam=await transmitTeam();if(!conn?.open||game&&game.winner===null)return;initialTeams=[structuredClone(hostTeam),structuredClone(guestTeam)];mode='host';mySide=0;createMatch(initialTeams,true);el('startOnlineBtn').disabled=true;showBattle();send({t:'state',game});render();}catch(e){notify(e.message);}});
-el('joinBtn').addEventListener('click',async()=>{if(!peerAvailable())return;const code=el('joinCode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');if(code.length!==6){notify('Insira o código de 6 caracteres da sala.');return;}try{hostTeam=await transmitTeam();closePeer();game=null;series=null;roomCode=code;hosting=false;peer=new window.Peer();status('PROCURANDO SALA');el('joinBtn').disabled=true;peer.on('open',()=>{el('joinInfo').textContent='Conectando ao anfitrião...';wireConnection(peer.connect('hh-arena-'+code,{reliable:true}));});peer.on('error',e=>{el('joinBtn').disabled=false;el('joinInfo').textContent=e.message||e.type||'Não foi possível entrar.';notify('Falha: '+(e.message||e.type));});}catch(e){notify(e.message);}});
+el('joinBtn').addEventListener('click',async()=>{if(!peerAvailable())return;const code=el('joinCode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');if(code.length!==6){notify('Insira o código de 6 caracteres da sala.');return;}try{hostTeam=await transmitTeam();closePeer();game=null;mode='idle';series=null;roomCode=code;hosting=false;peer=new window.Peer();status('PROCURANDO SALA');el('joinBtn').disabled=true;renderDamageMode();peer.on('open',()=>{el('joinInfo').textContent='Conectando ao anfitrião...';wireConnection(peer.connect('hh-arena-'+code,{reliable:true}));});peer.on('error',e=>{el('joinBtn').disabled=false;el('joinInfo').textContent=e.message||e.type||'Não foi possível entrar.';notify('Falha: '+(e.message||e.type));});}catch(e){notify(e.message);}});
 el('roundDodge').onclick=()=>{const on=el('evadeSelect').value!=='reactive';el('evadeSelect').value=on?'reactive':'none';el('roundDodge').setAttribute('aria-pressed',String(on));};
 el('battleMegaBtn').onclick=()=>{el('battleGimmickPanel').hidden=!el('battleGimmickPanel').hidden;};
 el('gimmickClose').onclick=()=>{el('battleGimmickPanel').hidden=true;};
@@ -1730,7 +1821,7 @@ el('viewResult').onclick=()=>{if(game&&game.winner!==null){el('battleResult').hi
 for(const id of ['battleHome','resultHome'])el(id).onclick=()=>window.ArenaNavigate?.('setup');
 el('surrenderBtn').onclick=()=>{if(!game||game.winner!==null||presenting)return;if(!window.confirm('Desistir desta partida? Seu adversário ganha 1 ponto. A sala continua aberta para revanche.'))return;
  if(mode==='guest'){if(send({t:'surrender',matchId:game.arena.matchId})){game.arena.surrenderRequested=true;render();}}else finishBySurrender(mySide);};
-el('leaveRoom').onclick=()=>{if(game?.winner===null)return;closePeer();game=null;series=null;initialTeams=null;guestTeam=null;roomCode='';el('hostTools').classList.add('hide');el('resumeBattle').hidden=true;el('battleResult').hidden=true;status('OFFLINE');window.ArenaNavigate?.('setup');notify('Você saiu da sala. Sua Box continua salva.');};
+el('leaveRoom').onclick=()=>{if(game?.winner===null)return;closePeer();game=null;mode='idle';series=null;initialTeams=null;guestTeam=null;roomCode='';renderDamageMode();el('hostTools').classList.add('hide');el('resumeBattle').hidden=true;el('battleResult').hidden=true;status('OFFLINE');window.ArenaNavigate?.('setup');notify('Você saiu da sala. Sua Box continua salva.');};
 el('downloadLog').addEventListener('click',()=>{if(!game)return;const lines=['POKÉMON HEAVEN & HELL — REGISTRO DE BATALHA',`Turno atual: ${game.turn}`,'',...game.log.map(x=>`[T${x.turn}] ${x.text}`)];const blob=new Blob([lines.join('\r\n')],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='heaven_hell_battle_log.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
 window.addEventListener('beforeunload',()=>{try{closePeer();}catch{}});
 // Contrato público mínimo para o Workshop: sem acesso ao estado interno das partidas.
