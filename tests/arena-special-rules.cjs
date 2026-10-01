@@ -53,6 +53,10 @@ for(const system of ['standard','matrix-v0.2']){
 
 {const g=game(['Tackle']);H.active(g,0).disabled.tackle=4;H.active(g,1).types=['Ghost'];H.resolve(g,{kind:'move',moveId:'__struggle'},P);ok(H.active(g,1).hp<400,'Struggle ignores type immunities');eq(H.active(g,0).hp,300,'Struggle recoil is quarter HP');}
 {const g=game(['Tackle']);const f=H.active(g,0);f.gimmicks.zMove={type:'Normal',prepared:true,used:false};H.resolve(g,{...A('Tackle'),zMove:true},P);ok(g.zUsed[0]&&f.gimmicks.zMove.used,'Z declaration still consumes team resource');}
+
+{const g=game(['Encore'],['Tackle','Growl']);H.resolve(g,P,A('Tackle'));const hp=H.active(g,0).hp;H.resolve(g,A('Encore'),A('Growl'));ok(H.active(g,0).hp<hp,'Encore redirects pending action to forced move');eq(H.stages(H.active(g,0),'atk'),0,'encored Growl not executed');}
+{const g=game(['Gravity'],['Tackle']);H.active(g,1).types=['Flying'];H.resolve(g,A('Gravity'),P);for(let i=0;i<4;i++)H.resolve(g,P,P);eq(H.active(g,1)._grounded,false,'grounding cache ends with Gravity');}
+{const g=game(['Role Play'],['Tackle'],'standard',{heldItem:'Charizardite Y',megaForms:H.MEGA_TEST_FORMS.charizard});H.active(g,1).abilityName='Natural Cure';ok(H.megaEvolve(g,0,'charizard-mega-y'));const stats=JSON.stringify(H.active(g,0).stats);H.resolve(g,A('Role Play'),P);H.switchTo(g,0,1);H.switchTo(g,0,0);eq(H.active(g,0).abilityName,'Drought','Mega ability restored after temporary copying');eq(JSON.stringify(H.active(g,0).stats),stats,'Mega stats retained after switching');}
 for(const [ability,weather]of [['Snow Warning','hail'],['Sand Stream','sand'],['Drought','sun'],['Drizzle','rain']]){const g=game(['Tackle'],['Tackle'],'standard',{name:ability==='Snow Warning'?'Aurorus':'Tyranitar',abilityName:ability});eq(g.weather.id,weather);eq(g.weather.turns,5);}
  console.log(checks+' special-rule assertions passed; all inline scripts parse.');
 console.log('Unsupported status:',Object.values(SD.moves).filter(m=>m.category==='Status'&&!m.isZ&&!m.isMax&&H.moveCoverage({name:m.name,category:m.category})!=='auto').map(m=>m.name).join(', '));
