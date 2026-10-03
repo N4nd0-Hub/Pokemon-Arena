@@ -2310,7 +2310,7 @@ function openOnlinePeer(id){return new Promise((resolve,reject)=>{
 function wireConnection(c){conn=c;c.on('open',()=>{if(c!==conn)return;status('CONECTADO',true);networkReady=true;guestTeamRevision=-1;lobbyReady=[false,false];
  if(hosting){el('guestInfo').textContent='Conexão estabelecida. Recebendo equipe...';send({t:'rules',damageSystem:experimentalEnabled?'matrix-v0.2':'standard'});syncLobbyTeam(true);}
  else{lobbyReady[1]=true;c.send({t:'join',team:hostTeam,revision:teamSyncVersion,epoch:lobbyEpoch,ready:true});el('joinInfo').textContent='Conectado! Aguardando o anfitrião iniciar.';}
- renderDamageMode();renderLobby();notify('Jogadores conectados.');});
+ renderDamageMode();renderLobby();if(el('playDialog').open&&!game)el('playDialog').querySelector('.play-dialog-scroll').scrollTop=0;notify('Jogadores conectados.');});
  c.on('data',packet=>{if(c!==conn)return;try{onPacket(packet);}catch(err){notify('Falha ao processar mensagem recebida: '+err.message);}});
  c.on('close',()=>{if(c!==conn)return;status('DESCONECTADO');networkReady=false;lobbyReady=[false,false];remoteLobbyTeam=[];if(hosting)guestTeam=null;el('startOnlineBtn').disabled=true;renderSession();if(game&&!presenting)render();notify('A conexão foi encerrada. A sala do anfitrião continua aberta com o mesmo código.');});
  c.on('error',e=>{if(c!==conn)return;status('ERRO DE CONEXÃO');renderLobby();notify(`Conexão: ${e.message||e.type||'erro'}`);});}
@@ -2478,7 +2478,7 @@ const drop=el('dropzone');drop.addEventListener('dragover',e=>{e.preventDefault(
 el('localStartBtn').addEventListener('click',beginBot);
 el('hostBtn').addEventListener('click',async()=>{if(peer){pauseRoomBattle();return;}if(!peerAvailable())return;closePeer();const attemptId=onlineAttempt;game=null;mode='idle';guestTeam=null;series=null;hostTeam=null;hosting=true;status('CRIANDO SALA');el('hostBtn').disabled=true;el('joinBtn').disabled=true;el('hostTools').classList.remove('hide');el('roomCode').textContent='------';el('guestInfo').textContent='Registrando sala no serviço de conexão...';renderDamageMode();try{
  for(let attempt=0;attempt<3;attempt++){roomCode=makeCode();try{await openOnlinePeer('hh-arena-'+roomCode);break;}catch(e){if(e.type!=='unavailable-id'||attempt===2)throw e;const oldPeer=peer;peer=null;oldPeer?.destroy();}}
- if(attemptId!==onlineAttempt)return;el('roomCode').textContent=roomCode;el('copyRoom').disabled=false;el('joinBtn').disabled=false;status('SALA ABERTA',true);renderDamageMode();el('guestInfo').textContent='Envie o código para o outro jogador. Você pode escolher sua equipe agora.';renderLobby();
+ if(attemptId!==onlineAttempt)return;el('roomCode').textContent=roomCode;el('copyRoom').disabled=false;el('joinBtn').disabled=false;status('SALA ABERTA',true);renderDamageMode();el('guestInfo').textContent='Envie o código para o outro jogador. Você pode escolher sua equipe agora.';renderLobby();el('playDialog').querySelector('.play-dialog-scroll').scrollTop=0;
  peer.on('connection',c=>{if(conn?.open){c.close();return;}wireConnection(c);});
  }catch(e){if(e.cancelled||attemptId!==onlineAttempt)return;closePeer();roomCode='';status('ERRO');el('roomCode').textContent='------';el('guestInfo').textContent=peerMessage(e);notify('Não foi possível criar a sala: '+peerMessage(e));}});
 el('copyRoom').addEventListener('click',async()=>{if(!roomCode||!peer?.open||!hosting)return;try{await navigator.clipboard.writeText(roomCode);notify('Código copiado: '+roomCode);}catch{notify('Código: '+roomCode+' — selecione e copie manualmente.');}});
