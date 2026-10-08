@@ -686,6 +686,187 @@ html[data-font-theme="arcade"] .arena-topbar .logo strong{font-size:10px}html[da
 @media(max-width:650px){.battle-format-control{gap:8px;padding:11px;align-items:flex-start;flex-direction:column}.battle-format-control select{width:100%}#battle #battleScene.doubles-scene{padding:10px 9px 48px;min-height:390px}.double-field{gap:10px}.double-card{grid-template-columns:1fr;gap:2px;padding:8px;min-height:175px;text-align:left}.double-card>img{height:82px}.double-card b{font-size:9px;line-height:1.6}.double-card .hud-health small{font-size:9px}.double-card .type-list{display:none}.double-card .double-slot{font-size:8px}.double-card .hud-status-icons{max-height:25px;overflow:auto}.double-actor{padding:8px}.double-actor b{font-size:11px}.double-confirm{flex-wrap:wrap}.double-confirm .btn{flex:1}}
 </style>
 
+<style id="arenaMobileLayout">
+/* Phone layouts use normal document flow; controls stay reachable at 100% zoom. */
+.room-recovery {display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;margin:10px 0;border:1px solid var(--accent);border-radius:12px;background:var(--panel);font-size:13px}
+.room-recovery[hidden],.mobile-battle-nav {display:none}
+button,a,summary,input,select,textarea {touch-action:manipulation}
+@media(max-width:760px) {
+  html {scroll-padding-top:90px}
+  body {min-width:0}
+  .shell {padding:12px;max-width:100%}
+  .arena-topbar.topbar {padding:8px max(12px,env(safe-area-inset-right)) 8px max(12px,env(safe-area-inset-left));gap:8px;min-height:60px;flex-wrap:wrap}
+  .arena-topbar .logo {flex:1;min-width:130px}
+  .arena-topbar .top-right {gap:6px;flex-wrap:nowrap;min-width:0}
+  .arena-topbar .arena-personalize,.arena-nav-menu>summary {min-height:44px}
+  .arena-topbar .arena-personalize {width:44px;max-width:44px;justify-content:center;padding:5px}
+  .arena-topbar .arena-personalize>span:nth-child(2),.arena-page-label {display:none}
+  .arena-topbar .session-shortcuts {gap:4px}
+  .session-shortcuts .btn {min-width:44px;min-height:44px;padding:8px}
+  .session-shortcuts .btn span {display:none}
+  body .arena-topbar .arena-nav-menu .main-nav {max-height:calc(100dvh - 80px);overflow-y:auto}
+  .btn,.btn.mini,.dialog-close,button.work-remove-move,.box-favorite {min-height:44px}
+  .input,textarea.input,.work-stat-row input,.work-move-edit input,.work-move-edit select,.work-bag-row input {font-size:16px;min-height:44px;max-width:100%;min-width:0}
+  input[type=checkbox] {width:20px;height:20px;flex:none}
+  .helper,.small,.muted.small {font-size:12px;line-height:1.6}
+  .panel-head {flex-wrap:wrap;gap:8px}
+  .panel,.field,.room-wrap,.room-line {min-width:0}
+  .trainer-profile {max-width:100%}
+  .trainer-profile-row {flex-wrap:wrap}
+  .trainer-profile input {min-width:0}
+  .play-dialog {width:calc(100vw - 12px);max-width:none;max-height:calc(100dvh - 12px);margin:auto;border-radius:16px}
+  .play-dialog-head {padding:12px 14px}
+  .play-dialog-head h2 {font-size:24px;margin:4px 0}
+  .play-modes {gap:6px;padding:8px 12px}
+  .play-modes button {min-width:0;min-height:44px;font-size:12px;padding:8px 6px;flex:1}
+  .play-dialog-scroll {padding:12px;scrollbar-gutter:auto;-webkit-overflow-scrolling:touch}
+  .play-dialog-footer {padding:10px 12px max(10px,env(safe-area-inset-bottom));gap:8px;display:grid;grid-template-columns:1fr}
+  .play-dialog-footer .btn {width:100%;font-size:12px;padding:10px;min-height:44px}
+  .match-layout {grid-template-columns:minmax(0,1fr);gap:14px}
+  .play-dialog .panel {padding:14px}
+  #roster.game-box-list {max-height:340px;max-height:clamp(220px,40dvh,340px);overscroll-behavior-y:auto}
+  .box-card-actions {display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .play-dialog .box-card-actions .btn {font-size:11px}
+  .box-pokemon {min-width:0}
+  .box-copy,.box-name {min-width:0}
+  .box-name b {overflow-wrap:anywhere}
+  .box-favorite {min-width:44px}
+  .play-dialog .party-slots {grid-template-columns:1fr}
+  .party-slot {min-height:82px}
+  .party-slot-actions {gap:5px}
+  .party-slot-actions button {min-width:38px;min-height:44px;font-size:12px}
+  .room-line {gap:8px;flex-wrap:wrap}
+  .room-line>.input {flex:1 1 150px;width:0}
+  .room-line>.btn {flex:0 0 auto}
+  .room-code {font-size:26px;letter-spacing:.12em;min-width:0;flex:1;user-select:all}
+  .battle-format-control {flex-direction:column;align-items:stretch;gap:8px}
+  .battle-format-control select {width:100%;min-width:0}
+  .lobby-heading,.lobby-actions {align-items:stretch}
+  .lobby-heading .btn {font-size:11px}
+  .lobby-actions {display:grid;grid-template-columns:1fr;width:100%}
+  .lobby-players {grid-template-columns:1fr;gap:8px}
+  .lobby-players b,.lobby-players span {font-size:13px}
+  .connected-lobby {padding:12px}
+  #battle {padding-bottom:76px;scroll-margin-top:75px}
+  .session-banner {gap:6px;flex-wrap:wrap}
+  .session-banner .pill {font-size:10px;white-space:normal;line-height:1.5}
+  .arena-session {gap:10px;padding:12px}
+  .arena-session-actions {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:6px}
+  .arena-session-actions .btn {font-size:11px;white-space:normal;padding:8px}
+  .arena-session-hint {font-size:12px}
+  .battle-banner {margin:12px 0}
+  .battle-banner strong {font-size:14px}
+  .cinema-controls {gap:8px;padding:10px;flex-wrap:wrap}
+  .cinema-controls .btn {font-size:11px;white-space:normal}
+  .cinema-controls label {min-height:44px;display:flex;align-items:center;gap:6px;font-size:12px}
+  .battle-music-controls {flex-wrap:wrap;max-width:100%;gap:8px}
+  .battle-music-controls input {width:110px}
+  #battle .battle-scene:not(.doubles-scene) {height:auto;min-height:0;display:flex;flex-direction:column;padding:12px;gap:10px}
+  #battle .battle-scene:not(.doubles-scene) .combatant {position:relative;inset:auto;display:grid;grid-template-columns:minmax(0,1fr) 94px;align-items:center;gap:8px;min-width:0}
+  #battle .battle-scene:not(.doubles-scene) .combatant:before {display:none}
+  #battle .battle-scene:not(.doubles-scene) .combatant.opp {order:1}
+  #battle .battle-scene:not(.doubles-scene) .combatant.me {order:3;grid-template-columns:94px minmax(0,1fr)}
+  #battle .battle-scene:not(.doubles-scene) .combatant .combat-hud {position:relative;top:auto;right:auto;bottom:auto;left:auto;width:100%;padding:10px;min-width:0}
+  #battle .battle-scene:not(.doubles-scene) .combatant.me .combat-hud {grid-column:2;grid-row:1}
+  #battle .battle-scene:not(.doubles-scene) .combatant .combat-sprite,#battle .battle-scene:not(.doubles-scene) .combatant .sprite-fallback {position:relative;top:auto;right:auto;bottom:auto;left:auto;transform:none;width:94px;height:116px;max-width:100%;grid-row:1;animation:none}
+  #battle .battle-scene:not(.doubles-scene) .combatant.opp .combat-sprite,#battle .battle-scene:not(.doubles-scene) .combatant.opp .sprite-fallback {grid-column:2}
+  #battle .battle-scene:not(.doubles-scene) .combatant.me .combat-sprite,#battle .battle-scene:not(.doubles-scene) .combatant.me .sprite-fallback {grid-column:1}
+  #battle .combat-hud .side-name {font-family:var(--font-ui);font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+  #battle .combat-hud .tag,#battle .hud-details>small {font-size:10px;overflow-wrap:anywhere}
+  #battle .hud-health {display:flex;flex-wrap:wrap;gap:5px}
+  #battle .hud-health small {font-size:11px}
+  #battle .hud-health>span {font-size:10px}
+  #battle .hud-health .hp-track {min-width:48px;flex:1}
+  #battle .hud-status-icons {max-height:none}
+  .hud-status .status-css-icon {width:26px;height:26px}
+  #battle .battle-scene:not(.doubles-scene) .battle-gimmick-dock {position:relative;inset:auto;transform:none;flex-direction:row;order:4;justify-content:center}
+  .battle-gimmick-dock button {width:52px;min-height:52px}
+  #battle .battle-scene:not(.doubles-scene) .battle-caption {position:relative;inset:auto;order:5;margin:0 -12px -12px;min-height:48px;max-height:none;font-size:11px;padding:10px 12px}
+  .battle-gimmick-panel {right:12px;top:auto;bottom:60px;width:calc(100% - 24px);max-height:75%;overflow:auto}
+  .battle-gimmick-panel .dialog-close {width:44px;height:44px}
+  .battle-result {overflow-y:auto;align-items:safe center;padding:12px}
+  .result-card {width:100%;padding:16px}
+  .result-card p {font-size:12px;line-height:1.6}
+  .result-buttons {display:grid;grid-template-columns:1fr;gap:6px}
+  .result-buttons .btn {font-size:11px}
+  .combat-footer {grid-template-columns:minmax(0,1fr);gap:12px;scroll-margin-top:80px}
+  .combat-footer>.panel {padding:14px;display:flex;flex-direction:column}
+  .combat-footer>.panel>.panel-head {order:-5}
+  .combat-footer>.panel>#doubleCommands {order:-4}
+  .combat-footer>.panel>#damageModeHint,.combat-footer>.panel>#lastDamageText {order:-3}
+  .combat-footer>.panel>#myMoves {order:-2}
+  .combat-footer>.panel>.battle-command-options {order:-1}
+  #battle .moves-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  #battle .move {min-height:100px;padding:12px 10px;min-width:0}
+  #battle .move b {font-size:13px;line-height:1.45;overflow-wrap:anywhere}
+  #battle .move .type,#battle .move small {font-size:11px;line-height:1.5;overflow-wrap:anywhere}
+  .special-command-controls {margin-top:12px}
+  .special-command-controls label {min-width:0!important;flex-basis:100%!important;font-size:11px}
+  .battle-command-options {align-items:stretch;flex-direction:column;gap:6px}
+  .controls-bar {display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .controls-bar .btn {font-size:11px;white-space:normal;padding:10px}
+  .bench {grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .bench button {min-width:0;min-height:68px;overflow-wrap:anywhere}
+  .battle-extra-row,.ref-grid {display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+  .battle-bag-panel>summary,.ref-panel>summary,details>summary.small {min-height:44px;display:flex;align-items:center;font-size:12px}
+  .stage-grid {grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .stage-cell {min-width:0;padding:8px 3px}
+  .stage-cell span {font-size:10px}
+  .battle-log {max-height:280px}
+  #battle #battleScene.doubles-scene {padding:12px 10px 58px;min-height:0}
+  .double-field {grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  #battle .double-card {grid-template-columns:1fr;padding:8px;gap:4px;min-height:0}
+  #battle .double-card b {font:700 13px var(--font-ui);line-height:1.4}
+  #battle .double-card>img {height:74px;width:100%}
+  #battle .double-card small {font-size:10px;line-height:1.45;overflow-wrap:anywhere}
+  #battle .double-card .double-slot {font-size:9px;letter-spacing:0}
+  #battle .double-card .hud-health small {font-size:11px}
+  #battle .double-card .hud-status-icons {max-height:none;overflow:visible}
+  #battle .double-card .double-command-label {font-size:11px}
+  #battle #battleScene.doubles-scene .battle-gimmick-dock {transform:none;margin:12px auto 0}
+  .double-commands {padding:10px}
+  .double-actor {min-height:66px;padding:10px 8px}
+  .double-confirm {flex-direction:column;align-items:stretch;gap:8px}
+  .double-confirm .btn {width:100%;font-size:12px}
+  .double-target-options {display:grid;grid-template-columns:1fr}
+  .double-target-options button {font-size:13px;min-height:46px}
+  .double-target-picker {scroll-margin-top:80px}
+  body[data-screen=battle] .mobile-battle-nav {position:fixed;bottom:0;left:0;right:0;z-index:130;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:8px max(10px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));background:var(--bg2);border-top:1px solid var(--line);box-shadow:0 -6px 18px #0004}
+  .mobile-battle-nav button {min-height:44px;padding:8px;font-size:12px}
+  .studio-layout {min-width:0}
+  .work-toolbar-actions {grid-template-columns:1fr 1fr;gap:8px}
+  .work-toolbar-actions .btn {font-size:11px;min-height:44px}
+  .studio-layout .work-form-grid {grid-template-columns:minmax(0,1fr)}
+  .studio-layout .work-form-grid>.field {grid-column:auto}
+  .studio-nav button {min-height:60px}
+  .studio-nav button b {font-size:11px}
+  .studio-layout .work-move-edit {grid-template-columns:1fr 1fr;gap:10px}
+  .studio-layout .work-stat-row,.studio-layout .work-stat-heading {grid-template-columns:minmax(70px,1fr) 60px 60px 48px;gap:6px}
+  .studio-layout .work-stat-row input {width:100%;padding:6px;font-size:16px}
+  .work-stat-label {font-size:11px}
+  .work-mobile-dock {padding-bottom:max(8px,env(safe-area-inset-bottom))}
+  .work-mobile-dock button {min-height:44px}
+  .work-api-search,.work-item-filters,.work-import-line {flex-wrap:wrap}
+  .work-api-search>.field,.work-item-filters>.field,.work-import-line>.field {min-width:0;flex-basis:100%}
+  .work-item-results {grid-template-columns:1fr}
+  .dex-layout {grid-template-columns:minmax(0,1fr)}
+  .dex-tabs,.builder-tabs {overflow-x:auto;max-width:100%}
+  .dex-tabs button,.builder-tabs button {min-height:44px;flex:none}
+  .room-recovery {flex-wrap:wrap}
+  .toast {max-width:calc(100vw - 24px);bottom:calc(76px + env(safe-area-inset-bottom));overflow-wrap:anywhere}
+}
+@media(max-width:360px) {
+  .arena-topbar .logo {min-width:110px}
+  .arena-topbar .logo strong {font-size:9px}
+  .arena-nav-menu>summary {padding-inline:8px}
+  .play-dialog .panel,.studio-pane {padding:12px}
+  .party-slot-actions {flex-wrap:wrap}
+  .studio-layout .work-stat-row,.studio-layout .work-stat-heading {grid-template-columns:minmax(55px,1fr) 54px 54px 40px;gap:5px}
+  #battle .battle-scene:not(.doubles-scene) .combatant {grid-template-columns:minmax(0,1fr) 76px}
+  #battle .battle-scene:not(.doubles-scene) .combatant.me {grid-template-columns:76px minmax(0,1fr)}
+  #battle .battle-scene:not(.doubles-scene) .combatant .combat-sprite,#battle .battle-scene:not(.doubles-scene) .combatant .sprite-fallback {width:76px;height:106px}
+}
+</style>
 </head>
 <body>
 <header class="topbar arena-topbar"><div class="logo"><span class="logo-icon" aria-hidden="true"></span><div><strong>POKÉMON RPG</strong><small>ARENA • HEAVEN &amp; HELL</small></div></div><span id="arenaPageLabel" class="arena-page-label">Início</span><div class="top-right"><span class="pill" id="onlineIndicator">◌ OFFLINE</span><span id="modeIndicator" hidden>PLAYTEST</span><div class="session-shortcuts" id="sessionShortcuts" hidden><button type="button" id="quickLobby" aria-label="Abrir equipe e lobby" class="btn mini">◓ <span>Equipe / lobby</span></button><button type="button" id="quickBattle" aria-label="Voltar à batalha" class="btn mini" hidden>⚔ <span>Batalha</span></button></div><button type="button" id="arenaPersonalize" class="arena-personalize" aria-haspopup="dialog" aria-controls="arenaAppearance" aria-label="Personalizar aparência, fontes e cores"><span class="appearance-button-icon" aria-hidden="true">◷</span><span><b>Personalizar</b><small id="arenaAppearanceLabel">Básico • Padrão</small></span></button><details class="arena-nav-menu" id="arenaNavMenu"><summary><span aria-hidden="true">☰</span> Menu <span class="nav-menu-chevron" aria-hidden="true">⌄</span></summary><nav class="main-nav" aria-label="Navegação principal"><button type="button" class="nav-link active" id="navArena" aria-current="page"><span>⌂</span><b>Início</b></button><button type="button" class="nav-link" id="navWorkshop"><span>◓</span><b>Criar Time</b></button><button type="button" class="nav-link" id="navRules"><span>▤</span><b>Fontes &amp; Regras</b></button><button type="button" class="nav-link" id="navSmogon" hidden>Smogon</button><div class="nav-menu-separator"></div><a class="ficha-link" href="https://n4nd0-hub.github.io/ficha-pokemon/" target="_blank" rel="noopener"><span>↗</span><b>Abrir Ficha Pokémon</b></a></nav></details><button id="returnSetup" class="hide" hidden>Voltar</button></div></header>
@@ -702,7 +883,7 @@ html[data-font-theme="arcade"] .arena-topbar .logo strong{font-size:10px}html[da
   <button type="button" id="menuRules" class="game-menu-button"><span class="game-menu-symbol" aria-hidden="true">▤</span><span><b>Fontes &amp; Regras</b><small>Regras, Moves, Abilities &amp; itens do sistema</small></span><i aria-hidden="true">→</i></button>
  </div><p class="home-description">Lugar para nós testarmos o sistema de batalha e experimentos para adiantar melhorias para o sistema. <span>-by N4ND0_0</span></p><button type="button" id="resumeBattle" class="btn ghost mini" hidden>↩ Continuar batalha em andamento</button></div>
 </section>
-<dialog id="playDialog" class="play-dialog" data-mode="offline" aria-labelledby="playTitle"><div class="play-dialog-head"><div><span class="eyebrow">PREPARE SUA PARTIDA</span><span id="playSaveName" class="save-identity">SAVE · Meu save</span><h2 id="playTitle">Jogar</h2></div><button id="playClose" class="dialog-close" type="button" aria-label="Fechar seleção de partida">✕</button></div><div class="play-modes" aria-label="Tipo de partida"><button type="button" data-play-mode="offline" aria-pressed="true">Offline</button><button type="button" data-play-mode="host" aria-pressed="false">Criar online</button><button type="button" data-play-mode="join" aria-pressed="false">Entrar online</button></div><div class="play-dialog-scroll" tabindex="0" role="region" aria-label="Equipe e controles da partida">  <section class="battle-format-control" aria-label="Formato da batalha"><div><span class="eyebrow">FORMATO DA BATALHA</span><p id="battleFormatHint">Um Pokémon por treinador em campo.</p></div><select id="battleFormat" class="input" aria-label="Formato da batalha"><option value="singles">Individual · 1 × 1</option><option value="doubles">Duplas · 2 × 2</option></select></section><section id="connectedLobby" class="connected-lobby" hidden aria-label="Lobby da sala"><div class="lobby-heading"><div><span class="eyebrow">MESMA SALA · NOVAS PARTIDAS</span><h3 id="lobbyRoomTitle">Lobby</h3></div><button id="lobbyCopyCode" type="button" class="btn mini">COPIAR CÓDIGO</button></div><div class="lobby-players"><div><b><span id="lobbyMyName">VOCÊ</span> <span id="lobbyMyRole"></span></b><span id="lobbyMyStatus"></span><small id="lobbyMyTeam"></small></div><div><b id="lobbyOtherName">OUTRO TREINADOR</b><span id="lobbyOtherStatus"></span><small id="lobbyOtherTeam"></small></div></div><p id="lobbyHint" class="helper" aria-live="polite"></p><div class="lobby-actions"><button class="btn primary" id="startOnlineBtn" disabled>▶ INICIAR DUELO ONLINE</button><button id="lobbyReady" type="button" class="btn primary">✓ EQUIPE PRONTA</button><button id="lobbyResume" type="button" class="btn secondary" hidden>⚔ RETOMAR BATALHA</button><button id="lobbyLeave" type="button" class="btn mini danger">SAIR DA SALA</button></div></section><div class="match-layout">
+<dialog id="playDialog" class="play-dialog" data-mode="offline" aria-labelledby="playTitle"><div class="play-dialog-head"><div><span class="eyebrow">PREPARE SUA PARTIDA</span><span id="playSaveName" class="save-identity">SAVE · Meu save</span><h2 id="playTitle">Jogar</h2></div><button id="playClose" class="dialog-close" type="button" aria-label="Fechar seleção de partida">✕</button></div><div class="play-modes" aria-label="Tipo de partida"><button type="button" data-play-mode="offline" aria-pressed="true">Offline</button><button type="button" data-play-mode="host" aria-pressed="false">Criar online</button><button type="button" data-play-mode="join" aria-pressed="false">Entrar online</button></div><div class="play-dialog-scroll" tabindex="0" role="region" aria-label="Equipe e controles da partida"><div class="room-recovery" data-room-recovery hidden><span role="status">Conexão interrompida. Sua equipe continua nesta sala.</span><button type="button" data-room-reconnect class="btn secondary">↻ Reconectar</button></div>  <section class="battle-format-control" aria-label="Formato da batalha"><div><span class="eyebrow">FORMATO DA BATALHA</span><p id="battleFormatHint">Um Pokémon por treinador em campo.</p></div><select id="battleFormat" class="input" aria-label="Formato da batalha"><option value="singles">Individual · 1 × 1</option><option value="doubles">Duplas · 2 × 2</option></select></section><section id="connectedLobby" class="connected-lobby" hidden aria-label="Lobby da sala"><div class="lobby-heading"><div><span class="eyebrow">MESMA SALA · NOVAS PARTIDAS</span><h3 id="lobbyRoomTitle">Lobby</h3></div><button id="lobbyCopyCode" type="button" class="btn mini">COPIAR CÓDIGO</button></div><div class="lobby-players"><div><b><span id="lobbyMyName">VOCÊ</span> <span id="lobbyMyRole"></span></b><span id="lobbyMyStatus"></span><small id="lobbyMyTeam"></small></div><div><b id="lobbyOtherName">OUTRO TREINADOR</b><span id="lobbyOtherStatus"></span><small id="lobbyOtherTeam"></small></div></div><p id="lobbyHint" class="helper" aria-live="polite"></p><div class="lobby-actions"><button class="btn primary" id="startOnlineBtn" disabled>▶ INICIAR DUELO ONLINE</button><button id="lobbyReady" type="button" class="btn primary">✓ EQUIPE PRONTA</button><button id="lobbyResume" type="button" class="btn secondary" hidden>⚔ RETOMAR BATALHA</button><button id="lobbyLeave" type="button" class="btn mini danger">SAIR DA SALA</button></div></section><div class="match-layout">
     <div class="panel roster-panel">
       <div class="roster-toolbar"><div><b>SEUS POKÉMON</b><div class="helper">Até 6 na equipe · 5 Moves ativos por Pokémon</div></div><span class="pill" id="selectedCount">0 / 6</span></div>
       <label class="roster-search-label" for="rosterSearch">Barra de pesquisa</label>
@@ -727,7 +908,7 @@ html[data-font-theme="arcade"] .arena-topbar .logo strong{font-size:10px}html[da
         <div id="hostTools" class="hide" style="margin-top:11px"><div class="room-line"><div id="roomCode" class="room-code">------</div><button class="btn mini" id="copyRoom" disabled>COPIAR<br>CÓDIGO</button></div><p class="helper" id="guestInfo" style="margin:9px 0">Aguardando o jogador do Lado B...</p></div>
       </div>
       <div class="room-wrap room-join"><b style="font-size:14px">↗ ENTRAR EM UMA SALA</b><p class="helper" style="margin:6px 0 12px">Importe seus Pokémon antes de conectar. O anfitrião inicia quando ambos estiverem prontos.</p>
-        <div class="room-line"><input class="input" id="joinCode" placeholder="CÓDIGO" maxlength="12" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase"><button class="btn secondary" id="joinBtn">ENTRAR</button></div><p class="helper" id="joinInfo" style="margin-top:9px">Sem conexão.</p>
+        <div class="room-line"><input class="input" id="joinCode" aria-label="Código da sala" placeholder="CÓDIGO" maxlength="12" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="go" style="text-transform:uppercase"><button class="btn secondary" id="joinBtn">ENTRAR</button></div><p class="helper" id="joinInfo" style="margin-top:9px">Sem conexão.</p>
       </div>
       <div class="offline-note">⚠ Versão experimental. O multiplayer usa conexão direta entre navegadores com um serviço público de sinalização. Os dois precisam ficar online durante a partida. Algumas redes móveis podem impedir a conexão direta.</div>
     </div>
@@ -865,6 +1046,8 @@ html[data-font-theme="arcade"] .arena-topbar .logo strong{font-size:10px}html[da
  <div class="dex-layout"><div id="dexResults" class="dex-results" aria-label="Entradas da biblioteca"></div><article id="dexDetail" class="dex-detail" aria-live="polite" aria-label="Detalhes da entrada"></article></div><button id="dexMore" type="button" class="btn mini ghost" hidden>Carregar mais resultados</button>
 </section>
 <section id="battle" class="hide" aria-live="polite">
+  <nav class="mobile-battle-nav" aria-label="Atalhos da batalha"><button id="mobileField" type="button" class="btn">⚔ Arena</button><button id="mobileCommands" type="button" class="btn primary">◈ Moves</button><button id="mobileLobby" type="button" class="btn">◓ Equipe</button></nav>
+  <div class="room-recovery" data-room-recovery hidden><span role="status">Conexão interrompida. Sua partida continua nesta sala.</span><button type="button" data-room-reconnect class="btn secondary">↻ Reconectar</button></div>
   <div class="session-banner"><span class="pill live" id="battleModeLabel">TREINO LOCAL</span><span class="pill" id="mySideLabel">LADO A</span><span class="pill" id="readyStatus">AGUARDANDO COMANDO</span><span class="pill turn">TURNO <b id="roundNumber">1</b></span><button class="btn mini" id="downloadLog">↓ LOG TXT</button></div>
   <div class="arena-session"><div class="arena-score" aria-label="Placar da série"><div><small id="sessionMyName">VOCÊ</small><strong id="sessionMyScore">0</strong></div><span>:</span><div><small id="sessionEnemyName">OPONENTE</small><strong id="sessionEnemyScore">0</strong></div></div><div class="arena-series"><b id="sessionMatch">PARTIDA 1</b><span id="sessionRoom">TREINO LOCAL</span></div><div class="arena-session-actions"><button id="rematchBtn" type="button" class="btn primary mini" disabled>↻ REVANCHE</button><button id="viewResult" type="button" class="btn mini" hidden>RESULTADO</button><button id="surrenderBtn" type="button" class="btn mini">DESISTIR</button><button id="battleLobby" type="button" class="btn secondary mini">◓ LOBBY / EQUIPE</button><button id="battleHome" type="button" class="btn mini">⌂ MENU</button><button id="leaveRoom" type="button" class="btn mini danger" hidden>SAIR DA SALA</button></div><p id="sessionHint" class="arena-session-hint">Cada vitória vale 1 ponto.</p></div>
   <div class="battle-banner"><span>◈ BATALHA DE TREINADORES</span><strong>HEAVEN &amp; HELL <em>ARENA</em></strong><span>CADA VITÓRIA CONTA</span></div>
@@ -2238,6 +2421,7 @@ function updateLibraryPokemon(key,pokemon){const e=library.find(x=>x.key===key);
 function removeLibraryPokemon(key){const index=library.findIndex(x=>x.key===key);if(index<0)return false;const e=library[index];if(!window.confirm(`Excluir ${e.p.name} da Box da Arena e da equipe? Você poderá desfazer nesta sessão.`))return false;lastRemoved={entry:structuredClone(e),index,chosenIndex:[...chosen].indexOf(key),favorite:favorites.has(key)};library.splice(index,1);chosen.delete(key);favorites.delete(key);renderRoster();persistRoster();el('rosterUndoText').textContent=`${e.p.name} excluído da Arena.`;el('rosterUndo').hidden=false;document.dispatchEvent(new CustomEvent('arena:removed',{detail:{key}}));notify(`${e.p.name} excluído. Use Desfazer para restaurar.`);return true;}
 el('rosterUndoBtn').onclick=()=>{if(!lastRemoved)return;if(library.length>=200){notify('A Box está cheia. Libere um espaço para restaurar.');return;}const r=lastRemoved;library.splice(Math.min(r.index,library.length),0,r.entry);if(r.chosenIndex>=0&&chosen.size<6){const keys=[...chosen];keys.splice(Math.min(r.chosenIndex,keys.length),0,r.entry.key);chosen=new Set(keys);}if(r.favorite)favorites.add(r.entry.key);lastRemoved=null;el('rosterUndo').hidden=true;renderRoster();persistRoster();notify(`${r.entry.p.name} restaurado na Box.`);};
 let pendingPeerCancel=null,onlineAttempt=0;
+let signalRetryTimer=null,signalRetryCount=0,connectionTimer=null,reconnectTimer=null,reconnectCount=0,remotePeerId='',reconnecting=false;
 let peer=null,conn=null,hosting=false,roomCode='',hostTeam=null,guestTeam=null,localChoice=null,otherChoice=null,networkReady=false;
 let toastHandle=null,commandTurn=null,teraArmed=false,zArmed=false,experimentalEnabled=false;
 let battleFormat='singles',doubleSlot=0,doubleDraft=[null,null],doublePending=null;
@@ -2381,7 +2565,7 @@ async function transmitTeam(){const t=prepareSelected();for(const p of t){p.imag
 let teamSyncTimer=null,teamSyncVersion=0,teamSyncSignature='';
 const roomInLobby=()=>!game||!!game.arena?.inLobby;
 const ownRoomSide=()=>hosting?0:1;
-function renderLobby(){
+function renderLobby(){renderRecovery();
  renderBattleFormat();renderIdentity();const room=!!peer,connected=!!conn?.open,side=ownRoomSide(),paused=!!game?.arena?.inLobby;
  el('sessionShortcuts').hidden=!room&&!game;el('quickBattle').hidden=!game;
  el('connectedLobby').hidden=!room;el('playDialog').dataset.connected=String(room);
@@ -2399,7 +2583,7 @@ function renderLobby(){
  el('lobbyCopyCode').disabled=!roomCode;el('lobbyLeave').disabled=lobbyStarting;
  el('startOnlineBtn').hidden=!hosting;el('startOnlineBtn').textContent=game?'▶ INICIAR NOVA PARTIDA':'▶ INICIAR DUELO ONLINE';
  el('startOnlineBtn').disabled=!hosting||!connected||chosen.size<(battleFormat==='doubles'?2:1)||(guestTeam?.length||0)<(battleFormat==='doubles'?2:1)||!lobbyReady[1]||!roomInLobby()||lobbyStarting||presenting;
- el('lobbyHint').textContent=!connected?(hosting?'A sala permanece aberta. Envie o mesmo código para seu amigo.':'Aguardando a conexão com o anfitrião. Se ela for encerrada, saia e entre novamente com este código.'):!roomInLobby()?'Abra o lobby para preparar a próxima equipe.':hosting?(lobbyReady[1]?'Seu amigo confirmou a equipe. Inicie quando terminar seus ajustes.':'Aguardando seu amigo confirmar a equipe. Vocês continuam com o mesmo código.'):'Edite ou selecione seus Pokémon e clique em Equipe pronta. O anfitrião inicia a próxima partida.';
+ el('lobbyHint').textContent=!connected?(hosting?'A sala permanece aberta. Envie o mesmo código para seu amigo.':'Tentando voltar ao anfitrião. Use Reconectar para continuar com este código.'):!roomInLobby()?'Abra o lobby para preparar a próxima equipe.':hosting?(lobbyReady[1]?'Seu amigo confirmou a equipe. Inicie quando terminar seus ajustes.':'Aguardando seu amigo confirmar a equipe. Vocês continuam com o mesmo código.'):'Edite ou selecione seus Pokémon e clique em Equipe pronta. O anfitrião inicia a próxima partida.';
  document.dispatchEvent(new CustomEvent('arena:session'));
 }
 function sendLobby(){if(hosting&&conn?.open)send({t:'lobby',format:battleFormat,epoch:lobbyEpoch,inLobby:roomInLobby(),ready:[...lobbyReady],code:roomCode,damageSystem:experimentalEnabled?'matrix-v0.2':'standard'});renderLobby();}
@@ -2434,26 +2618,61 @@ function leaveCurrentRoom(){if(!roomInLobby()&&game?.winner===null)return;closeP
 async function importFiles(files){for(const f of Array.from(files||[])){if(!f.name.toLowerCase().endsWith('.json')){notify('Use somente o arquivo JSON exportado pela ficha.');continue;}
  try{const parsed=JSON.parse(await f.text());const list=HH.normalizeImport(parsed);if(!list.length)throw Error('Arquivo sem Pokémon reconhecíveis.');const orig=Array.isArray(parsed)?parsed:(Array.isArray(parsed.pokemon)?parsed.pokemon:(Array.isArray(parsed.team)?parsed.team:[]));addEntries(list,chosen.size===0,list.map(p=>orig.find(q=>String(q.id||'')===p.id)||p));el('importNotice').textContent=`✓ ${safe(f.name)}: ${list.length} Pokémon reconhecidos. Você pode escolher até 6 por partida. A importação nunca altera o arquivo original.`;}catch(e){notify(`Erro em ${f.name}: ${e.message}`);}}
 }
-function closePeer(){onlineAttempt++;clearTimeout(teamSyncTimer);teamSyncVersion++;teamSyncSignature='';remoteNickname='';lobbyEpoch=0;lobbyReady=[false,false];guestTeamRevision=-1;remoteLobbyTeam=[];lobbyStarting=false;lobbySending=false;lobbyPending=false;roomCode='';el('roomCode').textContent='------';const cancel=pendingPeerCancel;pendingPeerCancel=null;const oldConn=conn,oldPeer=peer;conn=null;peer=null;hosting=false;networkReady=false;cancel?.();try{oldConn?.close();oldPeer?.destroy();}catch{}el('hostBtn').disabled=false;el('joinBtn').disabled=false;el('copyRoom').disabled=true;el('startOnlineBtn').disabled=true;renderDamageMode();renderLobby();}
+function closePeer(){clearTimeout(signalRetryTimer);clearTimeout(connectionTimer);clearTimeout(reconnectTimer);signalRetryCount=0;reconnectCount=0;remotePeerId='';reconnecting=false;onlineAttempt++;clearTimeout(teamSyncTimer);teamSyncVersion++;teamSyncSignature='';remoteNickname='';lobbyEpoch=0;lobbyReady=[false,false];guestTeamRevision=-1;remoteLobbyTeam=[];lobbyStarting=false;lobbySending=false;lobbyPending=false;roomCode='';el('roomCode').textContent='------';const cancel=pendingPeerCancel;pendingPeerCancel=null;const oldConn=conn,oldPeer=peer;conn=null;peer=null;hosting=false;networkReady=false;cancel?.();try{oldConn?.close();oldPeer?.destroy();}catch{}el('hostBtn').disabled=false;el('joinBtn').disabled=false;el('copyRoom').disabled=true;el('startOnlineBtn').disabled=true;renderDamageMode();renderLobby();}
 const makeCode=()=>{const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from(crypto.getRandomValues(new Uint8Array(6)),x=>chars[x%chars.length]).join('');};
 function peerAvailable(){if(typeof window.Peer!=='function'){notify('Não foi possível iniciar a conexão online. Atualize a página.');return false;}return true;}
 function peerMessage(e){return ({'unavailable-id':'Este código já está em uso. Crie uma nova sala.','peer-unavailable':'Sala não encontrada. Confira o código e se o anfitrião continua online.','network':'Não foi possível conectar ao serviço online. Tente novamente.','server-error':'O serviço online não respondeu. Tente novamente.','socket-error':'Falha na conexão com o serviço online. Tente novamente.','socket-closed':'A conexão com o serviço online foi encerrada.','browser-incompatible':'Este navegador não disponibilizou WebRTC para a partida.'})[e?.type]||e?.message||'Não foi possível conectar.';}
+function renderRecovery(){
+ const lost=!!peer&&!conn?.open;
+ for(const panel of document.querySelectorAll('[data-room-recovery]'))panel.hidden=!lost;
+ for(const button of document.querySelectorAll('[data-room-reconnect]')){button.disabled=reconnecting;button.textContent=reconnecting?'Conectando…':'↻ Reconectar';}
+}
+function recoverSignal(){
+ if(!peer||peer.destroyed||!peer.disconnected)return;
+ clearTimeout(signalRetryTimer);const current=peer;
+ try{current.reconnect();}catch{}
+ if(signalRetryCount++<5)signalRetryTimer=setTimeout(()=>{if(peer===current)recoverSignal();},Math.min(1000*2**signalRetryCount,10000));
+}
+function reconnectRoom(){
+ if(!peer||peer.destroyed)return;recoverSignal();
+ if(hosting){status(conn?.open?'CONECTADO':'SALA ABERTA',!!conn?.open||!!peer.open);renderRecovery();return;}
+ if(conn?.open||reconnecting||!roomCode)return;
+ if(peer.disconnected||!peer.open){clearTimeout(reconnectTimer);reconnectTimer=setTimeout(reconnectRoom,1500);return;}
+ reconnecting=true;renderRecovery();status('RECONECTANDO');wireConnection(peer.connect('hh-arena-'+roomCode,{reliable:true}),true);
+}
+function scheduleRoomReconnect(){
+ clearTimeout(reconnectTimer);if(hosting||!peer||reconnectCount>=4)return;
+ reconnectTimer=setTimeout(()=>{reconnectCount++;reconnectRoom();},Math.min(1000*2**reconnectCount,8000));
+}
+function sendSnapshot(){if(hosting&&conn?.open){sendLobby();if(game)send({t:'state',game,resync:true,pendingAction:otherChoice});}}
 function openOnlinePeer(id){return new Promise((resolve,reject)=>{
  const current=id?new window.Peer(id,{secure:true}):new window.Peer({secure:true});peer=current;let opened=false;
- const fail=e=>{if(current!==peer)return;clearTimeout(timer);pendingPeerCancel=null;if(!opened){reject(e);return;}status('ERRO DE CONEXÃO');const message=peerMessage(e);el(hosting?'guestInfo':'joinInfo').textContent=message;notify(message);if(!conn?.open)closePeer();};
- const timer=setTimeout(()=>fail({type:'network'}),15000);
+ const fail=e=>{if(current!==peer)return;clearTimeout(timer);pendingPeerCancel=null;if(!opened){reject(e);return;}
+  if(['network','socket-error','socket-closed','server-error'].includes(e?.type)){status(conn?.open?'CONECTADO · RECONECTANDO SERVIÇO':'RECONECTANDO',!!conn?.open);recoverSignal();renderRecovery();return;}
+  if(e?.type==='peer-unavailable'){reconnecting=false;clearTimeout(connectionTimer);status('SALA INDISPONÍVEL');renderRecovery();scheduleRoomReconnect();return;}
+  status('ERRO DE CONEXÃO');const message=peerMessage(e);el(hosting?'guestInfo':'joinInfo').textContent=message;notify(message);renderRecovery();};
+ const timer=setTimeout(()=>fail({type:'network'}),25000);
  pendingPeerCancel=()=>{clearTimeout(timer);reject({cancelled:true});};
  current.on('error',fail);
- current.on('open',()=>{if(current!==peer||opened)return;opened=true;clearTimeout(timer);pendingPeerCancel=null;resolve(current);});
- current.on('disconnected',()=>{if(current!==peer)return;status('SERVIÇO DESCONECTADO');if(!conn?.open){el('guestInfo').textContent='A sala perdeu a conexão. Crie uma nova sala.';el('joinInfo').textContent='A conexão foi interrompida. Tente entrar novamente.';closePeer();}});
+ current.on('open',()=>{if(current!==peer)return;signalRetryCount=0;clearTimeout(signalRetryTimer);if(!opened){opened=true;clearTimeout(timer);pendingPeerCancel=null;resolve(current);}else{status(conn?.open?'CONECTADO':'SALA ABERTA',true);if(!hosting&&!conn?.open)reconnectRoom();}renderRecovery();});
+ current.on('disconnected',()=>{if(current!==peer||!opened)return;status(conn?.open?'CONECTADO · RECONECTANDO SERVIÇO':'RECONECTANDO',!!conn?.open);recoverSignal();renderRecovery();});
  });}
-function wireConnection(c){conn=c;c.on('open',()=>{if(c!==conn)return;status('CONECTADO',true);networkReady=true;guestTeamRevision=-1;remoteNickname='';lobbyReady=[false,false];c.send({t:'trainer',nickname});
- if(hosting){el('guestInfo').textContent='Conexão estabelecida. Recebendo equipe...';send({t:'rules',format:battleFormat,damageSystem:experimentalEnabled?'matrix-v0.2':'standard'});syncLobbyTeam(true);}
- else{lobbyReady[1]=true;c.send({t:'join',team:hostTeam,revision:teamSyncVersion,epoch:lobbyEpoch,ready:true});el('joinInfo').textContent='Conectado! Aguardando o anfitrião iniciar.';}
- renderDamageMode();renderLobby();if(el('playDialog').open&&!game)el('playDialog').querySelector('.play-dialog-scroll').scrollTop=0;notify('Jogadores conectados.');});
+function wireConnection(c,resuming=false){
+ clearTimeout(connectionTimer);conn=c;
+ connectionTimer=setTimeout(()=>{if(c!==conn||c.open)return;reconnecting=false;try{c.close();}catch{}status('CONEXÃO NÃO RESPONDEU');el(hosting?'guestInfo':'joinInfo').textContent='A conexão demorou. Tente Reconectar mantendo este código.';renderRecovery();scheduleRoomReconnect();},25000);
+ c.on('open',()=>{if(c!==conn)return;clearTimeout(connectionTimer);clearTimeout(reconnectTimer);reconnecting=false;reconnectCount=0;status('CONECTADO',true);networkReady=true;
+ const resume=hosting?!!remotePeerId&&remotePeerId===c.peer:resuming;remotePeerId=c.peer||remotePeerId;c.send({t:'trainer',nickname});
+ if(resume){if(hosting){send({t:'rules',format:battleFormat,damageSystem:experimentalEnabled?'matrix-v0.2':'standard'});send({t:'team',team:hostTeam||[],revision:teamSyncVersion});sendSnapshot();}else{c.send({t:'request'});if(!game||game.arena?.inLobby)syncLobbyTeam(true);}notify('Conexão restabelecida na mesma sala.');}
+ else{guestTeamRevision=-1;remoteNickname='';lobbyReady=[false,false];if(hosting){el('guestInfo').textContent='Conexão estabelecida. Recebendo equipe...';send({t:'rules',format:battleFormat,damageSystem:experimentalEnabled?'matrix-v0.2':'standard'});syncLobbyTeam(true);}else{lobbyReady[1]=true;c.send({t:'join',team:hostTeam,revision:teamSyncVersion,epoch:lobbyEpoch,ready:true});el('joinInfo').textContent='Conectado! Aguardando o anfitrião iniciar.';}notify('Jogadores conectados.');}
+ renderDamageMode();renderLobby();renderRecovery();if(game&&!presenting)render();if(el('playDialog').open&&!game)el('playDialog').querySelector('.play-dialog-scroll').scrollTop=0;
+ });
  c.on('data',packet=>{if(c!==conn)return;try{onPacket(packet);}catch(err){notify('Falha ao processar mensagem recebida: '+err.message);}});
- c.on('close',()=>{if(c!==conn)return;status('DESCONECTADO');networkReady=false;lobbyReady=[false,false];remoteNickname='';remoteLobbyTeam=[];if(hosting)guestTeam=null;el('startOnlineBtn').disabled=true;renderSession();if(game&&!presenting)render();notify('A conexão foi encerrada. A sala do anfitrião continua aberta com o mesmo código.');});
- c.on('error',e=>{if(c!==conn)return;status('ERRO DE CONEXÃO');renderLobby();notify(`Conexão: ${e.message||e.type||'erro'}`);});}
+ c.on('close',()=>{if(c!==conn)return;clearTimeout(connectionTimer);reconnecting=false;status('DESCONECTADO');networkReady=false;lobbyReady=[false,false];el('startOnlineBtn').disabled=true;renderSession();renderRecovery();if(game&&!presenting)render();scheduleRoomReconnect();notify('A conexão foi interrompida. Tentando voltar à mesma sala.');});
+ c.on('error',e=>{if(c!==conn)return;status('ERRO DE CONEXÃO');reconnecting=false;renderLobby();renderRecovery();scheduleRoomReconnect();notify(`Conexão: ${e.message||e.type||'erro'}`);});
+}
+for(const button of document.querySelectorAll('[data-room-reconnect]'))button.onclick=()=>{reconnectCount=0;signalRetryCount=0;reconnectRoom();};
+window.addEventListener('online',()=>{signalRetryCount=0;recoverSignal();reconnectRoom();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden||!peer)return;signalRetryCount=0;recoverSignal();if(conn?.open){if(hosting)sendSnapshot();else send({t:'request'});}else reconnectRoom();});
 function send(obj){if(obj.t==='state')countResult();if(conn?.open){conn.send(obj);return true;}notify('O outro jogador está desconectado.');return false;}
 function onPacket(p){if(!p||typeof p!=='object'||typeof p.t!=='string')return;
  if(p.t==='trainer'){remoteNickname=cleanNickname(p.nickname);updateMatchName(1-mySide,remoteNickname);renderIdentity();return;}
@@ -2466,7 +2685,7 @@ function onPacket(p){if(!p||typeof p!=='object'||typeof p.t!=='string')return;
   else if(p.t==='rematch'&&game&&!game.arena?.inLobby&&game.winner!==null&&p.matchId===game.arena?.matchId){game.arena.ready[1]=true;tryRematch();}
   else if(p.t==='surrender'&&game&&!game.arena?.inLobby&&game.winner===null&&p.matchId===game.arena?.matchId){if(presenting)presentationToken++;finishBySurrender(1);}
   else if(p.t==='surrender'&&game&&game.winner!==null&&p.matchId===game.arena?.matchId)send({t:'state',game});
-  else if(p.t==='request'&&game)send({t:'state',game});
+  else if(p.t==='request')sendSnapshot();
  }else{
   if(p.t==='team-edit'){lobbyReady[0]=false;renderLobby();}
   else if(p.t==='team'){remoteLobbyTeam=Array.isArray(p.team)?p.team.slice(0,6).map(HH.normalizePokemon):[];renderLobby();}
@@ -2474,7 +2693,7 @@ function onPacket(p){if(!p||typeof p!=='object'||typeof p.t!=='string')return;
   else if(p.t==='rules'){receiveBattleFormat(p.format);experimentalEnabled=p.damageSystem==='matrix-v0.2';renderDamageMode();}
   else if(p.t==='welcome'){receiveBattleFormat(p.format);experimentalEnabled=p.damageSystem==='matrix-v0.2';renderDamageMode();roomCode=String(p.code||'');el('joinInfo').textContent=`✓ Sala ${p.code}. Aguardando início...`;}
   else if(p.t==='state'&&p.game&&Array.isArray(p.game.team)&&p.game.team.length===2){if((p.game.arena?.lobbyEpoch||0)<lobbyEpoch)return;const newMatch=game?.arena?.matchId!==p.game.arena?.matchId,wasPaused=!!game?.arena?.inLobby,turnChanged=game?.turn!==p.game.turn,rulesChanged=game?.damageSystem!==p.game.damageSystem,revisionChanged=(game?.actionRevision||0)!==(p.game.actionRevision||0);game=p.game;if(!game.arena?.inLobby)receiveBattleFormat(game.format);if(lobbyPending&&!newMatch)game.arena.inLobby=true;experimentalEnabled=game.damageSystem==='matrix-v0.2';mode='guest';mySide=1;
-   if(newMatch||turnChanged||revisionChanged||rulesChanged||game.winner!==null||game.arena?.inLobby){localChoice=null;otherChoice=null;}if(newMatch){lastReplay=[];resultVisibleFor=null;lobbyPending=false;lobbyReady=[false,false];lobbyEpoch=game.arena?.lobbyEpoch||lobbyEpoch;showBattle();}else if(wasPaused&&!game.arena?.inLobby){showBattle();}else if(!wasPaused&&game.arena?.inLobby&&document.body.dataset.screen!=='workshop'){window.ArenaShowPlay?.();}render();}
+   if(newMatch||turnChanged||revisionChanged||rulesChanged||game.winner!==null||game.arena?.inLobby){localChoice=null;otherChoice=null;}if(p.resync){localChoice=game.winner===null&&!game.arena?.inLobby?p.pendingAction||null:null;doubleDraft=localChoice?.kind==='double'?structuredClone(localChoice.actions):[null,null];doublePending=null;}if(newMatch){lastReplay=[];resultVisibleFor=null;lobbyPending=false;lobbyReady=[false,false];lobbyEpoch=game.arena?.lobbyEpoch||lobbyEpoch;showBattle();}else if(wasPaused&&!game.arena?.inLobby){showBattle();}else if(!wasPaused&&game.arena?.inLobby&&document.body.dataset.screen!=='workshop'){window.ArenaShowPlay?.();}render();}
   else if(p.t==='ready'&&game&&game.winner===null&&!game.arena?.inLobby){el('readyStatus').textContent='ANFITRIÃO PRONTO';}
   else if(p.t==='invalid'&&game){localChoice=null;doubleDraft=[null,null];doublePending=null;notify(p.message||'Selecione outra ação.');render();}
  }
@@ -2490,7 +2709,7 @@ function focusDoubleUI(){const doubles=HH.isDoubles(game);el('doubleCommands').h
 function doubleActionLabel(act,slot){if(!act)return 'Escolha um comando';const f=HH.battler(game,mySide,slot);if(act.kind==='move'){const name=f.moves.find(x=>x.id===act.moveId)?.name||'Struggle',target=act.target?HH.battler(game,act.target.side,act.target.slot)?.name:null;return name+(target?' → '+target:'')+(act.evade==='reactive'?' · esquiva':'');}if(act.kind==='switch')return 'Trocar → '+game.team[mySide][act.index].name;if(act.kind==='item')return act.itemName+' → '+game.team[mySide][act.targetIndex].name;return act.kind==='active'?'Evasiva Ativa':'Passar ação';}
 function selectDoubleActor(slot){if(localChoice||game.winner!==null||game.arena?.inLobby||!doubleRequiredSlots().includes(slot))return;doubleSlot=slot;doubleDraft[slot]=null;doublePending=null;resetActorOptions();render();}
 function queueDoubleAction(act,targetChosen=false){if(!game||presenting||localChoice||game.winner!==null||game.arena?.inLobby||lobbyPending||mode!=='bot'&&!conn?.open)return;const required=doubleRequiredSlots();if(!required.includes(doubleSlot))return;if(HH.replacementSides(game).some(Boolean)&&act.kind!=='switch')return;
- if(act.kind==='move'&&!targetChosen){const m=HH.battler(game,mySide,doubleSlot).moves.find(x=>x.id===act.moveId)||{name:'Struggle'},targets=HH.doubleTargets(game,mySide,doubleSlot,m);if(targets.length>1){doublePending={action:act,targets};renderDoubleUI();return;}if(targets.length===1)act.target=targets[0];}
+ if(act.kind==='move'&&!targetChosen){const m=HH.battler(game,mySide,doubleSlot).moves.find(x=>x.id===act.moveId)||{name:'Struggle'},targets=HH.doubleTargets(game,mySide,doubleSlot,m);if(targets.length>1){doublePending={action:act,targets};renderDoubleUI();if(window.matchMedia('(max-width:760px)').matches){el('doubleTargetPicker').scrollIntoView({block:'center',behavior:'smooth'});el('doubleTargetPicker').querySelector('[data-target]')?.focus({preventScroll:true});}return;}if(targets.length===1)act.target=targets[0];}
  doublePending=null;doubleDraft[doubleSlot]=act;const next=required.find(slot=>!doubleDraft[slot]);if(next!==undefined)doubleSlot=next;resetActorOptions();render();
 }
 el('doubleSubmit').onclick=()=>{if(!HH.isDoubles(game))return;const actions=[0,1].map(slot=>doubleDraft[slot]||{kind:'pass'}),bundle={kind:'double',actions};if(!doubleRequiredSlots().every(slot=>doubleDraft[slot]))return;if(!HH.validDoubleActions(game,mySide,bundle)){notify('Confira os comandos: cada Pokémon precisa de uma reserva diferente e as transformações só podem ser usadas uma vez por equipe.');return;}submitAction(bundle);};
@@ -2651,7 +2870,7 @@ el('localStartBtn').addEventListener('click',beginBot);
 el('hostBtn').addEventListener('click',async()=>{if(peer){pauseRoomBattle();return;}if(!peerAvailable())return;closePeer();const attemptId=onlineAttempt;game=null;mode='idle';guestTeam=null;series=null;hostTeam=null;hosting=true;status('CRIANDO SALA');el('hostBtn').disabled=true;el('joinBtn').disabled=true;el('hostTools').classList.remove('hide');el('roomCode').textContent='------';el('guestInfo').textContent='Registrando sala no serviço de conexão...';renderDamageMode();try{
  for(let attempt=0;attempt<3;attempt++){roomCode=makeCode();try{await openOnlinePeer('hh-arena-'+roomCode);break;}catch(e){if(e.type!=='unavailable-id'||attempt===2)throw e;const oldPeer=peer;peer=null;oldPeer?.destroy();}}
  if(attemptId!==onlineAttempt)return;el('roomCode').textContent=roomCode;el('copyRoom').disabled=false;el('joinBtn').disabled=false;status('SALA ABERTA',true);renderDamageMode();el('guestInfo').textContent='Envie o código para o outro jogador. Você pode escolher sua equipe agora.';renderLobby();el('playDialog').querySelector('.play-dialog-scroll').scrollTop=0;
- peer.on('connection',c=>{if(conn?.open){c.close();return;}wireConnection(c);});
+ peer.on('connection',c=>{if(conn?.open||game&&remotePeerId&&c.peer!==remotePeerId){c.close();return;}wireConnection(c);});
  }catch(e){if(e.cancelled||attemptId!==onlineAttempt)return;closePeer();roomCode='';status('ERRO');el('roomCode').textContent='------';el('guestInfo').textContent=peerMessage(e);notify('Não foi possível criar a sala: '+peerMessage(e));}});
 el('copyRoom').addEventListener('click',async()=>{if(!roomCode||!peer?.open||!hosting)return;try{await navigator.clipboard.writeText(roomCode);notify('Código copiado: '+roomCode);}catch{notify('Código: '+roomCode+' — selecione e copie manualmente.');}});
 el('startOnlineBtn').addEventListener('click',async()=>{
@@ -2662,6 +2881,10 @@ el('startOnlineBtn').addEventListener('click',async()=>{
  }catch(e){notify(e.message);}finally{lobbyStarting=false;renderLobby();}
 });
 el('joinBtn').addEventListener('click',async()=>{if(peer){pauseRoomBattle();return;}if(!peerAvailable())return;const code=el('joinCode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');if(code.length!==6){notify('Insira o código de 6 caracteres da sala.');return;}let attemptId=null;try{const team=prepareSelected();closePeer();attemptId=onlineAttempt;game=null;mode='idle';series=null;roomCode=code;hosting=false;hostTeam=team;status('PROCURANDO SALA');el('joinBtn').disabled=true;el('hostBtn').disabled=true;el('joinInfo').textContent='Preparando sua equipe...';renderDamageMode();hostTeam=await transmitTeam();if(attemptId!==onlineAttempt)return;await openOnlinePeer();if(attemptId!==onlineAttempt)return;el('joinInfo').textContent='Conectando ao anfitrião...';wireConnection(peer.connect('hh-arena-'+code,{reliable:true}));renderLobby();}catch(e){if(e.cancelled||attemptId!==null&&attemptId!==onlineAttempt)return;closePeer();status('ERRO');el('joinInfo').textContent=peerMessage(e);notify('Falha: '+peerMessage(e));}});
+el('joinCode').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();el('joinBtn').click();}});
+el('mobileField').onclick=()=>el('battleScene').scrollIntoView({block:'start',behavior:'smooth'});
+el('mobileCommands').onclick=()=>el('myMoves').scrollIntoView({block:'start',behavior:'smooth'});
+el('mobileLobby').onclick=()=>pauseRoomBattle();
 el('roundDodge').onclick=()=>{const on=el('evadeSelect').value!=='reactive';el('evadeSelect').value=on?'reactive':'none';el('roundDodge').setAttribute('aria-pressed',String(on));};
 el('battleMegaBtn').onclick=()=>{el('battleGimmickPanel').hidden=!el('battleGimmickPanel').hidden;};
 el('gimmickClose').onclick=()=>{el('battleGimmickPanel').hidden=true;};
