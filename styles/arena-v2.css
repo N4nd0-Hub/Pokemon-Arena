@@ -1,0 +1,279 @@
+/* ============================================================
+   Pokémon Arena — V2
+   Carregado depois de todos os estilos da página. Corrige
+   sobreposições, dá mais personalidade à batalha e estiliza os
+   efeitos novos da apresentação do turno.
+   ============================================================ */
+
+/* ---------- Correções ---------- */
+
+/* Refletores do estádio: ficam no alto, atrás das caixas de HP e dos botões. */
+#battle .arena-lights:before,
+#battle .arena-lights:after{
+  top:6px!important;
+  width:52px!important;
+  height:7px!important;
+  opacity:.75;
+}
+#battle .combatant .combat-hud{z-index:4}
+#battle .battle-gimmick-dock{z-index:9!important}
+#battle .battle-gimmick-dock img{width:32px;height:32px;object-fit:contain}
+
+/* Sprites pequenos (GIFs de 80–180 px) ficam nítidos quando ampliados. */
+#battle .combat-sprite[src$=".gif"],
+#battle .combat-sprite[src^="assets/sprites/"],
+#battle .combat-sprite[src*="/sprites/pokemon/versions/"],
+#battle .combat-sprite[src*="showdown"]{image-rendering:pixelated}
+
+/* Rótulos "Ambiente" e "Destino dos moves de troca" sem estilo. */
+#battle .special-command-controls>label{
+  display:grid;
+  gap:6px;
+  color:var(--muted,#9fb0c4);
+  font:800 11px/1.2 var(--font-ui,system-ui),sans-serif;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+/* Aviso: não cobre a arena no celular nem os comandos. */
+.toast{
+  max-width:min(520px,calc(100vw - 28px));
+  text-align:center;
+  pointer-events:none;
+}
+@media (max-width:760px){
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))!important}
+}
+
+/* Campo "Snow Warning" do Workshop só aparece para quem tem a Ability. */
+.field.v2-hidden{display:none!important}
+
+/* ---------- Arena: cenário muda com o ambiente ---------- */
+#battle .battle-scene{transition:background .6s ease}
+#battle .battle-scene[data-environment="grass"]{background:radial-gradient(ellipse at 50% -10%,#cfeaa052,transparent 60%),linear-gradient(180deg,#5d9ac9 0%,#8cc3df 34%,#a7d4c7 40%,#5f9a52 40.3%,#7fb860 100%)!important}
+#battle .battle-scene[data-environment="forest"]{background:radial-gradient(ellipse at 50% -10%,#b3e0a040,transparent 60%),linear-gradient(180deg,#1f3b2a 0%,#2f5b3a 34%,#3e6b44 40%,#2e5530 40.3%,#4a7a3f 100%)!important}
+#battle .battle-scene[data-environment="water"]{background:radial-gradient(ellipse at 50% -10%,#c8f2ff55,transparent 60%),linear-gradient(180deg,#3e86c4 0%,#6fb6e0 34%,#8fd0ea 40%,#2c78b4 40.3%,#1f5f9a 100%)!important}
+#battle .battle-scene[data-environment="cave"]{background:radial-gradient(ellipse at 50% -10%,#c9a87a30,transparent 60%),linear-gradient(180deg,#1d1a1f 0%,#3a3036 34%,#4a3f3e 40%,#3d3430 40.3%,#5a4a3e 100%)!important}
+#battle .battle-scene[data-environment="sand"]{background:radial-gradient(ellipse at 50% -10%,#fff2c060,transparent 60%),linear-gradient(180deg,#e8a860 0%,#f2c886 34%,#f7d9a0 40%,#d9b070 40.3%,#c99a5a 100%)!important}
+#battle .battle-scene[data-environment="snow"]{background:radial-gradient(ellipse at 50% -10%,#ffffff70,transparent 60%),linear-gradient(180deg,#8fb4d6 0%,#c4dcef 34%,#dcecf7 40%,#e6f0f8 40.3%,#c9dbea 100%)!important}
+#battle .battle-scene[data-environment="sky"]{background:radial-gradient(ellipse at 50% -10%,#ffffff60,transparent 60%),linear-gradient(180deg,#5fa6e8 0%,#9ccdf4 45%,#d6ecfb 100%)!important}
+#battle .battle-scene[data-environment="space"]{background:radial-gradient(circle at 20% 20%,#ffffff22 0 1px,transparent 2px),radial-gradient(circle at 70% 35%,#ffffff33 0 1px,transparent 2px),radial-gradient(circle at 45% 12%,#ffffff2a 0 1px,transparent 2px),radial-gradient(ellipse at 50% -10%,#8a6cff40,transparent 60%),linear-gradient(180deg,#07081a 0%,#1a1640 40%,#241c4a 40.3%,#120f2a 100%)!important;background-size:120px 120px,90px 90px,150px 150px,auto,auto!important}
+#battle .battle-scene:is([data-environment="sky"],[data-environment="space"]) .arena-stands{display:none}
+
+/* Caixa de texto da batalha, como a dos jogos */
+#battle .battle-caption{
+  border-top:3px solid #1a2830!important;
+  box-shadow:inset 0 0 0 2px #d8c27a66,inset 0 0 0 4px #1a2830;
+}
+#battle .battle-caption.v2-typing::after{
+  content:"▌";
+  margin-left:2px;
+  animation:v2Blink .7s steps(1) infinite;
+}
+#battle .battle-caption:not(.v2-typing)::after{
+  content:"▼";
+  float:right;
+  color:#e8d48a;
+  animation:v2Bob .8s steps(2) infinite;
+}
+
+/* Chip do ambiente */
+#battle .field-chip.env{
+  background:linear-gradient(180deg,#ffffff1a,#ffffff08)!important;
+  letter-spacing:.06em;
+}
+
+/* ---------- Botões de golpe ---------- */
+#battle .moves-grid .move{
+  position:relative;
+  display:grid;
+  align-content:start;
+  gap:6px;
+  overflow:hidden;
+  border:2px solid color-mix(in srgb,var(--movecolor) 55%,#0b1018)!important;
+  border-radius:14px!important;
+  background:
+    linear-gradient(135deg,color-mix(in srgb,var(--movecolor) 30%,transparent) 0%,transparent 55%),
+    linear-gradient(180deg,color-mix(in srgb,var(--movecolor) 10%,var(--panel,#1c2430)),var(--panel,#1c2430))!important;
+  box-shadow:inset 6px 0 0 var(--movecolor),0 4px 0 #0007!important;
+  transition:transform .14s cubic-bezier(.22,1,.36,1),box-shadow .14s ease,filter .14s ease;
+}
+#battle .moves-grid .move::after{ /* brilho que corre ao passar o mouse */
+  content:"";
+  position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 35%,#ffffff22 50%,transparent 65%);
+  transform:translateX(-120%);
+  pointer-events:none;
+}
+#battle .moves-grid .move:not(:disabled):hover{
+  transform:translateY(-3px);
+  box-shadow:inset 6px 0 0 var(--movecolor),0 7px 0 #0007,0 0 0 2px color-mix(in srgb,var(--movecolor) 60%,#fff),0 0 22px color-mix(in srgb,var(--movecolor) 45%,transparent)!important;
+}
+#battle .moves-grid .move:not(:disabled):hover::after{animation:v2Shine .7s ease}
+#battle .moves-grid .move:not(:disabled):active{transform:translateY(2px);box-shadow:inset 6px 0 0 var(--movecolor),0 1px 0 #0007!important}
+#battle .moves-grid .move b{
+  font-size:17px!important;
+  letter-spacing:.01em;
+  text-shadow:0 2px 0 #0006;
+}
+#battle .moves-grid .move .type{
+  justify-self:start;
+  padding:3px 8px!important;
+  border:0!important;
+  border-radius:6px!important;
+  background:color-mix(in srgb,var(--movecolor) 70%,#000)!important;
+  color:#fff!important;
+  font-size:10px!important;
+  letter-spacing:.08em!important;
+  text-shadow:none!important;
+  -webkit-text-stroke:0!important;
+  box-shadow:inset 0 1px 0 #ffffff33;
+}
+#battle .moves-grid .move small{opacity:.85}
+#battle .moves-grid .move kbd.v2-key{
+  position:absolute;
+  top:8px;right:9px;
+  display:grid;place-items:center;
+  min-width:20px;height:20px;
+  padding:0 4px;
+  border:1px solid #ffffff33;
+  border-radius:5px;
+  background:#0006;
+  color:#ffffffb0;
+  font:800 10px var(--font-mono,monospace);
+}
+#battle .moves-grid .move:disabled{filter:grayscale(.75) brightness(.75)}
+#battle .moves-grid .move:disabled kbd.v2-key{display:none}
+
+/* ---------- Efeitos da apresentação ---------- */
+.battle-fx .fx-projectile{
+  width:30px!important;height:30px!important;
+  background:radial-gradient(circle,#fff 0 25%,var(--fxcolor) 55%,transparent 72%)!important;
+  box-shadow:0 0 22px 8px var(--fxcolor)!important;
+  will-change:transform,opacity;
+}
+.battle-fx .fx-projectile.trail{width:18px!important;height:18px!important;opacity:.6}
+.battle-fx .fx-ring{
+  position:absolute;
+  width:120px;height:120px;
+  border:5px solid var(--fxcolor);
+  border-radius:50%;
+  box-shadow:0 0 24px var(--fxcolor),inset 0 0 18px var(--fxcolor);
+  will-change:transform,opacity;
+}
+.battle-fx .fx-ring.status{border-style:dashed;border-width:3px}
+.battle-fx .fx-spark{
+  position:absolute;
+  width:9px;height:9px;
+  border-radius:2px;
+  background:var(--fxcolor);
+  box-shadow:0 0 10px var(--fxcolor);
+  rotate:45deg;
+  will-change:transform,opacity;
+}
+.battle-fx .fx-impact{
+  position:absolute;
+  width:110px;height:110px;
+  background:radial-gradient(circle,#fff 0 18%,var(--fxcolor) 30%,transparent 62%);
+  clip-path:polygon(50% 0,60% 35%,98% 25%,68% 52%,92% 90%,52% 66%,18% 96%,34% 56%,0 30%,40% 36%);
+  filter:drop-shadow(0 0 10px var(--fxcolor));
+  will-change:transform,opacity;
+}
+.battle-fx .fx-icon{
+  position:absolute;
+  color:var(--fxcolor);
+  font:900 20px var(--font-display,system-ui),sans-serif;
+  text-shadow:0 0 10px var(--fxcolor),2px 2px 0 #0009;
+  will-change:transform,opacity;
+}
+.battle-fx .fx-icon.arrow{font-size:18px}
+.battle-fx .fx-icon.miss{
+  padding:4px 10px;
+  border:2px solid #fff;
+  border-radius:8px;
+  background:#2a3646;
+  color:#fff;
+  font-size:14px;
+  letter-spacing:.12em;
+  text-shadow:none;
+}
+.battle-fx .fx-ball{
+  position:absolute;
+  width:30px;height:30px;
+  border:3px solid #1a1f26;
+  border-radius:50%;
+  background:linear-gradient(180deg,#ec3b3b 0 44%,#1a1f26 44% 56%,#f4f4f4 56%);
+  box-shadow:0 4px 10px #0007;
+  will-change:transform,left,top;
+}
+.battle-fx .fx-ball::after{
+  content:"";
+  position:absolute;left:50%;top:50%;
+  width:9px;height:9px;
+  border:2px solid #1a1f26;border-radius:50%;
+  background:#fff;
+  transform:translate(-50%,-50%);
+}
+.battle-fx .fx-banner{
+  position:absolute;
+  left:50%;top:38%;
+  padding:10px 30px;
+  border:3px solid #fff;
+  background:linear-gradient(90deg,#ff5a3a,#ffb43a);
+  color:#fff;
+  font:900 clamp(22px,4vw,38px) var(--font-display,system-ui),sans-serif;
+  letter-spacing:.08em;
+  text-shadow:3px 3px 0 #0007;
+  box-shadow:0 10px 30px #0008;
+  white-space:nowrap;
+  z-index:3;
+}
+.battle-fx .fx-banner.ko{background:linear-gradient(90deg,#3a4a66,#7a5aa8)}
+.battle-fx .fx-flash{position:absolute;inset:0;background:#fff;pointer-events:none}
+.floating-hit{
+  font-size:34px!important;
+  -webkit-text-stroke:2px #0b1420;
+  paint-order:stroke fill;
+  text-shadow:0 4px 0 #0b1420,0 0 18px #ff6a5a!important;
+  will-change:transform,opacity;
+}
+.floating-hit.big{font-size:46px!important;color:#ffd166!important;text-shadow:0 4px 0 #0b1420,0 0 22px #ffb43a!important}
+.floating-hit.heal{text-shadow:0 4px 0 #0b1420,0 0 18px #6aff9a!important}
+
+/* HP: dreno mais visível */
+#battle .combatant .hp-fill{transition:width .7s cubic-bezier(.22,1,.36,1),background .3s ease!important}
+
+/* ---------- Início ---------- */
+.game-menu .game-menu-button{transition:transform .16s cubic-bezier(.22,1,.36,1),box-shadow .16s ease,border-color .16s ease}
+.game-menu .game-menu-button:hover{transform:translateX(6px)}
+.game-menu .game-menu-button:hover>i{animation:v2Nudge .5s steps(2) infinite}
+.game-menu .game-menu-button:active{transform:translateX(6px) scale(.985)}
+@media (prefers-reduced-motion: no-preference){
+  .home-art .aligned-pokeball{transition:transform .6s cubic-bezier(.34,1.56,.64,1);cursor:pointer}
+  .home-art:hover .aligned-pokeball{transform:rotate(-14deg)}
+  .home-art .aligned-pokeball.v2-wobble{animation:v2Wobble .9s ease}
+}
+@keyframes v2Nudge{50%{transform:translateX(4px)}}
+@keyframes v2Wobble{
+  0%,100%{transform:rotate(0)}
+  15%{transform:rotate(-16deg)}30%{transform:rotate(12deg)}45%{transform:rotate(-8deg)}60%{transform:rotate(5deg)}75%{transform:rotate(-2deg)}
+}
+
+/* ---------- Animações ---------- */
+@keyframes v2Blink{50%{opacity:0}}
+@keyframes v2Bob{50%{transform:translateY(3px)}}
+@keyframes v2Shine{to{transform:translateX(120%)}}
+
+@media (prefers-reduced-motion: reduce){
+  #battle .battle-caption::after,
+  #battle .moves-grid .move:hover::after{animation:none!important}
+  #battle .moves-grid .move{transition:none}
+}
+
+/* Folga para o número do atalho e alinhamento uniforme */
+#battle .moves-grid .move{padding-right:34px!important;justify-items:start;text-align:left!important}
+@media (hover:none),(max-width:640px){
+  #battle .moves-grid .move kbd.v2-key{display:none}
+  #battle .moves-grid .move{padding-right:12px!important}
+  #battle .moves-grid .move b{font-size:15px!important}
+}
